@@ -1,0 +1,4007 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+<title>WORD STACK</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  :root{
+    --bg:#0a1628;
+    --bg-card:rgba(15,30,55,0.95);
+    --gold:#FFD700;
+    --green:#00FF88;
+    --red:#FF4444;
+    --cyan:#00BFFF;
+    --white:#E8E8E8;
+    --gray:#6a7a8a;
+  }
+  html,body{height:100%;overflow-x:hidden}
+  body{
+    font-family:'Inter',sans-serif;
+    background:var(--bg);
+    color:var(--white);
+  }
+  
+  /* === BACKGROUND === */
+  .bg-grid{
+    position:fixed;
+    inset:0;
+    z-index:0;
+    background:linear-gradient(135deg,#0a1628 0%,#12253d 50%,#0a1628 100%);
+    pointer-events:none;
+  }
+  .bg-grid::before{
+    content:'';
+    position:absolute;
+    inset:0;
+    background-image:
+      linear-gradient(rgba(0,191,255,0.04) 1px,transparent 1px),
+      linear-gradient(90deg,rgba(0,191,255,0.04) 1px,transparent 1px);
+    background-size:40px 40px;
+  }
+  
+  /* === SCREENS === */
+  .screen{display:none}
+  .screen.active{display:block;animation:fadeIn 0.5s ease-out}
+  @keyframes fadeIn{0%{opacity:0}100%{opacity:1}}
+  
+  /* === MENU SCREEN === */
+  .menu-screen{
+    min-height:100vh;
+    padding:30px 20px;
+    position:relative;
+    z-index:1;
+  }
+  .menu-title{
+    text-align:center;
+    font-family:'Orbitron',sans-serif;
+    font-size:2.2rem;
+    font-weight:900;
+    color:var(--gold);
+    text-shadow:3px 3px 0 #8B0000, 0 0 30px rgba(255,215,0,0.5);
+    margin-bottom:10px;
+  }
+  .menu-subtitle{
+    text-align:center;
+    color:var(--cyan);
+    font-size:14px;
+    margin-bottom:30px;
+  }
+  .aulas-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fit, minmax(150px, 1fr));
+    gap:15px;
+    max-width:900px;
+    margin:0 auto;
+  }
+  .aula-card{
+    background:linear-gradient(180deg,rgba(20,40,80,0.95),rgba(10,22,40,0.98));
+    border:3px solid var(--green);
+    padding:20px 15px;
+    border-radius:12px;
+    cursor:pointer;
+    transition:all 0.2s;
+    text-align:center;
+    box-shadow:0 0 15px rgba(0,255,136,0.2);
+  }
+  .aula-card:hover{
+    transform:translateY(-4px);
+    border-color:var(--gold);
+    box-shadow:0 0 25px rgba(255,215,0,0.4);
+  }
+  .aula-card .emoji{font-size:2.2rem;margin-bottom:10px}
+  .aula-card .name{
+    font-family:'Orbitron',sans-serif;
+    font-size:0.8rem;
+    font-weight:700;
+    color:var(--gold);
+  }
+  .aula-card .count{
+    font-size:11px;
+    color:var(--gray);
+    margin-top:6px;
+  }
+
+  /* === QUICK PLAY SCREEN === */
+  .quickplay-screen{
+    min-height:100vh;
+    padding:30px 20px;
+    position:relative;
+    z-index:1;
+  }
+  .quickplay-title{
+    text-align:center;
+    font-family:'Orbitron',sans-serif;
+    font-size:2rem;
+    font-weight:900;
+    color:var(--gold);
+    text-shadow:0 0 30px rgba(255,215,0,0.5);
+    margin-bottom:20px;
+  }
+  .quickplay-hud{
+    display:grid;
+    grid-template-columns:repeat(4, 1fr);
+    gap:12px;
+    margin-bottom:20px;
+    max-width:600px;
+    margin-left:auto;
+    margin-right:auto;
+  }
+  .quickplay-stat{
+    background:linear-gradient(135deg, rgba(20,40,80,0.8), rgba(10,22,40,0.9));
+    border:2px solid var(--green);
+    border-radius:10px;
+    padding:12px;
+    text-align:center;
+    transition:all 0.3s ease;
+  }
+  .quickplay-stat.lives-warning{
+    border-color:var(--orange);
+    background:linear-gradient(135deg, rgba(255,165,0,0.15), rgba(255,165,0,0.05));
+    animation:livesWarning 0.8s ease-in-out infinite;
+  }
+  .quickplay-stat.lives-critical{
+    border-color:var(--red);
+    background:linear-gradient(135deg, rgba(255,68,68,0.2), rgba(255,68,68,0.1));
+    animation:livesCritical 0.4s ease-in-out infinite;
+    box-shadow:0 0 15px rgba(255,68,68,0.5);
+  }
+  @keyframes livesWarning{
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+  }
+  @keyframes livesCritical{
+    0%, 100% { transform: scale(1); box-shadow: 0 0 15px rgba(255,68,68,0.5); }
+    50% { transform: scale(1.08); box-shadow: 0 0 25px rgba(255,68,68,0.8); }
+  }
+  .quickplay-stat-label{
+    font-size:0.65rem;
+    color:var(--gray);
+    text-transform:uppercase;
+    margin-bottom:5px;
+  }
+  .quickplay-stat-value{
+    font-family:'Orbitron',sans-serif;
+    font-size:1.4rem;
+    font-weight:900;
+    color:var(--green);
+  }
+  .combo-multiplier{
+    font-family:'Orbitron',sans-serif;
+    font-size:0.8rem;
+    font-weight:700;
+    color:var(--cyan);
+    margin-top:3px;
+    letter-spacing:0.5px;
+    transition:all 0.3s ease;
+  }
+  .combo-multiplier.boost{
+    color:var(--gold);
+    text-shadow:0 0 10px var(--gold);
+    animation:comboBoost 0.4s ease-out;
+  }
+  @keyframes comboBoost{
+    0% { transform: scale(1); }
+    50% { transform: scale(1.3); }
+    100% { transform: scale(1); }
+  }
+  .quickplay-timer{
+    background:linear-gradient(135deg, rgba(255,68,68,0.1), rgba(255,68,68,0.05));
+    border:2px solid rgba(255,68,68,0.3);
+    border-radius:12px;
+    padding:15px;
+    margin:20px auto;
+    text-align:center;
+    transition:all 0.3s ease;
+    max-width:600px;
+  }
+  .quickplay-timer.danger{
+    border-color:var(--red);
+    background:linear-gradient(135deg, rgba(255,68,68,0.2), rgba(255,68,68,0.1));
+    animation:pulseRed 0.6s ease-in-out infinite;
+  }
+  .quickplay-timer.critical{
+    border-color:var(--red);
+    background:linear-gradient(135deg, rgba(255,68,68,0.3), rgba(255,68,68,0.2));
+    animation:pulseRed 0.3s ease-in-out infinite;
+  }
+  .timer-label{
+    font-size:0.7rem;
+    color:var(--gray);
+    margin-bottom:5px;
+  }
+  .timer-value{
+    font-family:'Orbitron',sans-serif;
+    font-size:2rem;
+    font-weight:900;
+    color:var(--red);
+    margin-bottom:10px;
+    transition:all 0.2s ease;
+  }
+  .timer-bar{
+    width:100%;
+    height:6px;
+    background:rgba(255,68,68,0.2);
+    border-radius:3px;
+    overflow:hidden;
+  }
+  .timer-fill{
+    height:100%;
+    background:linear-gradient(90deg, var(--red), #ff8888);
+    transition:width 0.1s linear;
+  }
+  @keyframes pulseRed{
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.7; }
+  }
+  .quickplay-arena{
+    background:linear-gradient(135deg,rgba(20,40,80,0.6),rgba(10,22,40,0.8));
+    border:2px solid var(--green);
+    border-radius:12px;
+    padding:20px;
+    padding-right:90px;
+    margin-bottom:20px;
+    min-height:350px;
+    max-width:600px;
+    margin-left:auto;
+    margin-right:auto;
+    position:relative;
+  }
+  .quickplay-wave-info{
+    text-align:center;
+    color:var(--gold);
+    font-size:0.9rem;
+    margin-bottom:15px;
+  }
+  .quickplay-word-queue{
+    display:grid;
+    grid-template-columns:repeat(3, 1fr);
+    gap:10px;
+    width:100%;
+    max-width:420px;
+    margin:20px auto;
+  }
+  .quickplay-word-btn{
+    padding:14px 10px;
+    background:linear-gradient(135deg, rgba(20,40,80,0.9), rgba(10,22,40,0.95));
+    border:2px solid var(--green);
+    border-radius:10px;
+    color:var(--white);
+    font-family:'Orbitron',sans-serif;
+    font-weight:700;
+    font-size:0.9rem;
+    cursor:pointer;
+    transition:all 0.15s cubic-bezier(0.34, 1.56, 0.64, 1);
+    text-align:center;
+    min-height:50px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    word-break:break-word;
+  }
+  .quickplay-word-btn:hover:not(:disabled){
+    border-color:var(--gold);
+    background:linear-gradient(135deg, rgba(255,215,0,0.2), rgba(255,165,0,0.1));
+    transform:translateY(-3px);
+    box-shadow:0 4px 12px rgba(255,215,0,0.3);
+  }
+  .quickplay-word-btn.focused{
+    border-color:var(--cyan);
+    background:linear-gradient(135deg, rgba(0,191,255,0.3), rgba(0,255,136,0.2));
+    box-shadow:0 0 20px rgba(0,191,255,0.7), inset 0 0 15px rgba(0,191,255,0.3);
+    transform:scale(1.08);
+    color:var(--cyan);
+    text-shadow:0 0 10px rgba(0,191,255,0.8);
+  }
+  .quickplay-word-btn:disabled{
+    opacity:0.3;
+    cursor:not-allowed;
+  }
+  .quickplay-stack{
+    background:rgba(0,0,0,0.3);
+    border:2px dashed rgba(0,255,136,0.3);
+    border-radius:8px;
+    padding:15px;
+    min-height:80px;
+    display:flex;
+    flex-direction:column;
+    gap:8px;
+    margin-bottom:15px;
+  }
+  .quickplay-stack-word{
+    background:linear-gradient(135deg, rgba(0,191,255,0.3), rgba(0,255,136,0.2));
+    border:2px solid var(--cyan);
+    border-radius:6px;
+    padding:8px 12px;
+    font-weight:700;
+    text-align:center;
+  }
+  .quickplay-stack-empty{
+    color:var(--gray);
+    text-align:center;
+    font-size:0.9rem;
+  }
+  .quickplay-target{
+    background:linear-gradient(135deg, rgba(255,215,0,0.1), rgba(255,165,0,0.05));
+    border:2px solid var(--gold);
+    border-radius:8px;
+    padding:12px;
+    text-align:center;
+    color:var(--gold);
+    font-weight:700;
+  }
+  .quickplay-controls{
+    display:flex;
+    gap:10px;
+    max-width:600px;
+    margin:20px auto 0;
+    justify-content:center;
+  }
+  .quickplay-btn{
+    padding:12px 24px;
+    background:linear-gradient(135deg, rgba(0,255,136,0.2), rgba(0,191,255,0.1));
+    border:2px solid var(--green);
+    border-radius:8px;
+    color:var(--green);
+    font-family:'Orbitron',sans-serif;
+    font-weight:700;
+    font-size:0.9rem;
+    cursor:pointer;
+    transition:all 0.2s;
+  }
+  .quickplay-btn:hover{
+    border-color:var(--gold);
+    color:var(--gold);
+    background:linear-gradient(135deg, rgba(255,215,0,0.2), rgba(255,165,0,0.1));
+    transform:translateY(-2px);
+  }
+  .quickplay-btn.back{
+    background:none;
+    border:2px solid var(--cyan);
+    color:var(--cyan);
+  }
+  .quickplay-btn.focused{
+    border-color:var(--cyan);
+    background:linear-gradient(135deg, rgba(0,255,255,0.25), rgba(0,255,136,0.15));
+    color:var(--cyan);
+    box-shadow:0 0 15px rgba(0,255,255,0.5), inset 0 0 10px rgba(0,255,255,0.2);
+    transform:scale(1.05);
+  }
+  .quickplay-button-row{
+    display:flex;
+    justify-content:center;
+    width:100%;
+    margin:15px 0;
+  }
+  .quickplay-button-row .quickplay-btn{
+    min-width:200px;
+  }
+
+  @keyframes waveEntrance {
+    0% {
+      opacity: 0;
+      transform: scale(0.8) translateY(20px);
+    }
+    50% {
+      transform: scale(1.05);
+    }
+    100% {
+      opacity: 1;
+      transform: scale(1) translateY(0);
+    }
+  }
+
+  @keyframes screenShake {
+    0%, 100% { transform: translateX(0) translateY(0); }
+    10% { transform: translateX(-8px) translateY(-8px); }
+    20% { transform: translateX(8px) translateY(8px); }
+    30% { transform: translateX(-8px) translateY(8px); }
+    40% { transform: translateX(8px) translateY(-8px); }
+    50% { transform: translateX(-4px) translateY(-4px); }
+    60% { transform: translateX(4px) translateY(4px); }
+    70% { transform: translateX(-4px) translateY(4px); }
+    80% { transform: translateX(4px) translateY(-4px); }
+  }
+
+  @keyframes pulseGreen {
+    0%, 100% { box-shadow: 0 0 0 rgba(0, 255, 136, 0.4); }
+    50% { box-shadow: 0 0 30px rgba(0, 255, 136, 0.8); }
+  }
+
+  .quickplay-arena.danger {
+    animation: pulseGreen 0.6s ease-in-out infinite;
+    border-color: var(--green);
+  }
+
+  .quickplay-target.success {
+    animation: pulseGreen 0.5s ease-out forwards;
+  }
+
+  /* === POWER-UPS === */
+  .power-up-indicator {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    padding: 12px 20px;
+    border-radius: 10px;
+    font-family: 'Orbitron', sans-serif;
+    font-weight: 700;
+    font-size: 1rem;
+    z-index: 1000;
+    animation: popIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    box-shadow: 0 0 20px currentColor;
+  }
+
+  .power-up-indicator.freeze {
+    background: linear-gradient(135deg, rgba(0, 191, 255, 0.3), rgba(0, 255, 255, 0.2));
+    border: 2px solid var(--cyan);
+    color: var(--cyan);
+  }
+
+  .power-up-indicator.life {
+    background: linear-gradient(135deg, rgba(255, 0, 100, 0.3), rgba(255, 100, 150, 0.2));
+    border: 2px solid #ff0064;
+    color: #ff0064;
+  }
+
+  @keyframes popIn {
+    0% { transform: scale(0.5); opacity: 0; }
+    70% { transform: scale(1.1); }
+    100% { transform: scale(1); opacity: 1; }
+  }
+
+  @keyframes powerUpPulse {
+    0%, 100% { box-shadow: 0 0 20px currentColor; }
+    50% { box-shadow: 0 0 40px currentColor; }
+  }
+
+  .power-up-active {
+    animation: powerUpPulse 0.6s ease-in-out infinite !important;
+  }
+
+  .power-up-charge-bar {
+    position: absolute;
+    right: 20px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 50px;
+    height: 320px;
+    background: linear-gradient(180deg, rgba(10, 15, 35, 0.8) 0%, rgba(5, 10, 25, 0.9) 100%);
+    border: 3px solid rgba(255, 255, 255, 0.2);
+    border-radius: 25px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column-reverse;
+    align-items: center;
+    justify-content: flex-end;
+    z-index: 999;
+    box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.5), 0 0 15px rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(4px);
+  }
+
+  .power-up-charge-bar.active {
+    border-color: rgba(100, 200, 255, 0.6);
+    box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.5), 0 0 40px rgba(100, 200, 255, 0.4);
+    animation: barActivePulse 2s ease-in-out infinite;
+  }
+
+  @keyframes barActivePulse {
+    0%, 100% { border-color: rgba(100, 200, 255, 0.6); }
+    50% { border-color: rgba(100, 200, 255, 0.9); }
+  }
+
+  .power-up-charge-bar-fill {
+    width: 100%;
+    height: 0%;
+    background: linear-gradient(180deg,
+      rgba(0, 255, 200, 0.9) 0%,
+      rgba(0, 200, 255, 0.8) 25%,
+      rgba(0, 150, 255, 0.8) 50%,
+      rgba(100, 150, 255, 0.8) 75%,
+      rgba(150, 200, 255, 0.9) 100%);
+    transition: height 0.2s ease;
+    box-shadow: 0 0 15px rgba(100, 200, 255, 0.6), inset 0 2px 5px rgba(255, 255, 255, 0.3);
+    position: relative;
+  }
+
+  .power-up-charge-bar-fill::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.8), transparent);
+    animation: fillShine 1.5s ease-in-out infinite;
+  }
+
+  @keyframes fillShine {
+    0% { opacity: 0; transform: translateY(-2px); }
+    50% { opacity: 1; }
+    100% { opacity: 0; transform: translateY(2px); }
+  }
+
+  .power-up-charge-bar.ready .power-up-charge-bar-fill {
+    animation: chargeReady 0.4s ease-in-out infinite, fillShine 1.5s ease-in-out infinite;
+    box-shadow: 0 0 25px rgba(255, 200, 0, 0.8), inset 0 2px 8px rgba(255, 255, 255, 0.4);
+  }
+
+  @keyframes chargeReady {
+    0%, 100% {
+      box-shadow: 0 0 25px rgba(255, 200, 0, 0.6), inset 0 2px 8px rgba(255, 255, 255, 0.2);
+    }
+    50% {
+      box-shadow: 0 0 40px rgba(255, 200, 0, 1), inset 0 2px 12px rgba(255, 255, 255, 0.5);
+    }
+  }
+
+  /* === GAME SCREEN === */
+  .game-screen{
+    height:100vh;
+    overflow:hidden;
+    position:relative;
+    z-index:1;
+  }
+  .app{
+    height:100%;
+    display:flex;
+    flex-direction:column;
+    max-width:500px;
+    margin:0 auto;
+    padding:12px;
+  }
+  
+  /* === HEADER === */
+  .header{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:8px 0;
+    margin-bottom:6px;
+  }
+  .header-left{
+    display:flex;
+    align-items:center;
+    gap:10px;
+  }
+  .back-btn{
+    background:none;
+    border:none;
+    color:var(--cyan);
+    font-size:20px;
+    cursor:pointer;
+    padding:4px;
+  }
+  .logo{
+    font-family:'Orbitron',sans-serif;
+    font-weight:900;
+    font-size:16px;
+    color:var(--gold);
+    text-shadow:0 0 15px rgba(255,215,0,0.4);
+    letter-spacing:0.06em;
+  }
+  .hud{
+    display:grid;
+    grid-template-columns:repeat(3, 1fr);
+    gap:10px;
+    font-family:'Orbitron',sans-serif;
+    font-size:12px;
+    font-weight:700;
+  }
+  .hud-item{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:4px;
+    background:linear-gradient(135deg, rgba(20,40,80,0.8), rgba(10,22,40,0.9));
+    border:2px solid var(--green);
+    border-radius:10px;
+    padding:8px;
+    text-align:center;
+  }
+  .hud-item .icon{font-size:18px}
+  .hud-item .value{color:var(--green); font-size:1rem; font-weight:900}
+  .hud-item .value.ok{color:var(--green)}
+  .hud-item .value.warn{color:var(--orange); animation:livesWarning 0.8s ease-in-out infinite}
+  .hud-item .value.bad{color:var(--red); animation:livesCritical 0.4s ease-in-out infinite}
+  
+  /* === TARGET BANNER === */
+  .target-banner{
+    background:linear-gradient(135deg, rgba(255,215,0,0.1), rgba(255,165,0,0.05));
+    border:2px solid var(--gold);
+    border-radius:8px;
+    padding:12px;
+    text-align:center;
+    color:var(--gold);
+    font-weight:700;
+    margin-bottom:15px;
+  }
+  .target-label{
+    font-size:0.7rem;
+    color:var(--gray);
+    margin-bottom:5px;
+    text-transform:uppercase;
+    letter-spacing:0.1em;
+  }
+  .target-text{
+    font-family:'Orbitron',sans-serif;
+    font-size:1.3rem;
+    font-weight:700;
+    color:var(--gold);
+  }
+  
+  /* === ARENA === */
+  .arena-wrap{
+    flex:1;
+    display:flex;
+    flex-direction:column;
+    min-height:0;
+  }
+  .arena{
+    flex:1;
+    position:relative;
+    background:linear-gradient(135deg,rgba(20,40,80,0.6),rgba(10,22,40,0.8));
+    border:2px solid var(--green);
+    border-radius:12px;
+    overflow:hidden;
+    min-height:250px;
+  }
+  
+  /* Grid */
+  .grid{
+    position:absolute;
+    left:10px;
+    right:10px;
+    bottom:10px;
+    display:grid;
+    gap:6px;
+  }
+  .cell{
+    border-radius:8px;
+    border:2px solid rgba(0,191,255,0.3);
+    background:rgba(0,20,40,0.4);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    min-height:48px;
+    transition:all 0.15s;
+  }
+  .cell.filled{
+    border-color:var(--gold);
+    background:rgba(255,215,0,0.1);
+    box-shadow:0 0 12px rgba(255,215,0,0.2);
+  }
+  .cell.highlight{
+    border-color:var(--cyan);
+    box-shadow:0 0 15px rgba(0,191,255,0.4);
+    background:rgba(0,191,255,0.1);
+  }
+  .cell-text{
+    font-family:'Orbitron',sans-serif;
+    font-weight:700;
+    font-size:13px;
+    color:var(--gold);
+  }
+  
+  /* Falling Block */
+  .block{
+    position:absolute;
+    left:0;top:0;
+    transform:translate3d(0,0,0);
+    width:0;height:0;
+    will-change:transform;
+    pointer-events:none;
+    z-index:10;
+  }
+  .block-inner{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:10px 14px;
+    border-radius:8px;
+    font-family:'Orbitron',sans-serif;
+    font-weight:800;
+    font-size:14px;
+    letter-spacing:.02em;
+    border:2px solid var(--cyan);
+    background:linear-gradient(180deg,rgba(0,191,255,0.25),rgba(10,22,40,0.9));
+    box-shadow:0 0 20px rgba(0,191,255,0.5),0 4px 15px rgba(0,0,0,0.4);
+    white-space:nowrap;
+    user-select:none;
+    color:var(--white);
+  }
+  .block-inner.good{
+    border-color:var(--green);
+    background:linear-gradient(180deg,rgba(0,255,136,0.25),rgba(10,22,40,0.9));
+    box-shadow:0 0 20px rgba(0,255,136,0.5);
+  }
+  .block-inner.bad{
+    border-color:var(--red);
+    background:linear-gradient(180deg,rgba(255,68,68,0.25),rgba(10,22,40,0.9));
+    box-shadow:0 0 20px rgba(255,68,68,0.5);
+  }
+  
+  /* === WORD QUEUE === */
+  .queue-bar{
+    display:flex;
+    align-items:center;
+    gap:6px;
+    padding:8px 0;
+    margin-top:6px;
+    overflow-x:auto;
+    -webkit-overflow-scrolling:touch;
+  }
+  .queue-bar::-webkit-scrollbar{display:none}
+  .queue-label{
+    font-size:10px;
+    font-weight:700;
+    color:var(--gray);
+    white-space:nowrap;
+  }
+  .queue-chips{
+    display:flex;
+    gap:5px;
+  }
+  .chip{
+    padding:7px 11px;
+    border-radius:6px;
+    background:rgba(255,255,255,0.06);
+    border:2px solid rgba(255,255,255,0.15);
+    font-size:12px;
+    font-weight:700;
+    color:var(--white);
+    white-space:nowrap;
+    opacity:0.7;
+    transition:all 0.15s;
+    cursor:pointer;
+    user-select:none;
+  }
+  .chip:hover{
+    opacity:1;
+    border-color:var(--cyan);
+    background:rgba(0,191,255,0.1);
+  }
+  .chip:active{transform:scale(0.95)}
+  .chip.now{
+    opacity:1;
+    border-color:var(--gold);
+    background:rgba(255,215,0,0.15);
+    box-shadow:0 0 10px rgba(255,215,0,0.4);
+    color:var(--gold);
+  }
+  
+  /* === BOTTOM CONTROLS === */
+  .bottom-bar{padding:10px 0}
+  .btn{
+    appearance:none;
+    border:none;
+    width:100%;
+    border-radius:10px;
+    padding:14px;
+    cursor:pointer;
+    font-family:'Orbitron',sans-serif;
+    font-weight:800;
+    font-size:15px;
+    letter-spacing:0.08em;
+    color:var(--bg);
+    background:var(--gold);
+    box-shadow:0 0 25px rgba(255,215,0,0.3),0 4px 12px rgba(0,0,0,0.3);
+    transition:all 0.2s;
+  }
+  .btn:active{transform:scale(0.97)}
+  .btn:hover{box-shadow:0 0 35px rgba(255,215,0,0.5)}
+  .btn:disabled{opacity:0.5;cursor:not-allowed}
+  
+  /* === FEEDBACK TOAST === */
+  .feedback{
+    position:absolute;
+    top:50%;
+    left:50%;
+    transform:translate(-50%,-50%);
+    padding:10px 18px;
+    border-radius:10px;
+    font-family:'Orbitron',sans-serif;
+    font-weight:700;
+    font-size:13px;
+    text-align:center;
+    opacity:0;
+    pointer-events:none;
+    transition:opacity 0.2s;
+    z-index:20;
+  }
+  .feedback.show{opacity:1}
+  .feedback.good{
+    background:rgba(0,255,136,0.2);
+    border:2px solid var(--green);
+    color:var(--green);
+    box-shadow:0 0 25px rgba(0,255,136,0.3);
+  }
+  .feedback.bad{
+    background:rgba(255,68,68,0.2);
+    border:2px solid var(--red);
+    color:var(--red);
+    box-shadow:0 0 25px rgba(255,68,68,0.3);
+  }
+  
+  /* === GAME OVER === */
+  .gameover-overlay{
+    position:absolute;
+    inset:0;
+    background:rgba(10,22,40,0.95);
+    display:none;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    z-index:30;
+    border-radius:10px;
+  }
+  .gameover-overlay.show{display:flex}
+  .gameover-title{
+    font-family:'Orbitron',sans-serif;
+    font-weight:900;
+    font-size:26px;
+    color:var(--red);
+    margin-bottom:8px;
+    text-shadow:0 0 25px rgba(255,68,68,0.5);
+  }
+  .gameover-score{
+    font-family:'Orbitron',sans-serif;
+    font-size:16px;
+    color:var(--gold);
+    margin-bottom:18px;
+  }
+  .gameover-btn{
+    padding:12px 28px;
+    border-radius:8px;
+    border:none;
+    background:var(--gold);
+    color:var(--bg);
+    font-family:'Orbitron',sans-serif;
+    font-weight:700;
+    font-size:13px;
+    cursor:pointer;
+    margin:5px;
+  }
+  .gameover-btn.secondary{
+    background:transparent;
+    border:2px solid var(--cyan);
+    color:var(--cyan);
+  }
+  
+  /* === HINT === */
+  .hint{
+    text-align:center;
+    font-size:11px;
+    color:var(--gray);
+    padding:6px 0;
+  }
+  .hint kbd{
+    display:inline-block;
+    padding:2px 5px;
+    border-radius:4px;
+    background:rgba(255,255,255,0.08);
+    border:1px solid rgba(255,255,255,0.15);
+    font-family:inherit;
+    font-size:10px;
+  }
+  
+  /* === EFFECTS === */
+  .arena.shake{animation:shake 300ms ease-in-out}
+  @keyframes shake{
+    0%,100%{transform:translateX(0)}
+    20%{transform:translateX(-5px)}
+    40%{transform:translateX(5px)}
+    60%{transform:translateX(-3px)}
+    80%{transform:translateX(3px)}
+  }
+  
+  body.flash-good .arena{box-shadow:0 0 35px rgba(0,255,136,0.5)}
+  body.flash-bad .arena{box-shadow:0 0 35px rgba(255,68,68,0.5)}
+  
+  .particle{
+    position:fixed;
+    pointer-events:none;
+    z-index:50;
+    border-radius:50%;
+  }
+  @keyframes particleFly{
+    to{transform:translate(var(--tx),var(--ty)) scale(0);opacity:0}
+  }
+  .particle.fly{animation:particleFly 0.6s ease-out forwards}
+  
+  .combo-aura{
+    position:fixed;
+    top:50%;left:50%;
+    transform:translate(-50%,-50%);
+    border-radius:50%;
+    pointer-events:none;
+    z-index:5;
+    opacity:0;
+  }
+  @keyframes auraPulse{
+    0%{width:80px;height:80px;opacity:0;box-shadow:0 0 40px var(--gold)}
+    50%{opacity:0.8}
+    100%{width:280px;height:280px;opacity:0;box-shadow:0 0 80px var(--gold)}
+  }
+  .combo-aura.active{animation:auraPulse 0.6s ease-out forwards}
+  
+  /* === RESPONSIVE === */
+  @media (min-width:600px){
+    .app{max-width:480px;padding:16px}
+    .arena{min-height:320px}
+    .target-text{font-size:22px}
+    .menu-title{font-size:2.8rem}
+  }
+
+
+/* === UNLOCK 2026 Shared App Bar === */
+:root{--unlock-bar-h:64px;}
+body{padding-top:var(--unlock-bar-h);}
+
+@keyframes glow-pulse {
+  0%, 100% { text-shadow: 0 0 10px rgba(255,215,0,0.3); }
+  50% { text-shadow: 0 0 20px rgba(255,215,0,0.6); }
+}
+@keyframes badge-bounce {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+}
+@keyframes slide-in {
+  0% { transform: translateX(100%); opacity: 0; }
+  100% { transform: translateX(0); opacity: 1; }
+}
+@keyframes slideUp {
+  0% { transform: translateY(20px); opacity: 0; }
+  100% { transform: translateY(0); opacity: 1; }
+}
+@keyframes shimmer {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+@keyframes badgeBounce {
+  0%, 100% { transform: scale(1) translateY(0); }
+  50% { transform: scale(1.08) translateY(-3px); }
+}
+
+.unlock-appbar{
+  position:fixed; top:0; left:0; right:0; height:var(--unlock-bar-h);
+  display:flex; align-items:center; justify-content:space-between;
+  padding:0 16px;
+  background: linear-gradient(180deg, rgba(10,22,40,0.98) 0%, rgba(10,22,40,0.85) 100%);
+  backdrop-filter: blur(15px);
+  -webkit-backdrop-filter: blur(15px);
+  border-bottom: 2px solid rgba(0,255,136,0.15);
+  box-shadow: 0 4px 20px rgba(0,0,0,0.4), inset 0 1px 0 rgba(0,255,136,0.1);
+  z-index:99999;
+}
+
+.unlock-appbar .left a{
+  display:inline-flex; align-items:center; gap:8px;
+  text-decoration:none; font-weight:800;
+  color: var(--green, #00FF88);
+  letter-spacing: .2px;
+  transition: all 0.3s ease;
+  padding: 8px 12px;
+  border-radius: 6px;
+}
+.unlock-appbar .left a:hover {
+  color: var(--gold);
+  background: rgba(0,255,136,0.1);
+  transform: translateX(-2px);
+}
+
+.unlock-appbar .center{
+  font-family:'Orbitron', system-ui, sans-serif;
+  font-weight:900;
+  letter-spacing:2px;
+  color: var(--gold, #FFD700);
+  font-size:14px;
+  animation: glow-pulse 3s ease-in-out infinite;
+}
+
+.unlock-appbar .right{
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.unlock-appbar-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--gold);
+  font-size: 20px;
+  padding: 8px 12px;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.unlock-appbar-btn:hover {
+  background: rgba(255,215,0,0.1);
+  transform: scale(1.1);
+  animation: badge-bounce 0.6s ease;
+}
+
+.unlock-appbar-btn::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle, rgba(255,215,0,0.2) 0%, transparent 70%);
+  border-radius: 8px;
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.unlock-appbar-btn:hover::before {
+  opacity: 1;
+}
+
+.unlock-appbar .pill{
+  display:inline-flex; align-items:center; gap:10px;
+  padding:8px 14px;
+  border: 2px solid rgba(0,255,136,0.3);
+  border-radius:12px;
+  background: linear-gradient(135deg, rgba(17,31,61,0.8) 0%, rgba(20,40,80,0.6) 100%);
+  transition: all 0.3s ease;
+  animation: slide-in 0.5s ease;
+}
+
+.unlock-appbar .pill:hover {
+  background: linear-gradient(135deg, rgba(17,31,61,1) 0%, rgba(20,40,80,0.8) 100%);
+  border-color: rgba(0,255,136,0.6);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 16px rgba(0,255,136,0.2);
+}
+
+.unlock-appbar .pill span[data-unlock-streak] {
+  font-weight: bold;
+  color: var(--gold);
+  animation: glow-pulse 2s ease-in-out infinite;
+}
+
+@media (max-width:420px){
+  .unlock-appbar{padding:0 12px;}
+  .unlock-appbar .center{display:none; letter-spacing: 1px;}
+  :root{--unlock-bar-h:56px;}
+}
+
+</style>
+</head>
+<body>
+
+  <!-- UNLOCK 2026 shared top bar -->
+  <div class="unlock-appbar">
+    <div class="left">
+      <a href="../index.html" aria-label="Back to menu">⬅ <span>Menu</span></a>
+    </div>
+    <div class="center">UNLOCK 2026</div>
+    <div class="right">
+      <button class="unlock-appbar-btn" id="muteBtn" title="Toggle mute" aria-label="Toggle mute">🔊</button>
+      <button class="unlock-appbar-btn" id="statsBtn" title="Ver seus badges" aria-label="Ver seus badges" style="position: relative; display: inline-flex; align-items: center; gap: 4px; padding: 6px 10px; font-size: 12px;">
+        <span id="badgeCounter" style="background: var(--green); color: var(--bg); padding: 2px 8px; border-radius: 12px; font-weight: bold; font-size: 11px;">🏆 0</span>
+      </button>
+      <span class="pill"><span data-unlock-streak>🔥 0</span><span style="opacity:.6">•</span> 🟣 Word Stack</span>
+    </div>
+  </div>
+
+<div class="bg-grid"></div>
+<div class="combo-aura" id="comboAura"></div>
+
+<!-- MENU SCREEN -->
+<div class="screen menu-screen active" id="menuScreen">
+  <h1 class="menu-title">🎮 WORD STACK</h1>
+  <p class="menu-subtitle">Monte a frase em inglês na ordem certa!</p>
+  <div class="aulas-grid" id="aulasGrid"></div>
+</div>
+
+<!-- QUICK PLAY SCREEN -->
+<div class="screen quickplay-screen" id="quickplayScreen">
+  <div class="power-up-indicator" id="powerUpIndicator" style="display: none;"></div>
+
+  <button class="quickplay-btn back" id="quickplayBackBtn">← MENU</button>
+
+  <h1 class="quickplay-title">⚡ QUICK PLAY</h1>
+
+  <!-- START SCREEN -->
+  <div id="quickplayStartScreen" style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; gap: 2rem; padding: 2rem;">
+    <div style="text-align: center;">
+      <p style="font-size: 1.2rem; margin-bottom: 1rem; color: var(--text-light);">Stack Fast • Survive Waves!</p>
+      <p style="font-size: 0.9rem; color: var(--text-light); opacity: 0.8;" id="quickplayStartDesc">Words from all lessons combined</p>
+      <p style="font-size: 0.9rem; color: var(--text-light); opacity: 0.8;">Earn combos and climb the waves!</p>
+    </div>
+    <button class="quickplay-btn" id="qsStartBtn" style="font-size: 1.3rem; padding: 1rem 2rem; background: linear-gradient(180deg, var(--gold), var(--accent-orange)); color: var(--dark); font-weight: 900;">START GAME</button>
+  </div>
+
+  <!-- GAME SCREEN -->
+  <div id="quickplayGameScreen" style="display: none; height: 100%;">
+    <div class="quickplay-hud">
+      <div class="quickplay-stat">
+        <div class="quickplay-stat-label">Score</div>
+        <div class="quickplay-stat-value" id="qsScore">0</div>
+      </div>
+      <div class="quickplay-stat">
+        <div class="quickplay-stat-label">Lives</div>
+        <div class="quickplay-stat-value" id="qsLives">3</div>
+      </div>
+      <div class="quickplay-stat">
+        <div class="quickplay-stat-label">Combo</div>
+        <div class="quickplay-stat-value" id="qsCombo">0x</div>
+        <div class="combo-multiplier" id="qsMultiplier">x1.0</div>
+      </div>
+      <div class="quickplay-stat">
+        <div class="quickplay-stat-label">Correct</div>
+        <div class="quickplay-stat-value" id="qsWave">0</div>
+      </div>
+    </div>
+
+    <div class="quickplay-timer">
+      <div class="timer-label">TEMPO</div>
+      <div class="timer-value" id="qsTimerValue">30</div>
+      <div class="timer-bar">
+        <div class="timer-fill" id="qsTimerFill"></div>
+      </div>
+    </div>
+
+    <div class="quickplay-arena">
+      <div class="power-up-charge-bar" id="powerUpChargeBar">
+        <div class="power-up-charge-bar-fill" id="powerUpChargeBarFill"></div>
+      </div>
+
+      <div class="quickplay-wave-info" id="qsWaveInfo">WAVE 1</div>
+
+      <div class="quickplay-target" id="qsTarget">—</div>
+
+      <div class="quickplay-stack" id="qsStack">
+        <div class="quickplay-stack-empty">CLICK WORDS TO STACK</div>
+      </div>
+
+      <!-- UNDO Button -->
+      <div class="quickplay-button-row">
+        <button class="quickplay-btn" id="qsUndoBtn">UNDO</button>
+      </div>
+
+      <!-- Words Grid (3 columns) -->
+      <div class="quickplay-word-queue" id="qsWordQueue"></div>
+
+      <!-- SUBMIT Button -->
+      <div class="quickplay-button-row">
+        <button class="quickplay-btn" id="qsSubmitBtn">SUBMIT</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- GAME SCREEN -->
+<div class="screen game-screen" id="gameScreen">
+  <div class="app">
+    <header class="header">
+      <div class="header-left">
+        <button class="back-btn" id="backBtn">←</button>
+        <div class="logo" id="aulaTitle">WORD STACK</div>
+      </div>
+      <div class="hud">
+        <div class="hud-item">
+          <span class="icon">❤️</span>
+          <span class="value warn" id="hudLives">3</span>
+        </div>
+        <div class="hud-item">
+          <span class="icon">🔥</span>
+          <span class="value" id="hudCombo">0</span>
+        </div>
+        <div class="hud-item">
+          <span class="value" id="hudScore">0</span>
+        </div>
+      </div>
+    </header>
+    
+    <div class="target-banner">
+      <div class="target-label">🎯 Monte em inglês</div>
+      <div class="target-text" id="targetText">—</div>
+    </div>
+    
+    <div class="arena-wrap">
+      <div class="arena" id="arena">
+        <div class="grid" id="grid"></div>
+        <div class="block" id="block">
+          <div class="block-inner" id="blockInner">word</div>
+        </div>
+        <div class="feedback" id="feedback"></div>
+        <div class="gameover-overlay" id="gameoverOverlay">
+          <div class="gameover-title">GAME OVER</div>
+          <div class="gameover-score" id="gameoverScore">SCORE: 0</div>
+          <button class="gameover-btn" id="gameoverRetryBtn">TENTAR DE NOVO</button>
+          <button class="gameover-btn secondary" id="gameoverMenuBtn">MENU</button>
+        </div>
+      </div>
+      
+      <div class="queue-bar">
+        <span class="queue-label">FILA:</span>
+        <div class="queue-chips" id="queueChips"></div>
+      </div>
+    </div>
+    
+    <div class="hint" id="hint">
+      <kbd>←</kbd> <kbd>→</kbd> mover · <kbd>↓</kbd> acelerar · <kbd>Space</kbd> travar
+    </div>
+    
+    <div class="bottom-bar">
+      <button class="btn" id="startBtn">START</button>
+    </div>
+  </div>
+</div>
+
+<!-- STATS MODAL -->
+<div class="modal" id="statsModal" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 10000; align-items: center; justify-content: center;">
+  <div class="modal-box" style="background: linear-gradient(180deg, rgba(20,40,80,0.98), rgba(10,22,40,0.99)); border: 2px solid var(--gold); border-radius: 15px; padding: 30px; max-width: 600px; max-height: 80vh; overflow-y: auto; box-shadow: 0 0 40px rgba(255,215,0,0.3);">
+    <div style="text-align: center; font-size: 3rem; margin-bottom: 15px;">🏆</div>
+    <div style="text-align: center; font-family: 'Orbitron', sans-serif; font-size: 1.8rem; color: var(--gold); font-weight: bold; margin-bottom: 20px;">SEUS BADGES</div>
+    <div id="badgesContainer" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 15px; margin: 20px 0; text-align: center;">
+      <!-- Badges will be populated here by JavaScript -->
+    </div>
+    <div id="noBadgesMsg" style="text-align: center; padding: 40px 20px; color: var(--gray);">
+      <p style="font-size: 3rem;">😴</p>
+      <p>Nenhum badge desbloqueado ainda!</p>
+      <p style="font-size: 0.9rem; margin-top: 10px;">Termine as aulas sem erros para desbloquear badges</p>
+    </div>
+    <button id="statsCloseBtn" style="display: block; margin: 20px auto 0; padding: 10px 30px; background: var(--gold); color: var(--bg); border: none; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 1rem;">FECHAR</button>
+  </div>
+</div>
+
+<script>
+(() => {
+  // === AULAS DATA ===
+  const AULAS = [
+    {
+      id: 1,
+      title: "IS / ARE",
+      emoji: "🔵🟢",
+      sentences: [
+        { pt: "ele está feliz", en: "he is happy" },
+        { pt: "ela está triste", en: "she is sad" },
+        { pt: "eu estou cansado", en: "i am tired" },
+        { pt: "você está atrasado", en: "you are late" },
+        { pt: "nós estamos prontos", en: "we are ready" },
+        { pt: "eles estão aqui", en: "they are here" },
+        { pt: "a loja está aberta", en: "the store is open" },
+        { pt: "a loja está fechada", en: "the store is closed" },
+        { pt: "o dia está bom", en: "the day is good" },
+        { pt: "está frio hoje", en: "it is cold today" },
+        { pt: "está quente hoje", en: "it is hot today" },
+        { pt: "eu estou com fome", en: "i am hungry" },
+        { pt: "eu estou com sede", en: "i am thirsty" },
+        { pt: "você está bem", en: "you are okay" },
+        { pt: "ela está ocupada", en: "she is busy" },
+        { pt: "ele está livre", en: "he is free" },
+        { pt: "nós estamos perdidos", en: "we are lost" },
+        { pt: "eles estão cansados", en: "they are tired" },
+        { pt: "o carro está aqui", en: "the car is here" },
+        { pt: "o banheiro está ali", en: "the bathroom is there" },
+        { pt: "eu estou confuso", en: "i am confused" },
+        { pt: "você está certo", en: "you are right" },
+        { pt: "você está errado", en: "you are wrong" },
+        { pt: "a comida está boa", en: "the food is good" },
+        { pt: "o lugar está cheio", en: "the place is full" },
+        { pt: "o lugar está vazio", en: "the place is empty" },
+        { pt: "eu estou com sono", en: "i am sleepy" },
+        { pt: "ela está feliz agora", en: "she is happy now" },
+        { pt: "eles estão prontos agora", en: "they are ready now" },
+        { pt: "nós estamos bem", en: "we are fine" }
+      ]
+    },
+    {
+      id: 2,
+      title: "NUMBERS",
+      emoji: "🔢",
+      sentences: [
+        { pt: "um", en: "one" },
+        { pt: "dois", en: "two" },
+        { pt: "três", en: "three" },
+        { pt: "quatro", en: "four" },
+        { pt: "cinco", en: "five" },
+        { pt: "seis", en: "six" },
+        { pt: "sete", en: "seven" },
+        { pt: "oito", en: "eight" },
+        { pt: "nove", en: "nine" },
+        { pt: "dez", en: "ten" },
+        { pt: "onze", en: "eleven" },
+        { pt: "doze", en: "twelve" },
+        { pt: "quinze", en: "fifteen" },
+        { pt: "vinte", en: "twenty" },
+        { pt: "trinta", en: "thirty" },
+        { pt: "quarenta", en: "forty" },
+        { pt: "cinquenta", en: "fifty" },
+        { pt: "sessenta", en: "sixty" },
+        { pt: "setenta", en: "seventy" },
+        { pt: "oitenta", en: "eighty" },
+        { pt: "noventa", en: "ninety" },
+        { pt: "cem", en: "hundred" },
+        { pt: "mil", en: "thousand" },
+        { pt: "vinte e um", en: "twenty one" },
+        { pt: "trinta e cinco", en: "thirty five" },
+        { pt: "quarenta e sete", en: "forty seven" },
+        { pt: "noventa e nove", en: "ninety nine" },
+        { pt: "cem reais", en: "one hundred reais" },
+        { pt: "dois dólares", en: "two dollars" },
+        { pt: "um milhão", en: "one million" }
+      ]
+    },
+    {
+      id: 3,
+      title: "DO YOU HAVE",
+      emoji: "🤲❓",
+      sentences: [
+        { pt: "você tem água", en: "do you have water" },
+        { pt: "você tem café", en: "do you have coffee" },
+        { pt: "você tem banheiro", en: "do you have a bathroom" },
+        { pt: "você tem wi fi", en: "do you have wifi" },
+        { pt: "você tem cartão", en: "do you have a card" },
+        { pt: "você tem dinheiro", en: "do you have cash" },
+        { pt: "você tem recibo", en: "do you have a receipt" },
+        { pt: "você tem vaga", en: "do you have space" },
+        { pt: "você tem tempo", en: "do you have time" },
+        { pt: "você tem carro", en: "do you have a car" },
+        { pt: "você tem documento", en: "do you have an id" },
+        { pt: "você tem remédio", en: "do you have medicine" },
+        { pt: "você tem comida", en: "do you have food" },
+        { pt: "você tem gelo", en: "do you have ice" },
+        { pt: "você tem sal", en: "do you have salt" },
+        { pt: "você tem açúcar", en: "do you have sugar" },
+        { pt: "você tem entrega", en: "do you have delivery" },
+        { pt: "você tem horário", en: "do you have an appointment" },
+        { pt: "você tem experiência", en: "do you have experience" },
+        { pt: "você tem vaga hoje", en: "do you have availability today" },
+        { pt: "você tem mesa", en: "do you have a table" },
+        { pt: "você tem quarto", en: "do you have a room" },
+        { pt: "você tem troco", en: "do you have change" },
+        { pt: "você tem número", en: "do you have a number" },
+        { pt: "você tem endereço", en: "do you have an address" },
+        { pt: "você tem caneta", en: "do you have a pen" },
+        { pt: "você tem papel", en: "do you have paper" },
+        { pt: "você tem cadeira", en: "do you have a chair" },
+        { pt: "você tem ajuda", en: "do you have help" },
+        { pt: "você tem desconto", en: "do you have a discount" }
+      ]
+    },
+    {
+      id: 4,
+      title: "GET",
+      emoji: "🤲✨",
+      sentences: [
+        { pt: "pegar o carro", en: "get the car" },
+        { pt: "pegar o ônibus", en: "get the bus" },
+        { pt: "pegar comida", en: "get food" },
+        { pt: "pegar café", en: "get coffee" },
+        { pt: "pegar o telefone", en: "get the phone" },
+        { pt: "pegar o pacote", en: "get the package" },
+        { pt: "conseguir um emprego", en: "get a job" },
+        { pt: "conseguir dinheiro", en: "get money" },
+        { pt: "conseguir ajuda", en: "get help" },
+        { pt: "chegar em casa", en: "get home" },
+        { pt: "chegar cedo", en: "get early" },
+        { pt: "chegar tarde", en: "get late" },
+        { pt: "ficar bravo", en: "get angry" },
+        { pt: "ficar cansado", en: "get tired" },
+        { pt: "ficar doente", en: "get sick" },
+        { pt: "entender isso", en: "get it" },
+        { pt: "pegar a ideia", en: "get the idea" },
+        { pt: "receber mensagem", en: "get a message" },
+        { pt: "receber pagamento", en: "get paid" },
+        { pt: "receber resposta", en: "get an answer" },
+        { pt: "pegar um táxi", en: "get a taxi" },
+        { pt: "pegar ingresso", en: "get a ticket" },
+        { pt: "pegar um presente", en: "get a gift" },
+        { pt: "pegar gelo", en: "get ice" },
+        { pt: "pegar água", en: "get water" },
+        { pt: "pegar lugar", en: "get a seat" },
+        { pt: "pegar fila", en: "get in line" },
+        { pt: "pegar estrada", en: "get on the road" },
+        { pt: "pegar acesso", en: "get access" },
+        { pt: "pegar problema", en: "get in trouble" }
+      ]
+    }
+    ,
+    {
+      id: 5,
+      title: "GO / COME",
+      emoji: "🚶➡️⬅️",
+      sentences: [
+        { pt: "ir pra casa", en: "go home" },
+        { pt: "vir pra casa", en: "come home" },
+        { pt: "ir ao trabalho", en: "go to work" },
+        { pt: "vir trabalhar", en: "come to work" },
+        { pt: "ir ao mercado", en: "go to the store" },
+        { pt: "vir aqui", en: "come here" },
+        { pt: "ir embora", en: "go away" },
+        { pt: "vir comigo", en: "come with me" },
+        { pt: "ir sozinho", en: "go alone" },
+        { pt: "vir agora", en: "come now" },
+        { pt: "ir amanhã", en: "go tomorrow" },
+        { pt: "vir hoje", en: "come today" },
+        { pt: "ir de carro", en: "go by car" },
+        { pt: "vir a pé", en: "come on foot" },
+        { pt: "ir rápido", en: "go fast" },
+        { pt: "vir rápido", en: "come fast" },
+        { pt: "ir buscar", en: "go get" },
+        { pt: "vir buscar", en: "come get" },
+        { pt: "ir ao hospital", en: "go to the hospital" },
+        { pt: "vir ao hospital", en: "come to the hospital" },
+        { pt: "ir trabalhar cedo", en: "go to work early" },
+        { pt: "vir falar comigo", en: "come talk to me" },
+        { pt: "ir dormir", en: "go sleep" },
+        { pt: "vir comer", en: "come eat" },
+        { pt: "ir estudar", en: "go study" },
+        { pt: "vir estudar", en: "come study" },
+        { pt: "ir pra fora", en: "go outside" },
+        { pt: "vir pra dentro", en: "come inside" },
+        { pt: "ir agora", en: "go now" },
+        { pt: "vir depois", en: "come later" }
+      ]
+    },
+    {
+      id: 6,
+      title: "GOING TO",
+      emoji: "🎯➡️",
+      sentences: [
+        { pt: "eu vou trabalhar", en: "i am going to work" },
+        { pt: "eu vou estudar", en: "i am going to study" },
+        { pt: "eu vou comer", en: "i am going to eat" },
+        { pt: "eu vou dormir", en: "i am going to sleep" },
+        { pt: "eu vou sair", en: "i am going to go out" },
+        { pt: "eu vou viajar", en: "i am going to travel" },
+        { pt: "eu vou ligar", en: "i am going to call" },
+        { pt: "eu vou comprar", en: "i am going to buy" },
+        { pt: "eu vou pagar", en: "i am going to pay" },
+        { pt: "eu vou tentar", en: "i am going to try" },
+        { pt: "eu vou decidir", en: "i am going to decide" },
+        { pt: "eu vou dirigir", en: "i am going to drive" },
+        { pt: "eu vou correr", en: "i am going to run" },
+        { pt: "eu vou treinar", en: "i am going to train" },
+        { pt: "eu vou limpar", en: "i am going to clean" },
+        { pt: "eu vou responder", en: "i am going to reply" },
+        { pt: "eu vou ficar aqui", en: "i am going to stay here" },
+        { pt: "eu vou sair cedo", en: "i am going to leave early" },
+        { pt: "eu vou chegar tarde", en: "i am going to arrive late" },
+        { pt: "eu vou economizar", en: "i am going to save money" },
+        { pt: "eu vou resolver isso", en: "i am going to solve this" },
+        { pt: "eu vou chamar ele", en: "i am going to call him" },
+        { pt: "eu vou esperar", en: "i am going to wait" },
+        { pt: "eu vou ajudar", en: "i am going to help" },
+        { pt: "eu vou começar", en: "i am going to start" },
+        { pt: "eu vou terminar", en: "i am going to finish" },
+        { pt: "eu vou tentar de novo", en: "i am going to try again" },
+        { pt: "eu vou parar", en: "i am going to stop" },
+        { pt: "eu vou continuar", en: "i am going to continue" },
+        { pt: "eu vou voltar", en: "i am going to come back" }
+      ]
+    },
+    {
+      id: 7,
+      title: "HAVE / HAS",
+      emoji: "✋📦",
+      sentences: [
+        { pt: "eu tenho tempo", en: "i have time" },
+        { pt: "eu tenho dinheiro", en: "i have money" },
+        { pt: "eu tenho fome", en: "i am hungry" },
+        { pt: "eu tenho sede", en: "i am thirsty" },
+        { pt: "eu tenho uma ideia", en: "i have an idea" },
+        { pt: "eu tenho carro", en: "i have a car" },
+        { pt: "eu tenho trabalho", en: "i have a job" },
+        { pt: "eu tenho dúvida", en: "i have a question" },
+        { pt: "ele tem carro", en: "he has a car" },
+        { pt: "ele tem dinheiro", en: "he has money" },
+        { pt: "ele tem tempo", en: "he has time" },
+        { pt: "ele tem dor", en: "he has pain" },
+        { pt: "ela tem casa", en: "she has a house" },
+        { pt: "ela tem trabalho", en: "she has a job" },
+        { pt: "ela tem compromisso", en: "she has an appointment" },
+        { pt: "nós temos tempo", en: "we have time" },
+        { pt: "nós temos dinheiro", en: "we have money" },
+        { pt: "eles têm filhos", en: "they have kids" },
+        { pt: "eles têm casa", en: "they have a house" },
+        { pt: "eles têm problema", en: "they have a problem" },
+        { pt: "eu tenho conta", en: "i have a bill" },
+        { pt: "eu tenho celular", en: "i have a phone" },
+        { pt: "ele tem documento", en: "he has an id" },
+        { pt: "ela tem cartão", en: "she has a card" },
+        { pt: "nós temos entrega", en: "we have delivery" },
+        { pt: "eles têm experiência", en: "they have experience" },
+        { pt: "eu tenho medo", en: "i am scared" },
+        { pt: "ele tem sono", en: "he is sleepy" },
+        { pt: "ela tem razão", en: "she is right" },
+        { pt: "nós temos escolha", en: "we have a choice" }
+      ]
+    },
+    {
+      id: 8,
+      title: "HAVE TO / NEED TO",
+      emoji: "⚠️✅",
+      sentences: [
+        { pt: "eu tenho que trabalhar", en: "i have to work" },
+        { pt: "eu tenho que pagar", en: "i have to pay" },
+        { pt: "eu tenho que sair", en: "i have to leave" },
+        { pt: "eu tenho que esperar", en: "i have to wait" },
+        { pt: "eu tenho que ligar", en: "i have to call" },
+        { pt: "eu tenho que estudar", en: "i have to study" },
+        { pt: "eu preciso dormir", en: "i need to sleep" },
+        { pt: "eu preciso comer", en: "i need to eat" },
+        { pt: "eu preciso estudar", en: "i need to study" },
+        { pt: "eu preciso descansar", en: "i need to rest" },
+        { pt: "eu preciso ajuda", en: "i need help" },
+        { pt: "eu tenho que dirigir", en: "i have to drive" },
+        { pt: "eu tenho que decidir", en: "i have to decide" },
+        { pt: "eu tenho que resolver isso", en: "i have to deal with this" },
+        { pt: "eu preciso tentar", en: "i need to try" },
+        { pt: "eu preciso sair cedo", en: "i need to leave early" },
+        { pt: "eu tenho que chegar cedo", en: "i have to arrive early" },
+        { pt: "eu preciso ligar pra ele", en: "i need to call him" },
+        { pt: "eu tenho que trabalhar hoje", en: "i have to work today" },
+        { pt: "eu preciso marcar horário", en: "i need to make an appointment" },
+        { pt: "eu tenho que pagar a conta", en: "i have to pay the bill" },
+        { pt: "eu preciso limpar", en: "i need to clean" },
+        { pt: "eu tenho que lembrar", en: "i have to remember" },
+        { pt: "eu preciso resolver", en: "i need to solve it" },
+        { pt: "eu tenho que esperar aqui", en: "i have to wait here" },
+        { pt: "eu preciso continuar", en: "i need to continue" },
+        { pt: "eu tenho que parar", en: "i have to stop" },
+        { pt: "eu preciso sair agora", en: "i need to leave now" },
+        { pt: "eu tenho que tentar de novo", en: "i have to try again" },
+        { pt: "eu preciso ajuda agora", en: "i need help now" }
+      ]
+    },
+    {
+      id: 9,
+      title: "HERE / THERE",
+      emoji: "📍🗺️",
+      sentences: [
+        { pt: "é aqui", en: "it is here" },
+        { pt: "é ali", en: "it is there" },
+        { pt: "fica aqui", en: "stay here" },
+        { pt: "fica ali", en: "stay there" },
+        { pt: "vem aqui", en: "come here" },
+        { pt: "vai ali", en: "go there" },
+        { pt: "estou aqui", en: "i am here" },
+        { pt: "estou ali", en: "i am there" },
+        { pt: "minha casa é aqui", en: "my house is here" },
+        { pt: "o carro está ali", en: "the car is there" },
+        { pt: "senta aqui", en: "sit here" },
+        { pt: "espera aqui", en: "wait here" },
+        { pt: "deixa aqui", en: "leave it here" },
+        { pt: "pega ali", en: "get it there" },
+        { pt: "fica aqui comigo", en: "stay here with me" },
+        { pt: "fica ali fora", en: "stay there outside" },
+        { pt: "é perto daqui", en: "it is near here" },
+        { pt: "é longe daqui", en: "it is far from here" },
+        { pt: "entra aqui", en: "come in here" },
+        { pt: "sai ali", en: "go out there" },
+        { pt: "é logo aqui", en: "it is right here" },
+        { pt: "é logo ali", en: "it is right there" },
+        { pt: "o banheiro é aqui", en: "the bathroom is here" },
+        { pt: "a saída é ali", en: "the exit is there" },
+        { pt: "fica aqui dentro", en: "stay here inside" },
+        { pt: "fica ali atrás", en: "stay there behind" },
+        { pt: "olha aqui", en: "look here" },
+        { pt: "olha ali", en: "look there" },
+        { pt: "volta aqui", en: "come back here" },
+        { pt: "vai ali rápido", en: "go there fast" }
+      ]
+    },
+    {
+      id: 10,
+      title: "HOW MUCH / HOW MANY",
+      emoji: "💰🔢",
+      sentences: [
+        { pt: "quanto custa", en: "how much is it" },
+        { pt: "quanto é isso", en: "how much is this" },
+        { pt: "quanto deu a conta", en: "how much is the bill" },
+        { pt: "quanto é o aluguel", en: "how much is the rent" },
+        { pt: "quanto você paga", en: "how much do you pay" },
+        { pt: "quanto você ganha", en: "how much do you make" },
+        { pt: "quanta água", en: "how much water" },
+        { pt: "quanto tempo", en: "how much time" },
+        { pt: "quanta experiência", en: "how much experience" },
+        { pt: "quanto pesa", en: "how much does it weigh" },
+        { pt: "quantas pessoas", en: "how many people" },
+        { pt: "quantos dias", en: "how many days" },
+        { pt: "quantos carros", en: "how many cars" },
+        { pt: "quantos quartos", en: "how many rooms" },
+        { pt: "quantas cadeiras", en: "how many chairs" },
+        { pt: "quantas horas", en: "how many hours" },
+        { pt: "quantos alunos", en: "how many students" },
+        { pt: "quantas caixas", en: "how many boxes" },
+        { pt: "quantos recibos", en: "how many receipts" },
+        { pt: "quantas chamadas", en: "how many calls" },
+        { pt: "quanto custa isso aqui", en: "how much is this here" },
+        { pt: "quantos clientes", en: "how many customers" },
+        { pt: "quanto ficou", en: "how much did it come to" },
+        { pt: "quantas camas", en: "how many beds" },
+        { pt: "quanto pão", en: "how much bread" },
+        { pt: "quanto arroz", en: "how much rice" },
+        { pt: "quantas garrafas", en: "how many bottles" },
+        { pt: "quanto dinheiro", en: "how much money" },
+        { pt: "quantos documentos", en: "how many documents" },
+        { pt: "quanto você precisa", en: "how much do you need" }
+      ]
+    },
+    {
+      id: 11,
+      title: "HOW",
+      emoji: "🤷❓",
+      sentences: [
+        { pt: "como", en: "how" },
+        { pt: "como funciona", en: "how does it work" },
+        { pt: "como faço isso", en: "how do i do this" },
+        { pt: "como chego lá", en: "how do i get there" },
+        { pt: "como chego em casa", en: "how do i get home" },
+        { pt: "como pago isso", en: "how do i pay this" },
+        { pt: "como ligo", en: "how do i call" },
+        { pt: "como uso isso", en: "how do i use this" },
+        { pt: "como resolvo isso", en: "how do i solve this" },
+        { pt: "como começo", en: "how do i start" },
+        { pt: "como termino", en: "how do i finish" },
+        { pt: "como continuo", en: "how do i continue" },
+        { pt: "como marco horário", en: "how do i make an appointment" },
+        { pt: "como falo com ele", en: "how do i talk to him" },
+        { pt: "como explico isso", en: "how do i explain this" },
+        { pt: "como faço rápido", en: "how do i do it fast" },
+        { pt: "como entro", en: "how do i get in" },
+        { pt: "como saio", en: "how do i get out" },
+        { pt: "como trabalho aqui", en: "how do i work here" },
+        { pt: "como faço pagamento", en: "how do i pay" },
+        { pt: "como uso o app", en: "how do i use the app" },
+        { pt: "como chego aqui", en: "how do i get here" },
+        { pt: "como falo com médico", en: "how do i talk to a doctor" },
+        { pt: "como retorno ligação", en: "how do i call back" },
+        { pt: "como faço isso agora", en: "how do i do this now" },
+        { pt: "como resolvo hoje", en: "how do i fix this today" },
+        { pt: "como faço sozinho", en: "how do i do it alone" },
+        { pt: "como faço online", en: "how do i do it online" },
+        { pt: "como faço de novo", en: "how do i do it again" },
+        { pt: "como funciona isso", en: "how does this work" }
+      ]
+    },
+    {
+      id: 12,
+      title: "IS / ARE QUESTIONS",
+      emoji: "🔵🟢❓",
+      sentences: [
+        { pt: "é perto", en: "is it close" },
+        { pt: "é longe", en: "is it far" },
+        { pt: "é caro", en: "is it expensive" },
+        { pt: "é barato", en: "is it cheap" },
+        { pt: "está aberto", en: "is it open" },
+        { pt: "está fechado", en: "is it closed" },
+        { pt: "você está bem", en: "are you okay" },
+        { pt: "eles estão aqui", en: "are they here" },
+        { pt: "isso é seu", en: "is this yours" },
+        { pt: "é tarde", en: "is it late" },
+        { pt: "é cedo", en: "is it early" },
+        { pt: "estamos prontos", en: "are we ready" },
+        { pt: "eles estão esperando", en: "are they waiting" },
+        { pt: "o médico está aqui", en: "is the doctor here" },
+        { pt: "o hospital é longe", en: "is the hospital far" },
+        { pt: "isso é permitido", en: "is it allowed" },
+        { pt: "isso é obrigatório", en: "is it mandatory" },
+        { pt: "isso é importante", en: "is it important" },
+        { pt: "isso está pronto", en: "is it ready" },
+        { pt: "a conta está certa", en: "is the bill correct" },
+        { pt: "a porta está aberta", en: "is the door open" },
+        { pt: "o quarto é grande", en: "is the room big" },
+        { pt: "o horário está certo", en: "is the time correct" },
+        { pt: "isso é online", en: "is it online" },
+        { pt: "eles estão fechados", en: "are they closed" },
+        { pt: "ele está atrasado", en: "is he late" },
+        { pt: "ela está ocupada", en: "is she busy" },
+        { pt: "os carros são novos", en: "are the cars new" },
+        { pt: "as casas são grandes", en: "are the houses big" },
+        { pt: "isso está claro", en: "is that clear" }
+      ]
+    },
+    {
+      id: 13,
+      title: "CAN",
+      emoji: "💪🔓",
+      sentences: [
+        { pt: "eu sei dirigir", en: "i can drive" },
+        { pt: "eu sei cozinhar", en: "i can cook" },
+        { pt: "eu sei falar inglês", en: "i can speak english" },
+        { pt: "posso entrar", en: "can i come in" },
+        { pt: "posso sentar aqui", en: "can i sit here" },
+        { pt: "posso usar o banheiro", en: "can i use the bathroom" },
+        { pt: "posso pagar com cartão", en: "can i pay with card" },
+        { pt: "posso ligar depois", en: "can i call later" },
+        { pt: "você pode me ajudar", en: "can you help me" },
+        { pt: "você pode esperar", en: "can you wait" },
+        { pt: "você pode vir", en: "can you come" },
+        { pt: "ele pode ajudar", en: "he can help" },
+        { pt: "ela sabe dirigir", en: "she can drive" },
+        { pt: "eu posso esperar", en: "i can wait" },
+        { pt: "eu não posso agora", en: "i cannot now" },
+        { pt: "eu não posso fazer isso", en: "i cannot do this" },
+        { pt: "não pode estacionar aqui", en: "you cannot park here" },
+        { pt: "não pode fumar aqui", en: "you cannot smoke here" },
+        { pt: "pode chover", en: "it can rain" },
+        { pt: "isso pode quebrar", en: "this can break" },
+        { pt: "posso ficar aqui", en: "can i stay here" },
+        { pt: "posso sair cedo", en: "can i leave early" },
+        { pt: "você consegue vir", en: "can you come" },
+        { pt: "posso ajudar", en: "can i help" },
+        { pt: "eu consigo entender", en: "i can understand" },
+        { pt: "eu consigo correr", en: "i can run" },
+        { pt: "posso tentar", en: "can i try" },
+        { pt: "posso falar agora", en: "can i talk now" },
+        { pt: "posso voltar depois", en: "can i come back later" },
+        { pt: "eu posso continuar", en: "i can continue" }
+      ]
+    },
+    {
+      id: 14,
+      title: "DAYS OF THE WEEK",
+      emoji: "📅",
+      sentences: [
+        { pt: "domingo", en: "sunday" },
+        { pt: "segunda", en: "monday" },
+        { pt: "terça", en: "tuesday" },
+        { pt: "quarta", en: "wednesday" },
+        { pt: "quinta", en: "thursday" },
+        { pt: "sexta", en: "friday" },
+        { pt: "sábado", en: "saturday" },
+        { pt: "hoje é segunda", en: "today is monday" },
+        { pt: "amanhã é sexta", en: "tomorrow is friday" },
+        { pt: "ontem foi terça", en: "yesterday was tuesday" },
+        { pt: "eu trabalho na segunda", en: "i work on monday" },
+        { pt: "eu estudo na terça", en: "i study on tuesday" },
+        { pt: "eu treino na quarta", en: "i train on wednesday" },
+        { pt: "eu ligo na quinta", en: "i call on thursday" },
+        { pt: "eu saio na sexta", en: "i go out on friday" },
+        { pt: "eu descanso no sábado", en: "i rest on saturday" },
+        { pt: "eu fico em casa no domingo", en: "i stay home on sunday" },
+        { pt: "toda semana", en: "every week" },
+        { pt: "todo dia", en: "every day" },
+        { pt: "no fim de semana", en: "on the weekend" },
+        { pt: "essa semana", en: "this week" },
+        { pt: "semana que vem", en: "next week" },
+        { pt: "segunda de manhã", en: "monday morning" },
+        { pt: "sexta à noite", en: "friday night" },
+        { pt: "sábado de manhã", en: "saturday morning" },
+        { pt: "domingo à noite", en: "sunday night" },
+        { pt: "qual dia é hoje", en: "what day is today" },
+        { pt: "que dia é hoje", en: "what day is it" },
+        { pt: "hoje é sexta", en: "today is friday" },
+        { pt: "amanhã é sábado", en: "tomorrow is saturday" }
+      ]
+    },
+    {
+      id: 15,
+      title: "DIRECTIONS",
+      emoji: "🧭➡️",
+      sentences: [
+        { pt: "vire à esquerda", en: "turn left" },
+        { pt: "vire à direita", en: "turn right" },
+        { pt: "siga reto", en: "go straight" },
+        { pt: "é aqui", en: "it is here" },
+        { pt: "é ali", en: "it is there" },
+        { pt: "é na esquina", en: "it is on the corner" },
+        { pt: "é perto", en: "it is close" },
+        { pt: "é longe", en: "it is far" },
+        { pt: "fica à esquerda", en: "it is on the left" },
+        { pt: "fica à direita", en: "it is on the right" },
+        { pt: "fica em frente", en: "it is in front" },
+        { pt: "fica atrás", en: "it is behind" },
+        { pt: "perto daqui", en: "near here" },
+        { pt: "longe daqui", en: "far from here" },
+        { pt: "no sinal", en: "at the traffic light" },
+        { pt: "na rua principal", en: "on the main street" },
+        { pt: "um quarteirão", en: "one block" },
+        { pt: "dois quarteirões", en: "two blocks" },
+        { pt: "onde fica", en: "where is it" },
+        { pt: "mostra no mapa", en: "show me on the map" },
+        { pt: "continue andando", en: "keep walking" },
+        { pt: "volte", en: "go back" },
+        { pt: "chegou", en: "you are there" },
+        { pt: "é ali dentro", en: "it is inside" },
+        { pt: "é ali fora", en: "it is outside" },
+        { pt: "logo ali", en: "right there" },
+        { pt: "perto do banco", en: "near the bank" },
+        { pt: "perto do mercado", en: "near the store" },
+        { pt: "fica ali do lado", en: "it is right next to it" },
+        { pt: "fica ali na frente", en: "it is right in front" }
+      ]
+    },
+    {
+      id: 16,
+      title: "DO DOES DID",
+      emoji: "🔵🔴🟡",
+      sentences: [
+        { pt: "você trabalha aqui", en: "do you work here" },
+        { pt: "você gosta disso", en: "do you like this" },
+        { pt: "eles moram aqui", en: "do they live here" },
+        { pt: "ela trabalha aqui", en: "does she work here" },
+        { pt: "ele gosta disso", en: "does he like this" },
+        { pt: "isso funciona", en: "does it work" },
+        { pt: "você precisa disso", en: "do you need this" },
+        { pt: "ela mora longe", en: "does she live far" },
+        { pt: "ele dirige", en: "does he drive" },
+        { pt: "isso ajuda", en: "does this help" },
+        { pt: "você foi ontem", en: "did you go yesterday" },
+        { pt: "ele ligou", en: "did he call" },
+        { pt: "ela pagou", en: "did she pay" },
+        { pt: "vocês entenderam", en: "did you understand" },
+        { pt: "isso funcionou", en: "did it work" },
+        { pt: "sim eu trabalho", en: "yes i do" },
+        { pt: "não eu não gosto", en: "no i do not" },
+        { pt: "sim ela mora", en: "yes she does" },
+        { pt: "não ele não dirige", en: "no he does not" },
+        { pt: "sim eu fui", en: "yes i did" },
+        { pt: "não eu não fui", en: "no i did not" },
+        { pt: "você entende", en: "do you understand" },
+        { pt: "ela entende", en: "does she understand" },
+        { pt: "você entendeu", en: "did you understand" },
+        { pt: "ele ligou ontem", en: "did he call yesterday" },
+        { pt: "você compra aqui", en: "do you shop here" },
+        { pt: "ela compra aqui", en: "does she shop here" },
+        { pt: "vocês compraram", en: "did you buy" },
+        { pt: "você tem tempo", en: "do you have time" },
+        { pt: "eles moraram aqui", en: "did they live here" }
+      ]
+    },
+    {
+      id: 17,
+      title: "LET ME CAN I",
+      emoji: "🙋✋",
+      sentences: [
+        { pt: "deixa eu entrar", en: "let me in" },
+        { pt: "deixa eu ligar", en: "let me call" },
+        { pt: "deixa eu sentar", en: "let me sit" },
+        { pt: "deixa eu explicar", en: "let me explain" },
+        { pt: "deixa eu tentar", en: "let me try" },
+        { pt: "deixa eu ver", en: "let me see" },
+        { pt: "deixa eu ajudar", en: "let me help" },
+        { pt: "deixa eu pagar", en: "let me pay" },
+        { pt: "posso entrar", en: "can i come in" },
+        { pt: "posso sentar aqui", en: "can i sit here" },
+        { pt: "posso ligar depois", en: "can i call later" },
+        { pt: "posso usar o banheiro", en: "can i use the bathroom" },
+        { pt: "posso ficar aqui", en: "can i stay here" },
+        { pt: "posso esperar", en: "can i wait" },
+        { pt: "posso tentar", en: "can i try" },
+        { pt: "posso ajudar", en: "can i help" },
+        { pt: "posso falar agora", en: "can i talk now" },
+        { pt: "posso sair cedo", en: "can i leave early" },
+        { pt: "posso voltar depois", en: "can i come back later" },
+        { pt: "posso pagar agora", en: "can i pay now" },
+        { pt: "deixa eu resolver isso", en: "let me handle this" },
+        { pt: "deixa eu pensar", en: "let me think" },
+        { pt: "deixa eu verificar", en: "let me check" },
+        { pt: "deixa eu confirmar", en: "let me confirm" },
+        { pt: "posso começar", en: "can i start" },
+        { pt: "posso terminar", en: "can i finish" },
+        { pt: "deixa eu continuar", en: "let me continue" },
+        { pt: "posso tentar de novo", en: "can i try again" },
+        { pt: "deixa eu explicar melhor", en: "let me explain better" },
+        { pt: "posso falar com você", en: "can i talk to you" }
+      ]
+    }
+  
+
+  
+    ,
+    {
+      id: 18,
+      title: "LIKE / LOVE / HATE",
+      emoji: "👍❤️👎",
+      totalRounds: 30,
+      sentences: [
+        { pt: "eu gosto disso", en: "i like this" },
+        { pt: "eu gosto de café", en: "i like coffee" },
+        { pt: "eu gosto de música", en: "i like music" },
+        { pt: "eu gosto daqui", en: "i like it here" },
+        { pt: "eu gosto do trabalho", en: "i like the job" },
+        { pt: "eu gosto de estudar", en: "i like studying" },
+        { pt: "eu amo isso", en: "i love this" },
+        { pt: "eu amo café", en: "i love coffee" },
+        { pt: "eu amo música", en: "i love music" },
+        { pt: "eu amo essa cidade", en: "i love this city" },
+        { pt: "eu amo meu trabalho", en: "i love my job" },
+        { pt: "eu amo aprender inglês", en: "i love learning english" },
+        { pt: "eu odeio isso", en: "i hate this" },
+        { pt: "eu odeio trânsito", en: "i hate traffic" },
+        { pt: "eu odeio acordar cedo", en: "i hate waking up early" },
+        { pt: "eu odeio esperar", en: "i hate waiting" },
+        { pt: "você gosta disso", en: "do you like this" },
+        { pt: "você gosta daqui", en: "do you like it here" },
+        { pt: "você ama isso", en: "do you love this" },
+        { pt: "você odeia isso", en: "do you hate this" },
+        { pt: "eu gosto mais disso", en: "i like this more" },
+        { pt: "eu gosto menos disso", en: "i like this less" },
+        { pt: "eu não gosto disso", en: "i do not like this" },
+        { pt: "eu não amo isso", en: "i do not love this" },
+        { pt: "eu não odeio isso", en: "i do not hate this" },
+        { pt: "ele gosta disso", en: "he likes this" },
+        { pt: "ela ama isso", en: "she loves this" },
+        { pt: "eles odeiam isso", en: "they hate this" },
+        { pt: "eu gosto muito disso", en: "i really like this" },
+        { pt: "eu amo muito isso", en: "i really love this" }
+      ]
+    },
+    {
+      id: 19,
+      title: "IM LOOKING FOR",
+      emoji: "🔎🗺️",
+      totalRounds: 30,
+      sentences: [
+        { pt: "estou procurando isso", en: "i am looking for this" },
+        { pt: "estou procurando ajuda", en: "i am looking for help" },
+        { pt: "estou procurando trabalho", en: "i am looking for a job" },
+        { pt: "estou procurando banheiro", en: "i am looking for a bathroom" },
+        { pt: "estou procurando um lugar", en: "i am looking for a place" },
+        { pt: "estou procurando comida", en: "i am looking for food" },
+        { pt: "estou procurando café", en: "i am looking for coffee" },
+        { pt: "estou procurando mercado", en: "i am looking for a store" },
+        { pt: "estou procurando endereço", en: "i am looking for an address" },
+        { pt: "estou procurando hotel", en: "i am looking for a hotel" },
+        { pt: "estou procurando médico", en: "i am looking for a doctor" },
+        { pt: "estou procurando farmácia", en: "i am looking for a pharmacy" },
+        { pt: "estou procurando ônibus", en: "i am looking for the bus" },
+        { pt: "estou procurando uber", en: "i am looking for an uber" },
+        { pt: "estou procurando caixa eletrônico", en: "i am looking for an atm" },
+        { pt: "estou procurando vaga", en: "i am looking for parking" },
+        { pt: "estou procurando emprego melhor", en: "i am looking for a better job" },
+        { pt: "estou procurando apartamento", en: "i am looking for an apartment" },
+        { pt: "estou procurando casa", en: "i am looking for a house" },
+        { pt: "estou procurando quarto", en: "i am looking for a room" },
+        { pt: "estou procurando preço", en: "i am looking for the price" },
+        { pt: "estou procurando tamanho", en: "i am looking for a size" },
+        { pt: "estou procurando promoção", en: "i am looking for a deal" },
+        { pt: "estou procurando isso aqui", en: "i am looking for this here" },
+        { pt: "estou procurando ali", en: "i am looking for that there" },
+        { pt: "você está procurando isso", en: "are you looking for this" },
+        { pt: "ele está procurando trabalho", en: "he is looking for a job" },
+        { pt: "ela está procurando ajuda", en: "she is looking for help" },
+        { pt: "estamos procurando lugar", en: "we are looking for a place" },
+        { pt: "eles estão procurando casa", en: "they are looking for a house" }
+      ]
+    },
+    {
+      id: 20,
+      title: "MONTHS AND SEASONS",
+      emoji: "🗓️🍂",
+      totalRounds: 30,
+      sentences: [
+        { pt: "janeiro", en: "january" },
+        { pt: "fevereiro", en: "february" },
+        { pt: "março", en: "march" },
+        { pt: "abril", en: "april" },
+        { pt: "maio", en: "may" },
+        { pt: "junho", en: "june" },
+        { pt: "julho", en: "july" },
+        { pt: "agosto", en: "august" },
+        { pt: "setembro", en: "september" },
+        { pt: "outubro", en: "october" },
+        { pt: "novembro", en: "november" },
+        { pt: "dezembro", en: "december" },
+        { pt: "verão", en: "summer" },
+        { pt: "outono", en: "fall" },
+        { pt: "inverno", en: "winter" },
+        { pt: "primavera", en: "spring" },
+        { pt: "em janeiro", en: "in january" },
+        { pt: "em dezembro", en: "in december" },
+        { pt: "no verão", en: "in the summer" },
+        { pt: "no inverno", en: "in the winter" },
+        { pt: "no outono", en: "in the fall" },
+        { pt: "na primavera", en: "in the spring" },
+        { pt: "este mês", en: "this month" },
+        { pt: "mês que vem", en: "next month" },
+        { pt: "mês passado", en: "last month" },
+        { pt: "este ano", en: "this year" },
+        { pt: "ano que vem", en: "next year" },
+        { pt: "ano passado", en: "last year" },
+        { pt: "está frio no inverno", en: "it is cold in the winter" },
+        { pt: "está quente no verão", en: "it is hot in the summer" }
+      ]
+    },
+    {
+      id: 21,
+      title: "MOODS AND FEELINGS",
+      emoji: "🙂😡😴",
+      totalRounds: 30,
+      sentences: [
+        { pt: "estou feliz", en: "i am happy" },
+        { pt: "estou triste", en: "i am sad" },
+        { pt: "estou bravo", en: "i am angry" },
+        { pt: "estou cansado", en: "i am tired" },
+        { pt: "estou com sono", en: "i am sleepy" },
+        { pt: "estou animado", en: "i am excited" },
+        { pt: "estou nervoso", en: "i am nervous" },
+        { pt: "estou calmo", en: "i am calm" },
+        { pt: "estou estressado", en: "i am stressed" },
+        { pt: "estou bem", en: "i am fine" },
+        { pt: "estou mal", en: "i am not well" },
+        { pt: "estou confuso", en: "i am confused" },
+        { pt: "estou focado", en: "i am focused" },
+        { pt: "estou ocupado", en: "i am busy" },
+        { pt: "estou livre", en: "i am free" },
+        { pt: "estou com medo", en: "i am scared" },
+        { pt: "estou relaxado", en: "i am relaxed" },
+        { pt: "estou com fome", en: "i am hungry" },
+        { pt: "estou com sede", en: "i am thirsty" },
+        { pt: "estou doente", en: "i am sick" },
+        { pt: "estou melhor", en: "i am better" },
+        { pt: "estou pior", en: "i am worse" },
+        { pt: "estou pronto", en: "i am ready" },
+        { pt: "estou atrasado", en: "i am late" },
+        { pt: "estou cedo", en: "i am early" },
+        { pt: "ele está feliz", en: "he is happy" },
+        { pt: "ela está cansada", en: "she is tired" },
+        { pt: "eles estão animados", en: "they are excited" },
+        { pt: "estamos bem", en: "we are fine" },
+        { pt: "estou ok agora", en: "i am okay now" }
+      ]
+    },
+    {
+      id: 22,
+      title: "NUMBERS REAL LIFE",
+      emoji: "🔢💯",
+      totalRounds: 30,
+      sentences: [
+        { pt: "um dólar", en: "one dollar" },
+        { pt: "dois dólares", en: "two dollars" },
+        { pt: "dez dólares", en: "ten dollars" },
+        { pt: "vinte dólares", en: "twenty dollars" },
+        { pt: "cinquenta dólares", en: "fifty dollars" },
+        { pt: "cem dólares", en: "one hundred dollars" },
+        { pt: "mil dólares", en: "one thousand dollars" },
+        { pt: "dois reais", en: "two reais" },
+        { pt: "dez reais", en: "ten reais" },
+        { pt: "vinte reais", en: "twenty reais" },
+        { pt: "quanto custa", en: "how much is it" },
+        { pt: "custa dez", en: "it costs ten" },
+        { pt: "custa vinte", en: "it costs twenty" },
+        { pt: "são cinco pessoas", en: "there are five people" },
+        { pt: "são dez minutos", en: "it is ten minutes" },
+        { pt: "tenho dois irmãos", en: "i have two siblings" },
+        { pt: "tenho três filhos", en: "i have three kids" },
+        { pt: "moro aqui há dois anos", en: "i live here for two years" },
+        { pt: "trabalho cinco dias", en: "i work five days" },
+        { pt: "são oito horas", en: "it is eight hours" },
+        { pt: "chego em dez minutos", en: "i arrive in ten minutes" },
+        { pt: "faltam cinco minutos", en: "five minutes left" },
+        { pt: "são cem metros", en: "it is one hundred meters" },
+        { pt: "são dois quarteirões", en: "it is two blocks" },
+        { pt: "tenho vinte anos", en: "i am twenty years old" },
+        { pt: "ele tem trinta anos", en: "he is thirty years old" },
+        { pt: "ela tem quarenta anos", en: "she is forty years old" },
+        { pt: "custa cem reais", en: "it costs one hundred reais" },
+        { pt: "paguei cinquenta", en: "i paid fifty" },
+        { pt: "ganhei cem", en: "i made one hundred" }
+      ]
+    },
+    
+    {
+      id: 23,
+      title: "ORDERING FOOD",
+      emoji: "🍔🍟",
+      totalRounds: 30,
+      sentences: [
+        { pt: "placeholder 1", en: "placeholder 1" },
+        { pt: "placeholder 2", en: "placeholder 2" },
+        { pt: "placeholder 3", en: "placeholder 3" },
+        { pt: "placeholder 4", en: "placeholder 4" },
+        { pt: "placeholder 5", en: "placeholder 5" },
+        { pt: "placeholder 6", en: "placeholder 6" },
+        { pt: "placeholder 7", en: "placeholder 7" },
+        { pt: "placeholder 8", en: "placeholder 8" },
+        { pt: "placeholder 9", en: "placeholder 9" },
+        { pt: "placeholder 10", en: "placeholder 10" },
+        { pt: "placeholder 11", en: "placeholder 11" },
+        { pt: "placeholder 12", en: "placeholder 12" },
+        { pt: "placeholder 13", en: "placeholder 13" },
+        { pt: "placeholder 14", en: "placeholder 14" },
+        { pt: "placeholder 15", en: "placeholder 15" },
+        { pt: "placeholder 16", en: "placeholder 16" },
+        { pt: "placeholder 17", en: "placeholder 17" },
+        { pt: "placeholder 18", en: "placeholder 18" },
+        { pt: "placeholder 19", en: "placeholder 19" },
+        { pt: "placeholder 20", en: "placeholder 20" },
+        { pt: "placeholder 21", en: "placeholder 21" },
+        { pt: "placeholder 22", en: "placeholder 22" },
+        { pt: "placeholder 23", en: "placeholder 23" },
+        { pt: "placeholder 24", en: "placeholder 24" },
+        { pt: "placeholder 25", en: "placeholder 25" },
+        { pt: "placeholder 26", en: "placeholder 26" },
+        { pt: "placeholder 27", en: "placeholder 27" },
+        { pt: "placeholder 28", en: "placeholder 28" },
+        { pt: "placeholder 29", en: "placeholder 29" },
+        { pt: "placeholder 30", en: "placeholder 30" },
+      ]
+    },
+    {
+      id: 24,
+      title: "THIS THAT",
+      emoji: "👉👈",
+      totalRounds: 30,
+      sentences: [
+        { pt: "isso aqui", en: "this" },
+        { pt: "isso ali", en: "that" },
+        { pt: "isso aqui é bom", en: "this is good" },
+        { pt: "isso ali é ruim", en: "that is bad" },
+        { pt: "eu quero isso", en: "i want this" },
+        { pt: "eu quero aquilo", en: "i want that" },
+        { pt: "isso aqui é meu", en: "this is mine" },
+        { pt: "isso ali é seu", en: "that is yours" },
+        { pt: "isso aqui funciona", en: "this works" },
+        { pt: "isso ali não funciona", en: "that does not work" },
+        { pt: "isso aqui é caro", en: "this is expensive" },
+        { pt: "isso ali é barato", en: "that is cheap" },
+        { pt: "eu gosto disso aqui", en: "i like this" },
+        { pt: "eu gosto disso ali", en: "i like that" },
+        { pt: "isso aqui está certo", en: "this is right" },
+        { pt: "isso ali está errado", en: "that is wrong" },
+        { pt: "pega isso aqui", en: "get this" },
+        { pt: "pega isso ali", en: "get that" },
+        { pt: "olha isso aqui", en: "look at this" },
+        { pt: "olha isso ali", en: "look at that" },
+        { pt: "isso aqui agora", en: "this now" },
+        { pt: "isso ali depois", en: "that later" },
+        { pt: "isso aqui é melhor", en: "this is better" },
+        { pt: "isso ali é pior", en: "that is worse" },
+        { pt: "eu escolho isso", en: "i choose this" },
+        { pt: "eu escolho aquilo", en: "i choose that" },
+        { pt: "isso aqui é fácil", en: "this is easy" },
+        { pt: "isso ali é difícil", en: "that is hard" },
+        { pt: "isso aqui funciona bem", en: "this works well" },
+        { pt: "isso ali não funciona", en: "that does not work" }
+      ]
+    },
+    {
+      id: 25,
+      title: "WANT NEED",
+      emoji: "✅🔥",
+      totalRounds: 30,
+      sentences: [
+        { pt: "eu quero isso", en: "i want this" },
+        { pt: "eu quero aquilo", en: "i want that" },
+        { pt: "eu quero café", en: "i want coffee" },
+        { pt: "eu quero comida", en: "i want food" },
+        { pt: "eu quero ajuda", en: "i want help" },
+        { pt: "eu quero trabalhar", en: "i want to work" },
+        { pt: "eu quero estudar", en: "i want to study" },
+        { pt: "eu quero sair", en: "i want to go out" },
+        { pt: "eu quero voltar", en: "i want to come back" },
+        { pt: "eu quero pagar", en: "i want to pay" },
+        { pt: "eu preciso disso", en: "i need this" },
+        { pt: "eu preciso daquilo", en: "i need that" },
+        { pt: "eu preciso ajuda", en: "i need help" },
+        { pt: "eu preciso trabalhar", en: "i need to work" },
+        { pt: "eu preciso estudar", en: "i need to study" },
+        { pt: "eu preciso dormir", en: "i need to sleep" },
+        { pt: "eu preciso comer", en: "i need to eat" },
+        { pt: "eu preciso sair", en: "i need to leave" },
+        { pt: "eu preciso voltar", en: "i need to come back" },
+        { pt: "eu preciso pagar", en: "i need to pay" },
+        { pt: "eu quero agora", en: "i want it now" },
+        { pt: "eu preciso agora", en: "i need it now" },
+        { pt: "eu quero depois", en: "i want it later" },
+        { pt: "eu preciso hoje", en: "i need it today" },
+        { pt: "você quer isso", en: "do you want this" },
+        { pt: "você precisa disso", en: "do you need this" },
+        { pt: "ele quer ajuda", en: "he wants help" },
+        { pt: "ela precisa ajuda", en: "she needs help" },
+        { pt: "nós queremos isso", en: "we want this" },
+        { pt: "eles precisam disso", en: "they need this" }
+      ]
+    },
+    { id: 26, title: "AT THE DOCTOR", emoji: "🏥", slideFile: "../aula-doctor-reel.html", sentences: [
+      { pt: "tá doendo", en: "it hurts" },
+      { pt: "minha cabeça tá doendo", en: "my head hurts" },
+      { pt: "meu estômago tá doendo", en: "my stomach hurts" },
+      { pt: "eu tô com febre", en: "i have a fever" },
+      { pt: "eu tô com tosse", en: "i have a cough" },
+      { pt: "desde quando", en: "since when" },
+      { pt: "há quanto tempo", en: "how long" },
+      { pt: "desde ontem", en: "since yesterday" },
+      { pt: "há 3 dias", en: "for 3 days" },
+      { pt: "desde semana passada", en: "since last week" },
+      { pt: "alguma alergia", en: "any allergies" },
+      { pt: "nenhuma alergia", en: "no allergies" },
+      { pt: "sou alérgico a penicilina", en: "i'm allergic to penicillin" },
+      { pt: "você tá tomando algum remédio", en: "are you taking any medication" },
+      { pt: "sim, pra pressão", en: "yes, for blood pressure" },
+      { pt: "hospital", en: "hospital" },
+      { pt: "médico", en: "doctor" },
+      { pt: "remédio", en: "medicine" },
+      { pt: "estetoscópio", en: "stethoscope" },
+      { pt: "dor", en: "pain" }
+    ]},
+    { id: 27, title: "HARDWARE STORE", emoji: "🔧", slideFile: "../aula-hardware-store-reel.html", sentences: [
+      { pt: "preciso de algo pra", en: "i need something to" },
+      { pt: "preciso de algo pra abrir", en: "i need something to open" },
+      { pt: "preciso de algo pra pendurar", en: "i need something to hang" },
+      { pt: "vocês têm", en: "do you have" },
+      { pt: "martelo", en: "hammer" },
+      { pt: "chave de fenda", en: "screwdriver" },
+      { pt: "furadeira", en: "drill" },
+      { pt: "alicate", en: "pliers" },
+      { pt: "parafusos", en: "screws" },
+      { pt: "pregos", en: "nails" },
+      { pt: "fita", en: "tape" },
+      { pt: "cola", en: "glue" },
+      { pt: "chave inglesa", en: "wrench" },
+      { pt: "nível", en: "level" },
+      { pt: "serra", en: "saw" },
+      { pt: "trena", en: "tape measure" },
+      { pt: "onde eu acho", en: "where can i find" },
+      { pt: "onde eu acho a tinta", en: "where can i find the paint" },
+      { pt: "loja de ferragens", en: "hardware store" },
+      { pt: "quanto custa", en: "how much" }
+    ]},
+    { id: 28, title: "MATERIALS & SUPPLIES", emoji: "📦", slideFile: "../aula-materials-supplies-reel.html", sentences: [
+      { pt: "eu preciso de", en: "i need" },
+      { pt: "preciso de tinta pro quarto", en: "i need paint for the bedroom" },
+      { pt: "preciso de madeira pra uma prateleira", en: "i need wood for a shelf" },
+      { pt: "quanto eu preciso", en: "how much do i need" },
+      { pt: "quanta tinta eu preciso", en: "how much paint do i need" },
+      { pt: "qual tamanho", en: "what size" },
+      { pt: "qual tamanho vocês têm", en: "what size do you have" },
+      { pt: "você pode cortar pra mim", en: "can you cut it for me" },
+      { pt: "madeira", en: "wood" },
+      { pt: "tinta", en: "paint" },
+      { pt: "cimento", en: "cement" },
+      { pt: "areia", en: "sand" },
+      { pt: "azulejo", en: "tile" },
+      { pt: "gesso", en: "drywall" },
+      { pt: "cano", en: "pipe" },
+      { pt: "fio elétrico", en: "wire" },
+      { pt: "pincel", en: "brush" },
+      { pt: "rolo", en: "roller" },
+      { pt: "primer", en: "primer" },
+      { pt: "fita crepe", en: "tape" }
+    ]},
+    { id: 29, title: "PRICES & MONEY", emoji: "💰", slideFile: "../aula-prices-money-reel.html", sentences: [
+      { pt: "quanto custa", en: "how much" },
+      { pt: "quanto custa isso", en: "how much is this" },
+      { pt: "são 25 dólares", en: "it's $25" },
+      { pt: "são 10,99", en: "that's $10.99" },
+      { pt: "isso é caro demais", en: "that's too expensive" },
+      { pt: "tem desconto", en: "any discount" },
+      { pt: "consegue um preço melhor", en: "can you do better" },
+      { pt: "dinheiro ou cartão", en: "cash or card" },
+      { pt: "cartão", en: "card" },
+      { pt: "dinheiro", en: "cash" },
+      { pt: "seu total é 47,50", en: "your total is $47.50" },
+      { pt: "débito ou crédito", en: "debit or credit" },
+      { pt: "aqui está seu troco", en: "here's your change" },
+      { pt: "fica com o troco", en: "keep the change" },
+      { pt: "troco", en: "change" },
+      { pt: "compra", en: "purchase" },
+      { pt: "recibo", en: "receipt" },
+      { pt: "forma de pagamento", en: "payment method" },
+      { pt: "loja", en: "store" },
+      { pt: "cartão de crédito", en: "credit card" }
+    ]},
+    { id: 30, title: "RETURNING ITEMS", emoji: "🔄", slideFile: "../aula-returning-items-reel.html", sentences: [
+      { pt: "quero devolver isso", en: "i want to return this" },
+      { pt: "não serve", en: "it doesn't fit" },
+      { pt: "não funciona", en: "it doesn't work" },
+      { pt: "tá danificado", en: "it's damaged" },
+      { pt: "é o tamanho errado", en: "it's the wrong size" },
+      { pt: "você tem o recibo", en: "do you have the receipt" },
+      { pt: "sim, aqui está", en: "yes, here it is" },
+      { pt: "não, não tenho", en: "no, i don't have it" },
+      { pt: "devolução do dinheiro ou troca", en: "refund or exchange" },
+      { pt: "devolução, por favor", en: "refund, please" },
+      { pt: "quero trocar", en: "i'd like to exchange it" },
+      { pt: "só crédito na loja", en: "store credit only" },
+      { pt: "tá na garantia", en: "it's under warranty" },
+      { pt: "devolver", en: "return" },
+      { pt: "dinheiro de volta", en: "refund" },
+      { pt: "trocar", en: "exchange" },
+      { pt: "recibo", en: "receipt" },
+      { pt: "caixa", en: "box" },
+      { pt: "prazo de devolução", en: "return period" },
+      { pt: "garantia", en: "warranty" }
+    ]},
+    { id: 31, title: "TRAFFIC STOP", emoji: "🚦", slideFile: "../aula-traffic-stop-reel.html", sentences: [
+      { pt: "mãos no volante", en: "keep hands on steering wheel" },
+      { pt: "carteira e documento", en: "license and registration" },
+      { pt: "aqui está, oficial", en: "here you go, officer" },
+      { pt: "seguro do carro", en: "insurance" },
+      { pt: "você sabe por que eu te parei", en: "do you know why i pulled you over" },
+      { pt: "não, oficial", en: "no, officer" },
+      { pt: "não tenho certeza", en: "i'm not sure" },
+      { pt: "desculpa, oficial", en: "i'm sorry, officer" },
+      { pt: "eu não sabia", en: "i didn't know" },
+      { pt: "saia do carro", en: "step out of the car" },
+      { pt: "sempre obedeça", en: "always obey" },
+      { pt: "só aviso", en: "warning" },
+      { pt: "multa", en: "ticket" },
+      { pt: "assina aqui", en: "sign here" },
+      { pt: "carteira", en: "license" },
+      { pt: "documento", en: "registration" },
+      { pt: "seguro", en: "insurance" },
+      { pt: "carro de polícia", en: "police car" },
+      { pt: "policial", en: "officer" },
+      { pt: "carro", en: "car" }
+    ]}
+];
+
+  // === UTILITIES ===
+  const $ = id => document.getElementById(id);
+  const clamp = (n, a, b) => Math.max(a, Math.min(b, n));
+  const shuffle = arr => {
+    for (let i = arr.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [arr[i], arr[j]] = [arr[j], arr[i]];
+    }
+    return arr;
+  };
+
+  const DIFFICULTY = {
+    fallMs: 550,
+    dropMs: 55,
+    lives: 3,
+    comboBonus: 0.03
+  };
+
+  // === STATE ===
+  let currentAula = null;
+  let round = 1;
+  let score = 0;
+  let combo = 0;
+  let lives = DIFFICULTY.lives;
+  let wrongAnswers = 0;
+  let targetTokens = [];
+  let bag = [];
+  let current = null;
+  let slotIndex = 0;
+  let fallingY = 0;
+  let cellRects = [];
+  let playing = false;
+  let raf = null;
+  let lastTick = 0;
+  let dropping = false;
+  let rowCells = [];
+  let usedSentences = [];
+  let gameStartTime = 0; // Track game start time for analytics
+
+  // === QUICK PLAY STATE ===
+  let quickPlayState = {
+    score: 0,
+    lives: 3,
+    combo: 0,
+    wave: 1,
+    correctCount: 0,
+    running: false,
+    currentSentence: null,
+    selectedWords: [],
+    availableWords: [],
+    allSentences: [],
+    animating: false,
+    timerSeconds: 30,
+    timerInterval: null,
+    timerStartTime: 30,
+    waveStartTime: null,
+    selectedWordIndex: -1,
+    focusType: 'undo',  // 'undo', 'word', or 'submit'
+    activePowerUp: null,  // current active power-up: 'freeze', 'hint', 'shield'
+    wrongAnswerCount: 0,  // track wrong answers to trigger power-ups
+    powerUpCharge: 0,  // loading bar progress (0-100)
+    pendingPowerUpType: null  // type of power-up being charged
+  };
+
+  // === DOM REFS ===
+  const menuScreen = $("menuScreen");
+  const gameScreen = $("gameScreen");
+  const aulasGrid = $("aulasGrid");
+  const arena = $("arena");
+  const gridEl = $("grid");
+  const blockEl = $("block");
+  const blockInner = $("blockInner");
+  const targetText = $("targetText");
+  const queueChips = $("queueChips");
+  const feedbackEl = $("feedback");
+  const startBtn = $("startBtn");
+  const backBtn = $("backBtn");
+  const gameoverOverlay = $("gameoverOverlay");
+  const gameoverScore = $("gameoverScore");
+  const gameoverRetryBtn = $("gameoverRetryBtn");
+  const gameoverMenuBtn = $("gameoverMenuBtn");
+  const hint = $("hint");
+  const aulaTitle = $("aulaTitle");
+
+  // Quick Play DOM refs
+  const quickplayScreen = $("quickplayScreen");
+  const qsScore = $("qsScore");
+  const qsLives = $("qsLives");
+  const qsCombo = $("qsCombo");
+  const qsWave = $("qsWave");
+  const qsWaveInfo = $("qsWaveInfo");
+  const qsTarget = $("qsTarget");
+  const qsStack = $("qsStack");
+  const qsWordQueue = $("qsWordQueue");
+  const qsUndoBtn = $("qsUndoBtn");
+  const qsSubmitBtn = $("qsSubmitBtn");
+
+  // === SOUND EFFECTS ===
+  function playSound(type) {
+    try {
+      const isMuted = localStorage.getItem('unlock_audio_muted') === 'true';
+      if (isMuted) return;
+
+      const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+      const osc = audioContext.createOscillator();
+      const gain = audioContext.createGain();
+      osc.connect(gain);
+      gain.connect(audioContext.destination);
+
+      switch(type) {
+        case 'correct':
+          osc.frequency.setValueAtTime(523.25, audioContext.currentTime);
+          osc.frequency.setValueAtTime(659.25, audioContext.currentTime + 0.05);
+          osc.frequency.setValueAtTime(783.99, audioContext.currentTime + 0.1);
+          gain.gain.setValueAtTime(0.3, audioContext.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.15);
+          osc.type = 'sine';
+          osc.start(audioContext.currentTime);
+          osc.stop(audioContext.currentTime + 0.15);
+          break;
+
+        case 'wrong':
+          osc.frequency.setValueAtTime(392.00, audioContext.currentTime);
+          osc.frequency.setValueAtTime(349.23, audioContext.currentTime + 0.1);
+          gain.gain.setValueAtTime(0.25, audioContext.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.2);
+          osc.type = 'square';
+          osc.start(audioContext.currentTime);
+          osc.stop(audioContext.currentTime + 0.2);
+          break;
+
+        case 'combo':
+          const osc2 = audioContext.createOscillator();
+          const gain2 = audioContext.createGain();
+          osc2.connect(gain2);
+          gain2.connect(audioContext.destination);
+          osc2.type = 'sine';
+          osc2.frequency.setValueAtTime(700, audioContext.currentTime);
+          osc2.frequency.exponentialRampToValueAtTime(1400, audioContext.currentTime + 0.15);
+          gain2.gain.setValueAtTime(0.2, audioContext.currentTime);
+          gain2.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.15);
+          osc2.start(audioContext.currentTime);
+          osc2.stop(audioContext.currentTime + 0.15);
+          break;
+
+        case 'levelup':
+          for (let i = 0; i < 3; i++) {
+            const freqs = [523.25, 659.25, 783.99];
+            const o = audioContext.createOscillator();
+            const g = audioContext.createGain();
+            o.connect(g);
+            g.connect(audioContext.destination);
+            o.type = 'sine';
+            o.frequency.value = freqs[i];
+            g.gain.setValueAtTime(0.15, audioContext.currentTime);
+            g.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.4);
+            o.start(audioContext.currentTime);
+            o.stop(audioContext.currentTime + 0.4);
+          }
+          break;
+      }
+    } catch (e) {
+      // Audio context not available
+    }
+  }
+
+  // === SCREEN MANAGEMENT ===
+  function showScreen(screenId) {
+    if (screenId !== 'gameScreen' && screenId !== 'quickplayScreen') {
+      audioManager.playSelect();
+    }
+    document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
+    $(screenId).classList.add("active");
+  }
+
+  // === CLASS DESCRIPTIONS ===
+  const AULA_DESCRIPTIONS = {
+    1: "Domine o verbo 'to be' no presente. Aprenda a descrever estados e condições de pessoas e objetos.",
+    2: "Aprenda a contar e reconhecer números em inglês. Essencial para comunicação diária e matemática básica.",
+    3: "Pratique fazer perguntas educadas sobre posse. Útil para interações cotidianas e pedidos.",
+    4: "Entenda o verbo 'get' e seus diversos significados. Um verbo fundamental com múltiplos contextos.",
+    5: "Aprenda verbos direcionais 'go' e 'come'. Essencial para descrever movimento e viagem.",
+    6: "Domine 'going to' para intenções futuras. Aprenda a expressar o que você planeja fazer.",
+    7: "Diferencie entre 'have' e 'has'. Essencial para posse e tempos perfeitos do presente.",
+    8: "Aprenda 'have to' e 'need to' para obrigações. Expresse o que você deve ou precisa fazer.",
+    9: "Domine 'here' e 'there' para localização. Aprenda relações espaciais e direções.",
+    10: "Faça perguntas com 'how much' e 'how many'. Perfeito para compras e quantidades.",
+    11: "Domine 'how' e seus muitos usos. Pergunte sobre modo, frequência e mais.",
+    12: "Pratique formação de perguntas com 'is' e 'are'. Essencial para habilidades de investigação.",
+    13: "Aprenda o verbo versátil 'can'. Expresse habilidade, possibilidade e permissão.",
+    14: "Domine os dias da semana. Essencial para agendamento e planejamento.",
+    15: "Aprenda vocabulário e frases direcionais. Navegue e dê direções com confiança.",
+    16: "Domine 'do', 'does' e 'did'. Fundamental para formar perguntas e negativas.",
+    17: "Pratique pedidos educados com 'let me' e 'can I'. Essencial para educação.",
+    18: "Expresse seus sentimentos e opiniões. Aprenda 'like', 'love' e 'hate' em diferentes intensidades.",
+    19: "Pratique expressões com 'looking for'. Essencial para compras e encontrar coisas.",
+    20: "Domine meses e estações. Aprenda vocabulário temporal para planejamento.",
+    21: "Expresse emoções e estados de espírito. Descreva como você e outros estão se sentindo.",
+    22: "Aplique números em contextos reais. Números usados em situações cotidianas.",
+    23: "Domine 'this' e 'that'. Demonstre e especifique objetos na conversa.",
+    24: "Expresse desejos e necessidades. Aprenda 'want' e 'need' em vários contextos.",
+    26: "Aprenda a descrever sintomas e falar sobre saúde. Essencial para consultas médicas.",
+    27: "Pratique vocabulário de ferramentas e hardware. Útil para construção e reparos.",
+    28: "Aprenda nomes de materiais de construção. Essencial para projetos e compras.",
+    29: "Domine expressões sobre preços e negociação. Essencial para compras e comércio.",
+    30: "Aprenda a devolver itens e falar sobre devoluções. Importante para reclamações e trocas.",
+    31: "Pratique conversar durante uma parada de trânsito. Importante para comunicação com autoridades."
+  };
+
+  // === RENDER MENU ===
+  function renderMenu() {
+    aulasGrid.innerHTML = "";
+
+    // Add Quick Play button first
+    const quickPlayWrapper = document.createElement("div");
+    quickPlayWrapper.style.position = "relative";
+    quickPlayWrapper.style.gridColumn = "1 / -1";
+    const quickPlayCard = document.createElement("div");
+    quickPlayCard.className = "aula-card";
+    quickPlayCard.style.cssText = "cursor: pointer; border: 3px solid var(--gold); background: linear-gradient(180deg, rgba(255,215,0,0.15), rgba(255,140,0,0.1));";
+    quickPlayCard.innerHTML = `
+      <div class="emoji" style="font-size: 3rem;">⚡</div>
+      <div class="name" style="color: var(--gold); font-weight: 900; font-size: 1.1rem;">QUICK PLAY</div>
+      <div style="font-size: 0.75rem; margin-top: 8px; color: var(--gold);">Stack Fast • Survive Waves!</div>
+    `;
+    quickPlayCard.addEventListener("click", () => showQuickPlayStart());
+    quickPlayWrapper.appendChild(quickPlayCard);
+    aulasGrid.appendChild(quickPlayWrapper);
+
+    AULAS.forEach(aula => {
+      const wrapper = document.createElement("div");
+      wrapper.style.position = "relative";
+
+      const card = document.createElement("div");
+      card.className = "aula-card";
+      card.innerHTML = `
+        <div class="emoji">${aula.emoji}</div>
+        <div class="name">${aula.title}</div>
+        <div class="count">${aula.sentences.length} frases</div>
+      `;
+      card.addEventListener("click", () => selectAula(aula));
+
+      // Add hidden study button that appears on hover
+      const studyBtn = document.createElement("button");
+      studyBtn.className = "aula-study-btn";
+      studyBtn.textContent = "📚";
+      studyBtn.style.cssText = `
+        position: absolute;
+        top: 5px;
+        right: 5px;
+        width: 48px;
+        height: 48px;
+        border-radius: 50%;
+        background: var(--gold);
+        color: var(--bg);
+        border: none;
+        font-size: 24px;
+        cursor: pointer;
+        opacity: 0;
+        transform: scale(0);
+        transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        z-index: 10;
+        box-shadow: 0 4px 15px rgba(255,215,0,0.3);
+      `;
+      // Create tooltip for description
+      const tooltip = document.createElement('div');
+      tooltip.style.cssText = `
+        position: absolute;
+        top: 65px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: rgba(0, 0, 0, 0.95);
+        color: var(--gold);
+        padding: 10px 15px;
+        border-radius: 8px;
+        font-size: 0.85rem;
+        white-space: normal;
+        width: 220px;
+        text-align: center;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.3s;
+        border: 1px solid var(--gold);
+        z-index: 20;
+        line-height: 1.4;
+      `;
+      tooltip.textContent = AULA_DESCRIPTIONS[aula.id] || '';
+      wrapper.appendChild(tooltip);
+
+      studyBtn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        // For aulas 1-24, use the consolidated aulas.html with lesson mapping
+        // For aulas 25-30, use separate HTML files
+        if (aula.slideFile && aula.id >= 25) {
+          // Use the separate HTML file path from aula definition
+          // Convert relative path to absolute path by removing ../ and ensuring root
+          const slidePath = aula.slideFile.replace('../', '/');
+          window.location.href = slidePath;
+        } else {
+          // Use consolidated aulas.html with lesson mapping
+          const aulaMapping = {
+            1: 'isAre', 2: 'numbers', 3: 'doYouHave', 4: 'get', 5: 'goCome',
+            6: 'goingTo', 7: 'haveHas', 8: 'haveToNeedTo', 9: 'hereThere',
+            10: 'howMuchMany', 11: 'how', 12: 'isAreQuestions', 13: 'can',
+            14: 'days', 15: 'directions', 16: 'doDoesdid', 17: 'letMeCanI',
+            18: 'likeLoveHate', 19: 'lookingFor', 20: 'monthsSeasons',
+            21: 'moodsFeelings', 22: 'numbersRealLife', 23: 'thisThat', 24: 'wantNeed'
+          };
+          const aulaId = aulaMapping[aula.id] || 'isAre';
+          window.location.href = `../aulas.html?lesson=${aulaId}&returnTo=games/word-stack.html`;
+        }
+      });
+
+      studyBtn.addEventListener("mouseenter", () => {
+        studyBtn.style.transform = "scale(1.2)";
+        studyBtn.style.boxShadow = "0 8px 25px rgba(255,215,0,0.6)";
+        tooltip.style.opacity = '1';
+      });
+      studyBtn.addEventListener("mouseleave", () => {
+        studyBtn.style.transform = "scale(1)";
+        studyBtn.style.boxShadow = "0 4px 15px rgba(255,215,0,0.3)";
+        tooltip.style.opacity = '0';
+      });
+
+      wrapper.addEventListener("mouseenter", () => {
+        studyBtn.style.opacity = "1";
+        studyBtn.style.transform = "scale(1)";
+      });
+      wrapper.addEventListener("mouseleave", () => {
+        studyBtn.style.opacity = "0";
+        studyBtn.style.transform = "scale(0)";
+      });
+
+      wrapper.appendChild(card);
+      wrapper.appendChild(studyBtn);
+      aulasGrid.appendChild(wrapper);
+    });
+  }
+
+  function selectAula(aula) {
+    audioManager.playSelect();
+    currentAula = aula;
+
+    // Set up quickplay for this aula
+    quickPlayState.score = 0;
+    quickPlayState.lives = 3;
+    quickPlayState.combo = 0;
+    quickPlayState.wave = 1;
+    quickPlayState.correctCount = 0;
+    quickPlayState.wrongAnswerCount = 0;
+    quickPlayState.activePowerUp = null;
+    quickPlayState.running = false;
+    quickPlayState.selectedWords = [];
+    quickPlayState.allSentences = [];
+    quickPlayState.selectedWordIndex = -1;
+    quickPlayState.currentAula = aula;
+
+    // Only use sentences from the selected aula
+    quickPlayState.allSentences = [...aula.sentences];
+    quickPlayState.allSentences = shuffle(quickPlayState.allSentences);
+
+    updateQuickPlayHUD();
+
+    // Show quickplay start screen with aula title and description
+    const titleEl = document.querySelector('.quickplay-title');
+    if (titleEl) titleEl.textContent = aula.title;
+
+    const descEl = document.getElementById('quickplayStartDesc');
+    if (descEl) descEl.textContent = `Complete all ${aula.sentences.length} words from ${aula.title}`;
+
+    showScreen("quickplayScreen");
+    document.getElementById("quickplayStartScreen").style.display = "flex";
+    document.getElementById("quickplayGameScreen").style.display = "none";
+  }
+
+  // === UI HELPERS ===
+  function updateHUD() {
+    $("hudScore").textContent = score;
+    $("hudCombo").textContent = combo || "0";
+    $("hudLives").textContent = lives;
+    $("hudLives").className = "value " + (lives <= 1 ? "bad" : lives <= 2 ? "warn" : "ok");
+  }
+
+  function showFeedback(type, text) {
+    feedbackEl.textContent = text;
+    feedbackEl.className = "feedback show " + type;
+    setTimeout(() => feedbackEl.classList.remove("show"), 800);
+  }
+
+  function renderQueue() {
+    queueChips.innerHTML = "";
+    const allWords = [];
+    if (current) allWords.push(current);
+    if (bag.length) allWords.push(...bag.slice().reverse());
+    
+    allWords.forEach((tok, idx) => {
+      const chip = document.createElement("span");
+      chip.className = "chip" + (tok === current ? " now" : "");
+      chip.textContent = tok;
+      
+      chip.addEventListener("click", () => {
+        if (!playing || !current) return;
+        if (tok === current) return;
+        
+        bag.push(current);
+        bag = bag.filter(w => w !== tok);
+        current = tok;
+        blockInner.textContent = current;
+        renderQueue();
+      });
+      
+      queueChips.appendChild(chip);
+    });
+  }
+
+  function renderRow() {
+    const cells = gridEl.querySelectorAll(".cell");
+    cells.forEach((cell, i) => {
+      cell.classList.toggle("highlight", i === slotIndex && playing);
+      cell.classList.toggle("filled", rowCells[i] !== null);
+      cell.innerHTML = rowCells[i] ? `<span class="cell-text">${rowCells[i]}</span>` : "";
+    });
+  }
+
+  // === GRID ===
+  function buildGrid(cols) {
+    gridEl.innerHTML = "";
+    gridEl.style.gridTemplateColumns = `repeat(${cols}, 1fr)`;
+    rowCells = new Array(cols).fill(null);
+    
+    for (let i = 0; i < cols; i++) {
+      const cell = document.createElement("div");
+      cell.className = "cell";
+      gridEl.appendChild(cell);
+    }
+    requestAnimationFrame(measureCells);
+  }
+
+  function measureCells() {
+    const cells = [...gridEl.querySelectorAll(".cell")];
+    cellRects = cells.map(c => c.getBoundingClientRect());
+    if (cellRects[0]) {
+      blockEl.style.width = cellRects[0].width + "px";
+      blockEl.style.height = cellRects[0].height + "px";
+    }
+  }
+
+  function updateBlockX() {
+    if (!cellRects[slotIndex]) return;
+    const arenaRect = arena.getBoundingClientRect();
+    const cellRect = cellRects[slotIndex];
+    const x = cellRect.left - arenaRect.left;
+    blockEl.style.transform = `translate3d(${x}px, ${fallingY}px, 0)`;
+  }
+
+  // === GAME LOGIC ===
+  function tokenize(s) {
+    return s.trim().split(/\s+/);
+  }
+
+  function getRandomSentence() {
+    const available = currentAula.sentences.filter(s => !usedSentences.includes(s.en));
+    if (available.length === 0) {
+      usedSentences = [];
+      return currentAula.sentences[Math.floor(Math.random() * currentAula.sentences.length)];
+    }
+    return available[Math.floor(Math.random() * available.length)];
+  }
+
+  function nextRound() {
+    const sent = getRandomSentence();
+    usedSentences.push(sent.en);
+    
+    targetText.textContent = sent.pt;
+    targetTokens = tokenize(sent.en);
+    bag = shuffle([...targetTokens]);
+    
+    buildGrid(targetTokens.length);
+    rowCells = new Array(targetTokens.length).fill(null);
+    slotIndex = Math.floor(targetTokens.length / 2);
+    
+    pickNextWord();
+  }
+
+  function pickNextWord() {
+    if (bag.length === 0) {
+      validateRow();
+      return;
+    }
+    current = bag.pop();
+    blockInner.textContent = current;
+    blockInner.className = "block-inner";
+    fallingY = 10;
+    updateBlockX();
+    renderQueue();
+    renderRow();
+  }
+
+  function lockCurrent() {
+    if (!current) return;
+    if (rowCells[slotIndex] !== null) {
+      showFeedback("bad", "Slot ocupado!");
+      triggerShake();
+      return;
+    }
+    rowCells[slotIndex] = current;
+    current = null;
+    renderRow();
+    renderQueue();
+    pickNextWord();
+  }
+
+  function validateRow() {
+    const ok = rowCells.join(" ") === targetTokens.join(" ");
+    
+    if (ok) {
+      combo++;
+      playSound('correct');
+      const mult = 1 + Math.min(combo, 12) * DIFFICULTY.comboBonus;
+      const baseGain = Math.round(100 * mult);
+      const streakMultiplier = window.UNLOCK ? window.UNLOCK.getStreakMultiplier(window.UNLOCK.loadUser()) : 1;
+      const gain = Math.round(baseGain * streakMultiplier);
+      score += gain;
+      showFeedback("good", `+${gain} 🔥x${combo}`);
+      triggerFlash("good");
+      createParticles();
+      if (combo % 3 === 0) {
+        triggerAura();
+        playSound('combo');
+      }
+    } else {
+      wrongAnswers++;
+      lives--;
+      combo = 0;
+      playSound('wrong');
+      showFeedback("bad", "Ordem errada!");
+      triggerFlash("bad");
+      triggerShake();
+
+      if (lives <= 0) {
+        updateHUD();
+        gameOver();
+        return;
+      }
+    }
+
+    updateHUD();
+    setTimeout(() => {
+      playSound('levelup');
+      round++;
+      nextRound();
+    }, 700);
+  }
+
+  function gameOver() {
+    // Track game end
+    if (window.analytics) {
+      const timeSpent = Date.now() - gameStartTime;
+      analytics.trackGameEnd(currentAula.title, score, 'lose', timeSpent);
+    }
+
+    // Complete daily quest
+    let isPerfect = false;
+    if (window.UNLOCK) {
+      const user = window.UNLOCK.loadUser();
+
+      window.UNLOCK.completeQuest(user);
+
+      // Check for perfect run (no errors) - only in Challenge difficulty
+      if (wrongAnswers === 0 && selectedMode !== 'relaxed') {
+        isPerfect = true;
+        const aula = currentAula;
+        const aulaIndex = AULAS.findIndex(a => a.title === aula.title);
+        const badgeId = `wordStack_aula${aulaIndex}_perfect`;
+        window.UNLOCK.unlockBadge(user, badgeId, {
+          icon: '🏆',
+          title: `${aula.emoji} Perfect Word Stack`,
+          description: `Completou ${aula.title} sem errar nenhuma ordem!`,
+          game: 'wordStack',
+          aulaIndex
+        });
+      }
+
+      window.UNLOCK.saveUser(user);
+      window.UNLOCK.hydrateUI(user);
+    }
+
+    playing = false;
+    if (raf) cancelAnimationFrame(raf);
+    gameoverScore.textContent = `Score: ${score}`;
+
+    // Show perfect badge animation if earned
+    if (isPerfect) {
+      triggerPerfectBadgeAnimation();
+    }
+
+    // Delay overlay to show animation
+    setTimeout(() => {
+      gameoverOverlay.classList.add("show");
+    }, isPerfect ? 500 : 0);
+  }
+
+  // === EFFECTS ===
+  function triggerShake() {
+    arena.classList.remove("shake");
+    void arena.offsetWidth;
+    arena.classList.add("shake");
+  }
+
+  function triggerFlash(type) {
+    document.body.classList.remove("flash-good", "flash-bad");
+    void document.body.offsetWidth;
+    document.body.classList.add("flash-" + type);
+    setTimeout(() => document.body.classList.remove("flash-" + type), 200);
+  }
+
+  function triggerAura() {
+    const aura = $("comboAura");
+    aura.classList.remove("active");
+    void aura.offsetWidth;
+    aura.classList.add("active");
+  }
+
+  function triggerPerfectBadgeAnimation() {
+    const badgeEl = document.createElement('div');
+    badgeEl.style.cssText = `
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%) scale(0);
+      font-size: 4rem;
+      z-index: 9999;
+      pointer-events: none;
+      text-shadow: 0 0 20px rgba(255,215,0,0.8);
+      animation: badgePop 1s ease-out forwards;
+    `;
+    badgeEl.textContent = '🏆';
+    document.body.appendChild(badgeEl);
+
+    for (let i = 0; i < 12; i++) {
+      const particle = document.createElement('div');
+      particle.style.cssText = `
+        position: fixed;
+        width: 12px;
+        height: 12px;
+        background: #FFD700;
+        border-radius: 50%;
+        box-shadow: 0 0 10px #FFD700;
+        top: 50%;
+        left: 50%;
+        z-index: 9998;
+        pointer-events: none;
+      `;
+      document.body.appendChild(particle);
+
+      const angle = (Math.PI * 2 * i) / 12;
+      const distance = 150;
+      const tx = Math.cos(angle) * distance;
+      const ty = Math.sin(angle) * distance;
+
+      particle.animate([
+        { transform: 'translate(0, 0) scale(1)', opacity: 1 },
+        { transform: `translate(${tx}px, ${ty}px) scale(0)`, opacity: 0 }
+      ], {
+        duration: 1000,
+        easing: 'cubic-bezier(0.25, 0.46, 0.45, 0.94)'
+      });
+
+      setTimeout(() => particle.remove(), 1000);
+    }
+
+    if (!document.getElementById('badgePerfectStyle')) {
+      const style = document.createElement('style');
+      style.id = 'badgePerfectStyle';
+      style.textContent = `
+        @keyframes badgePop {
+          0% { transform: translate(-50%, -50%) scale(0) rotate(0deg); opacity: 0; }
+          50% { transform: translate(-50%, -50%) scale(1.2) rotate(10deg); opacity: 1; }
+          100% { transform: translate(-50%, -50%) scale(1) rotate(0deg); opacity: 1; }
+        }
+      `;
+      document.head.appendChild(style);
+    }
+
+    setTimeout(() => badgeEl.remove(), 1000);
+  }
+
+  function createParticles() {
+    const rect = blockEl.getBoundingClientRect();
+    const cx = rect.left + rect.width / 2;
+    const cy = rect.top + rect.height / 2;
+    const colors = ["#FFD700", "#00FF88", "#00BFFF"];
+    
+    for (let i = 0; i < 12; i++) {
+      const p = document.createElement("div");
+      p.className = "particle fly";
+      const color = colors[Math.floor(Math.random() * colors.length)];
+      p.style.cssText = `left:${cx}px;top:${cy}px;width:6px;height:6px;background:${color};box-shadow:0 0 8px ${color};`;
+      const angle = (Math.PI * 2 * i) / 12;
+      const dist = 50 + Math.random() * 40;
+      p.style.setProperty("--tx", Math.cos(angle) * dist + "px");
+      p.style.setProperty("--ty", Math.sin(angle) * dist - 60 + "px");
+      document.body.appendChild(p);
+      setTimeout(() => p.remove(), 600);
+    }
+  }
+
+  // === GAME LOOP ===
+  function tick(ts) {
+    if (!playing) return;
+    
+    const delta = ts - lastTick;
+    lastTick = ts;
+    const speed = dropping ? DIFFICULTY.dropMs : DIFFICULTY.fallMs;
+    
+    fallingY += delta / speed * 10;
+    
+    const gridRect = gridEl.getBoundingClientRect();
+    const arenaRect = arena.getBoundingClientRect();
+    const maxY = gridRect.top - arenaRect.top;
+    
+    if (fallingY >= maxY) {
+      fallingY = maxY;
+      updateBlockX();
+      lockCurrent();
+      raf = requestAnimationFrame(tick);
+      return;
+    }
+    
+    updateBlockX();
+    raf = requestAnimationFrame(tick);
+  }
+
+  function startGame() {
+    audioManager.playSelect();
+    score = 0;
+    combo = 0;
+    wrongAnswers = 0;
+    lives = DIFFICULTY.lives;
+    round = 1;
+    playing = true;
+
+    startBtn.textContent = "RUNNING...";
+    startBtn.disabled = true;
+    hint.style.display = "none";
+    gameoverOverlay.classList.remove("show");
+
+    updateHUD();
+    nextRound();
+
+    lastTick = performance.now();
+    if (raf) cancelAnimationFrame(raf);
+    raf = requestAnimationFrame(tick);
+
+    // Track game start
+    if (window.analytics) {
+      analytics.trackGameStart(currentAula.title, selectedMode || 'challenge');
+    }
+    gameStartTime = Date.now();
+  }
+
+  function resetGame() {
+    playing = false;
+    if (raf) cancelAnimationFrame(raf);
+    score = 0;
+    combo = 0;
+    wrongAnswers = 0;
+    lives = DIFFICULTY.lives;
+    round = 1;
+    current = null;
+    bag = [];
+    rowCells = [];
+    
+    gridEl.innerHTML = "";
+    targetText.textContent = "—";
+    queueChips.innerHTML = "";
+    startBtn.textContent = "START";
+    startBtn.disabled = false;
+    hint.style.display = "block";
+    gameoverOverlay.classList.remove("show");
+    
+    updateHUD();
+    buildGrid(4);
+    renderRow();
+  }
+
+  // === INPUT ===
+  function moveLeft() {
+    slotIndex = clamp(slotIndex - 1, 0, targetTokens.length - 1);
+    updateBlockX();
+    renderRow();
+  }
+
+  function moveRight() {
+    slotIndex = clamp(slotIndex + 1, 0, targetTokens.length - 1);
+    updateBlockX();
+    renderRow();
+  }
+
+  document.addEventListener("keydown", e => {
+    if (!playing) return;
+    if (e.key === "ArrowLeft") { e.preventDefault(); moveLeft(); }
+    if (e.key === "ArrowRight") { e.preventDefault(); moveRight(); }
+    if (e.key === "ArrowDown") { e.preventDefault(); dropping = true; }
+    if (e.key === " " || e.key === "Enter") { e.preventDefault(); lockCurrent(); }
+  });
+
+  document.addEventListener("keyup", e => {
+    if (e.key === "ArrowDown") dropping = false;
+  });
+
+  // Mobile touch
+  let touchStartX = 0, touchStartY = 0, touchMoved = false;
+  
+  arena.addEventListener("touchstart", e => {
+    if (!playing) return;
+    const t = e.touches[0];
+    touchStartX = t.clientX;
+    touchStartY = t.clientY;
+    touchMoved = false;
+  }, { passive: true });
+
+  arena.addEventListener("touchmove", e => {
+    if (!playing) return;
+    const t = e.touches[0];
+    const dx = t.clientX - touchStartX;
+    const dy = t.clientY - touchStartY;
+    
+    if (Math.abs(dx) > 30 && Math.abs(dx) > Math.abs(dy)) {
+      touchMoved = true;
+      if (dx > 0) moveRight(); else moveLeft();
+      touchStartX = t.clientX;
+    }
+    if (dy > 40 && Math.abs(dy) > Math.abs(dx)) {
+      touchMoved = true;
+      dropping = true;
+    }
+  }, { passive: true });
+
+  arena.addEventListener("touchend", () => {
+    if (!playing) return;
+    if (!touchMoved) lockCurrent();
+    dropping = false;
+  });
+
+  // === BUTTONS ===
+  startBtn.addEventListener("click", startGame);
+  
+  backBtn.addEventListener("click", () => {
+    playing = false;
+    if (raf) cancelAnimationFrame(raf);
+    showScreen("menuScreen");
+  });
+  
+  gameoverRetryBtn.addEventListener("click", () => {
+    gameoverOverlay.classList.remove("show");
+    usedSentences = [];
+    resetGame();
+    startGame();
+  });
+  
+  gameoverMenuBtn.addEventListener("click", () => {
+    gameoverOverlay.classList.remove("show");
+    showScreen("menuScreen");
+  });
+
+  // Resize handler
+  window.addEventListener("resize", () => {
+    if (playing) requestAnimationFrame(measureCells);
+  });
+
+  // === STATS MODAL HANDLERS ===
+  function updateBadgeCounter() {
+    if (!window.UNLOCK) return;
+    const user = window.UNLOCK.loadUser();
+    const badges = window.UNLOCK.getBadges(user);
+    const badgeCount = Object.keys(badges).length;
+    const counterEl = document.getElementById('badgeCounter');
+    if (counterEl) {
+      counterEl.textContent = '🏆 ' + badgeCount;
+    }
+  }
+
+  function renderBadges() {
+    const badgesContainer = document.getElementById('badgesContainer');
+    const noBadgesMsg = document.getElementById('noBadgesMsg');
+
+    if (!window.UNLOCK) {
+      noBadgesMsg.style.display = 'block';
+      badgesContainer.innerHTML = '';
+      return;
+    }
+
+    const user = window.UNLOCK.loadUser();
+    const badges = window.UNLOCK.getBadges(user);
+    const badgesList = Object.entries(badges);
+
+    // Atualizar contador
+    updateBadgeCounter();
+
+    if (badgesList.length === 0) {
+      noBadgesMsg.style.display = 'block';
+      badgesContainer.innerHTML = '';
+    } else {
+      noBadgesMsg.style.display = 'none';
+      badgesContainer.innerHTML = badgesList.map(([badgeId, badgeData], idx) => {
+        const unlockedDate = badgeData.unlockedAt ? new Date(badgeData.unlockedAt).toLocaleDateString('pt-BR') : 'Desconhecido';
+        return `
+          <div style="
+            padding: 16px;
+            background: linear-gradient(135deg, rgba(0,255,136,0.05) 0%, rgba(0,255,136,0.02) 100%);
+            border: 2px solid var(--green);
+            border-radius: 12px;
+            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+            animation: slideUp 0.5s ease forwards;
+            animation-delay: ${idx * 0.1}s;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+          "
+          onmouseover="this.style.transform='translateY(-4px) scale(1.02)'; this.style.boxShadow='0 12px 24px rgba(0,255,136,0.3)'"
+          onmouseout="this.style.transform='translateY(0) scale(1)'; this.style.boxShadow='none'">
+            <div style="position: absolute; inset: 0; background: linear-gradient(45deg, transparent 30%, rgba(0,255,136,0.1) 50%, transparent 70%); animation: shimmer 3s infinite;"></div>
+            <div style="position: relative; z-index: 1;">
+              <div style="font-size: 3rem; margin-bottom: 10px; animation: badgeBounce 2s ease-in-out infinite;">${badgeData.icon || '🏆'}</div>
+              <div style="font-weight: bold; color: var(--green); font-size: 0.95rem; margin-bottom: 6px;">${badgeData.title || 'Badge'}</div>
+              <div style="font-size: 0.8rem; color: var(--white); margin-top: 6px; line-height: 1.3; opacity: 0.9;">${badgeData.description || ''}</div>
+              <div style="font-size: 0.75rem; color: var(--gray); margin-top: 8px; opacity: 0.7;">📅 ${unlockedDate}</div>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+  }
+
+  document.getElementById('statsBtn').addEventListener('click', () => {
+    audioManager.playSelect();
+    renderBadges();
+    document.getElementById('statsModal').style.display = 'flex';
+  });
+
+  document.getElementById('statsCloseBtn').addEventListener('click', () => {
+    audioManager.playSelect();
+    document.getElementById('statsModal').style.display = 'none';
+  });
+
+  // Audio controls
+  function updateMuteButton() {
+    const muteBtn = document.getElementById('muteBtn');
+    if (audioManager.getMuted()) {
+      muteBtn.textContent = '🔇';
+      muteBtn.title = 'Unmute audio';
+    } else {
+      muteBtn.textContent = '🔊';
+      muteBtn.title = 'Mute audio';
+    }
+  }
+
+  document.getElementById('muteBtn').addEventListener('click', () => {
+    audioManager.playSelect();
+    audioManager.toggleMute();
+    updateMuteButton();
+  });
+
+  // === QUICK PLAY FUNCTIONS ===
+  function showQuickPlayStart() {
+    audioManager.playSelect();
+    showScreen("quickplayScreen");
+    // Show the start screen, hide the game screen
+    document.getElementById("quickplayStartScreen").style.display = "flex";
+    document.getElementById("quickplayGameScreen").style.display = "none";
+  }
+
+  function startQuickPlay() {
+    audioManager.playSelect();
+    quickPlayState.score = 0;
+    quickPlayState.lives = 3;
+    quickPlayState.combo = 0;
+    quickPlayState.wave = 1;
+    quickPlayState.correctCount = 0;
+    quickPlayState.wrongAnswerCount = 0;
+    quickPlayState.activePowerUp = null;
+    quickPlayState.powerUpCharge = 0;
+    quickPlayState.pendingPowerUpType = null;
+    quickPlayState.running = true;
+    quickPlayState.selectedWords = [];
+    quickPlayState.allSentences = [];
+    quickPlayState.selectedWordIndex = -1;
+
+    // Use sentences from current aula if available, otherwise use all aulas
+    if (currentAula && currentAula.sentences && currentAula.sentences.length > 0) {
+      quickPlayState.allSentences = [...currentAula.sentences];
+    } else {
+      // Fallback: Combine all sentences from all aulas
+      AULAS.forEach(aula => {
+        quickPlayState.allSentences.push(...aula.sentences);
+      });
+    }
+    quickPlayState.allSentences = shuffle(quickPlayState.allSentences);
+
+    updateQuickPlayHUD();
+    startQuickPlayWave();
+
+    // Hide start screen, show game screen
+    document.getElementById("quickplayStartScreen").style.display = "none";
+    document.getElementById("quickplayGameScreen").style.display = "block";
+  }
+
+  function startQuickPlayWave() {
+    quickPlayState.selectedWords = [];
+
+    if (quickPlayState.allSentences.length === 0) {
+      AULAS.forEach(aula => {
+        quickPlayState.allSentences.push(...aula.sentences);
+      });
+      quickPlayState.allSentences = shuffle(quickPlayState.allSentences);
+    }
+
+    quickPlayState.currentSentence = quickPlayState.allSentences.pop();
+    const words = quickPlayState.currentSentence.en.split(' ');
+    quickPlayState.availableWords = shuffle([...words]);
+
+    qsWaveInfo.textContent = `Question ${quickPlayState.correctCount + 1}`;
+    qsWaveInfo.style.animation = 'waveEntrance 0.6s cubic-bezier(0.34, 1.56, 0.64, 1)';
+
+    qsTarget.textContent = quickPlayState.currentSentence.pt;
+    qsTarget.style.borderColor = 'var(--gold)';
+    qsTarget.style.color = 'var(--gold)';
+    qsTarget.style.animation = 'waveEntrance 0.6s cubic-bezier(0.34, 1.56, 0.64, 1)';
+
+    renderQuickPlayWords();
+
+    // Stagger word button animations
+    setTimeout(() => {
+      const wordBtns = document.querySelectorAll('.quickplay-word-btn');
+      wordBtns.forEach((btn, idx) => {
+        btn.style.animation = `waveEntrance 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) ${idx * 0.05}s`;
+      });
+    }, 50);
+
+    renderQuickPlayStack();
+
+    // Initialize focus on UNDO button
+    quickPlayState.focusType = 'undo';
+    quickPlayState.selectedWordIndex = -1;
+    updateFocus();
+
+    // Start timer for this wave
+    startQuickPlayWaveTimer();
+  }
+
+  function startQuickPlayWaveTimer() {
+    // Clear any existing timer
+    if (quickPlayState.timerInterval) {
+      clearInterval(quickPlayState.timerInterval);
+    }
+
+    // Calculate time limit (30s for first, reduces by 1s per correct answer, min 10s)
+    quickPlayState.timerSeconds = Math.max(10, 30 - quickPlayState.correctCount);
+    quickPlayState.timerStartTime = quickPlayState.timerSeconds;
+    quickPlayState.waveStartTime = Date.now();
+
+    // Update UI
+    const timerEl = document.querySelector('.quickplay-timer');
+    const timerValue = document.getElementById('qsTimerValue');
+    const timerFill = document.getElementById('qsTimerFill');
+
+    timerValue.textContent = quickPlayState.timerSeconds;
+    timerFill.style.width = '100%';
+    if (timerEl) timerEl.classList.remove('danger', 'critical');
+
+    // Start countdown
+    quickPlayState.timerInterval = setInterval(() => {
+      quickPlayState.timerSeconds--;
+      timerValue.textContent = quickPlayState.timerSeconds;
+
+      // Update progress bar
+      const percent = (quickPlayState.timerSeconds / quickPlayState.timerStartTime) * 100;
+      timerFill.style.width = percent + '%';
+
+      // Visual urgency states
+      if (timerEl) {
+        timerEl.classList.remove('danger', 'critical');
+        if (quickPlayState.timerSeconds <= 3) {
+          timerEl.classList.add('critical');
+        } else if (quickPlayState.timerSeconds <= 7) {
+          timerEl.classList.add('danger');
+        }
+      }
+
+      // Timeout - lose life and start new wave
+      if (quickPlayState.timerSeconds <= 0) {
+        clearInterval(quickPlayState.timerInterval);
+        handleQuickPlayWaveTimeout();
+      }
+    }, 1000);
+  }
+
+  function handleQuickPlayWaveTimeout() {
+    if (!quickPlayState.running) return;
+
+    // Timeout counts as a wrong answer - lose a life and get next question
+    quickPlayState.lives--;
+    quickPlayState.combo = 0;
+
+    const qsTarget = document.getElementById('qsTarget');
+    qsTarget.style.borderColor = 'var(--red)';
+    qsTarget.style.color = 'var(--red)';
+    qsTarget.textContent = '⏱️ TIME\'S UP!\n' + quickPlayState.currentSentence.en;
+
+    // Shake for failure
+    qsTarget.style.animation = 'none';
+    setTimeout(() => {
+      qsTarget.style.animation = 'screenShake 0.3s ease-out';
+    }, 10);
+
+    updateQuickPlayHUD();
+
+    // Apply lives warning state
+    const livesEl = document.getElementById('qsLives');
+    const livesStatEl = livesEl?.closest('.quickplay-stat');
+    if (livesStatEl) {
+      livesStatEl.classList.remove('lives-warning', 'lives-critical');
+      if (quickPlayState.lives === 1) {
+        livesStatEl.classList.add('lives-critical');
+      } else if (quickPlayState.lives === 2) {
+        livesStatEl.classList.add('lives-warning');
+      }
+    }
+
+    if (quickPlayState.lives <= 0) {
+      setTimeout(() => {
+        endQuickPlay();
+      }, 1500);
+    } else {
+      setTimeout(() => {
+        qsTarget.style.animation = '';
+        startQuickPlayWave();
+      }, 1500);
+    }
+  }
+
+  function renderQuickPlayWords() {
+    qsWordQueue.innerHTML = '';
+    quickPlayState.availableWords.forEach((word, idx) => {
+      const btn = document.createElement('button');
+      btn.className = 'quickplay-word-btn';
+      btn.textContent = word.toUpperCase();
+      btn.disabled = false;
+      btn.addEventListener('click', () => selectQuickPlayWord(idx, word));
+      qsWordQueue.appendChild(btn);
+    });
+    updateFocus();
+  }
+
+  function selectQuickPlayWord(index, word) {
+    if (quickPlayState.animating) return;
+
+    audioManager.playSelect();
+
+    quickPlayState.selectedWords.push(word);
+    quickPlayState.availableWords.splice(index, 1);
+
+    // Reset word index after selection, keep focus on word grid
+    if (quickPlayState.availableWords.length > 0) {
+      quickPlayState.selectedWordIndex = Math.min(index, quickPlayState.availableWords.length - 1);
+    } else {
+      quickPlayState.selectedWordIndex = -1;
+    }
+
+    renderQuickPlayStack();
+    renderQuickPlayWords();
+  }
+
+  function updateFocus() {
+    // Update UNDO button focus
+    if (quickPlayState.focusType === 'undo') {
+      qsUndoBtn.classList.add('focused');
+    } else {
+      qsUndoBtn.classList.remove('focused');
+    }
+
+    // Update word buttons focus
+    document.querySelectorAll('.quickplay-word-btn').forEach((btn, idx) => {
+      if (quickPlayState.focusType === 'word' && idx === quickPlayState.selectedWordIndex) {
+        btn.classList.add('focused');
+      } else {
+        btn.classList.remove('focused');
+      }
+    });
+
+    // Update SUBMIT button focus
+    if (quickPlayState.focusType === 'submit') {
+      qsSubmitBtn.classList.add('focused');
+    } else {
+      qsSubmitBtn.classList.remove('focused');
+    }
+  }
+
+  function navigateVertical(direction) {
+    // Navigation flow: UNDO → WORD GRID → SUBMIT
+    if (direction === 'down') {
+      if (quickPlayState.focusType === 'undo') {
+        // UNDO → WORD GRID (first word)
+        if (quickPlayState.availableWords.length > 0) {
+          quickPlayState.focusType = 'word';
+          quickPlayState.selectedWordIndex = 0;
+        } else {
+          // No words, go to SUBMIT
+          quickPlayState.focusType = 'submit';
+        }
+      } else if (quickPlayState.focusType === 'word') {
+        // In word grid: try to move down a row
+        const wordCount = quickPlayState.availableWords.length;
+        const cols = 3;
+        const currentIdx = quickPlayState.selectedWordIndex;
+        const currentRow = Math.floor(currentIdx / cols);
+        const nextRowStart = (currentRow + 1) * cols;
+
+        if (nextRowStart < wordCount) {
+          // There's a next row, move to it (same column or last available)
+          const currentCol = currentIdx % cols;
+          quickPlayState.selectedWordIndex = Math.min(nextRowStart + currentCol, wordCount - 1);
+        } else {
+          // No next row, go to SUBMIT
+          quickPlayState.focusType = 'submit';
+        }
+      } else if (quickPlayState.focusType === 'submit') {
+        // SUBMIT → UNDO (cycle)
+        quickPlayState.focusType = 'undo';
+      }
+    } else {
+      // direction === 'up'
+      if (quickPlayState.focusType === 'submit') {
+        // SUBMIT → WORD GRID (last word)
+        if (quickPlayState.availableWords.length > 0) {
+          quickPlayState.focusType = 'word';
+          quickPlayState.selectedWordIndex = quickPlayState.availableWords.length - 1;
+        } else {
+          // No words, go to UNDO
+          quickPlayState.focusType = 'undo';
+        }
+      } else if (quickPlayState.focusType === 'word') {
+        // In word grid: try to move up a row
+        const currentIdx = quickPlayState.selectedWordIndex;
+        const cols = 3;
+        const currentRow = Math.floor(currentIdx / cols);
+        const prevRowStart = (currentRow - 1) * cols;
+
+        if (currentRow > 0) {
+          // There's a previous row, move to it (same column)
+          const currentCol = currentIdx % cols;
+          quickPlayState.selectedWordIndex = prevRowStart + currentCol;
+        } else {
+          // No previous row (in first row), go to UNDO
+          quickPlayState.focusType = 'undo';
+        }
+      } else if (quickPlayState.focusType === 'undo') {
+        // UNDO → SUBMIT (cycle)
+        quickPlayState.focusType = 'submit';
+      }
+    }
+    updateFocus();
+  }
+
+  function navigateHorizontal(direction) {
+    // Left/Right navigation only works in word grid
+    if (quickPlayState.focusType !== 'word') return;
+
+    const wordCount = quickPlayState.availableWords.length;
+    if (wordCount === 0) return;
+
+    const cols = 3;
+    let currentIdx = quickPlayState.selectedWordIndex;
+    if (currentIdx < 0) currentIdx = 0;
+
+    const row = Math.floor(currentIdx / cols);
+    const col = currentIdx % cols;
+
+    let newCol = col;
+    if (direction === 'right') {
+      newCol = (col + 1) % cols;
+    } else {
+      newCol = (col - 1 + cols) % cols;
+    }
+
+    let newIdx = row * cols + newCol;
+    if (newIdx >= wordCount) {
+      newIdx = wordCount - 1;
+    }
+
+    quickPlayState.selectedWordIndex = newIdx;
+    updateFocus();
+  }
+
+  function activateFocused() {
+    if (quickPlayState.focusType === 'undo') {
+      undoQuickPlayWord();
+      // After undo, move to word grid if available
+      if (quickPlayState.availableWords.length > 0) {
+        quickPlayState.focusType = 'word';
+        quickPlayState.selectedWordIndex = 0;
+      }
+    } else if (quickPlayState.focusType === 'word') {
+      // Select focused word
+      if (quickPlayState.selectedWordIndex >= 0 && quickPlayState.selectedWordIndex < quickPlayState.availableWords.length) {
+        const word = quickPlayState.availableWords[quickPlayState.selectedWordIndex];
+        selectQuickPlayWord(quickPlayState.selectedWordIndex, word);
+        // Stay in word grid after selection
+      }
+    } else if (quickPlayState.focusType === 'submit') {
+      submitQuickPlayStack();
+    }
+    updateFocus();
+  }
+
+  function renderQuickPlayStack() {
+    qsStack.innerHTML = '';
+    if (quickPlayState.selectedWords.length === 0) {
+      qsStack.innerHTML = '<div class="quickplay-stack-empty">CLICK WORDS TO STACK</div>';
+      return;
+    }
+
+    quickPlayState.selectedWords.forEach(word => {
+      const div = document.createElement('div');
+      div.className = 'quickplay-stack-word';
+      div.textContent = word.toUpperCase();
+      qsStack.appendChild(div);
+    });
+  }
+
+  function undoQuickPlayWord() {
+    if (quickPlayState.selectedWords.length > 0) {
+      audioManager.playSelect();
+      const word = quickPlayState.selectedWords.pop();
+      quickPlayState.availableWords.push(word);
+      quickPlayState.availableWords = shuffle(quickPlayState.availableWords);
+
+      renderQuickPlayStack();
+      renderQuickPlayWords();
+      updateWordFocus();
+    }
+  }
+
+  // === POWER-UP SYSTEM ===
+  function checkAndActivatePowerUp() {
+    // Only show charging bar if at 1 life
+    if (quickPlayState.lives === 1) {
+      // First time hitting this condition? Select random power-up type
+      if (!quickPlayState.pendingPowerUpType) {
+        const powerUps = ['freeze', 'life'];
+        quickPlayState.pendingPowerUpType = powerUps[Math.floor(Math.random() * powerUps.length)];
+      }
+      // Show the charge bar
+      showPowerUpChargeBar();
+    }
+  }
+
+  function showPowerUpChargeBar() {
+    const chargeBar = document.getElementById('powerUpChargeBar');
+    if (chargeBar) {
+      chargeBar.classList.add('active');
+    }
+  }
+
+  function updatePowerUpCharge() {
+    // Only increment charge when at 1 life
+    if (quickPlayState.lives === 1 && quickPlayState.pendingPowerUpType) {
+      quickPlayState.powerUpCharge = Math.min(100, quickPlayState.powerUpCharge + 20);
+      console.log('Power-up charging:', quickPlayState.powerUpCharge + '%', 'Type:', quickPlayState.pendingPowerUpType);
+
+      const chargeBarFill = document.getElementById('powerUpChargeBarFill');
+      if (chargeBarFill) {
+        chargeBarFill.style.height = quickPlayState.powerUpCharge + '%';
+      }
+
+      // Trigger power-up when bar is full
+      if (quickPlayState.powerUpCharge >= 100) {
+        console.log('Power-up activated!', quickPlayState.pendingPowerUpType);
+        activatePowerUp(quickPlayState.pendingPowerUpType);
+        resetPowerUpCharge();
+      } else if (quickPlayState.powerUpCharge === 80) {
+        // Add "ready" animation when almost full
+        document.getElementById('powerUpChargeBar').classList.add('ready');
+      }
+    }
+  }
+
+  function resetPowerUpCharge() {
+    quickPlayState.powerUpCharge = 0;
+    quickPlayState.pendingPowerUpType = null;
+    const chargeBar = document.getElementById('powerUpChargeBar');
+    const chargeBarFill = document.getElementById('powerUpChargeBarFill');
+    chargeBar.classList.remove('active', 'ready');
+    chargeBarFill.style.height = '0%';
+  }
+
+  function activatePowerUp(type) {
+    if (quickPlayState.activePowerUp) return; // One power-up at a time
+
+    quickPlayState.activePowerUp = type;
+    const indicator = document.getElementById('powerUpIndicator');
+
+    let message = '';
+    let effect = '';
+
+    switch(type) {
+      case 'freeze':
+        message = '❄️ FREEZE TIME!';
+        effect = '+5 seconds!';
+        quickPlayState.timerSeconds += 5;
+        const timerEl = document.querySelector('.quickplay-timer');
+        const timerValue = document.getElementById('qsTimerValue');
+        if (timerValue) timerValue.textContent = quickPlayState.timerSeconds;
+        if (timerEl) timerEl.style.animation = 'none';
+        setTimeout(() => {
+          if (timerEl) timerEl.style.animation = '';
+        }, 100);
+        break;
+
+      case 'life':
+        message = '❤️ EXTRA LIFE!';
+        effect = '+1 life restored!';
+        quickPlayState.lives++;
+        const qsLives = document.getElementById('qsLives');
+        if (qsLives) qsLives.textContent = '❤️'.repeat(Math.max(0, quickPlayState.lives));
+        break;
+    }
+
+    // Show indicator
+    indicator.style.display = 'block';
+    indicator.className = `power-up-indicator ${type} power-up-active`;
+    indicator.innerHTML = `<div>${message}</div><div style="font-size: 0.8rem; opacity: 0.9; margin-top: 4px;">${effect}</div>`;
+
+    // Play positive sound
+    playSound('combo');
+
+    // Auto-hide after 3 seconds
+    setTimeout(() => {
+      indicator.style.display = 'none';
+      quickPlayState.activePowerUp = null;
+    }, 3000);
+  }
+
+  function submitQuickPlayStack() {
+    if (quickPlayState.selectedWords.length === 0) return;
+    if (quickPlayState.animating) return;
+
+    audioManager.playSelect();
+
+    quickPlayState.animating = true;
+
+    const userStack = quickPlayState.selectedWords.join(' ').toLowerCase();
+    const correctStack = quickPlayState.currentSentence.en.toLowerCase();
+
+    if (userStack === correctStack) {
+      // CORRECT! - Screen shake for victory
+      playSound('correct');
+      const screen = document.querySelector('#quickplayScreen');
+      if (screen) {
+        screen.style.animation = 'screenShake 0.4s ease-out';
+        setTimeout(() => {
+          screen.style.animation = '';
+        }, 400);
+      }
+
+      quickPlayState.combo++;
+      quickPlayState.correctCount++;
+      // Update power-up charge on correct answer (only charges when at 1 life with 2+ mistakes)
+      updatePowerUpCharge();
+      if (quickPlayState.combo % 3 === 0) {
+        playSound('combo');
+      }
+      const baseScore = 100;
+      const comboMultiplier = 1 + (quickPlayState.combo * 0.1);
+      const points = Math.round(baseScore * comboMultiplier);
+      quickPlayState.score += points;
+
+      qsTarget.classList.add('success');
+      qsTarget.style.borderColor = 'var(--green)';
+      qsTarget.style.color = 'var(--green)';
+      qsTarget.textContent = '✓ CORRECT! +' + points;
+
+      // Word buttons flash
+      const wordBtns = document.querySelectorAll('.quickplay-word-btn');
+      wordBtns.forEach(btn => {
+        btn.style.borderColor = 'var(--green)';
+        btn.style.opacity = '0.5';
+      });
+
+      setTimeout(() => {
+        qsTarget.classList.remove('success');
+        updateQuickPlayHUD();
+        quickPlayState.animating = false;
+        startQuickPlayWave();
+      }, 1200);
+
+    } else {
+      // WRONG!
+      playSound('wrong');
+      quickPlayState.wrongAnswerCount++;
+      quickPlayState.combo = 0;
+
+      // Check if shield is active
+      let shielded = false;
+      if (quickPlayState.activePowerUp === 'shield') {
+        shielded = true;
+        quickPlayState.activePowerUp = null;
+        qsTarget.textContent = '🛡️ SHIELD SAVED YOU!\n' + correctStack;
+        qsTarget.style.borderColor = 'var(--green)';
+        qsTarget.style.color = 'var(--green)';
+        playSound('correct');
+      } else {
+        quickPlayState.lives--;
+        qsTarget.style.borderColor = 'var(--red)';
+        qsTarget.style.color = 'var(--red)';
+        qsTarget.textContent = '✗ WRONG\n' + correctStack;
+        // Reset charge if we're no longer at 1 life
+        if (quickPlayState.lives !== 1) {
+          resetPowerUpCharge();
+        } else {
+          // Immediately show charge bar when reaching 1 life
+          checkAndActivatePowerUp();
+        }
+      }
+
+      // Shake for failure
+      qsTarget.style.animation = 'none';
+      setTimeout(() => {
+        qsTarget.style.animation = 'screenShake 0.3s ease-out';
+      }, 10);
+
+      // Trigger power-up check on wrong answer
+      if (!shielded && quickPlayState.lives > 1) {
+        checkAndActivatePowerUp();
+      }
+
+      if (quickPlayState.lives <= 0) {
+        setTimeout(() => {
+          endQuickPlay();
+        }, 1500);
+      } else {
+        setTimeout(() => {
+          qsTarget.style.animation = '';
+          quickPlayState.animating = false;
+          startQuickPlayWave();
+        }, 1500);
+      }
+    }
+
+    updateQuickPlayHUD();
+  }
+
+  function updateQuickPlayHUD() {
+    qsScore.textContent = quickPlayState.score;
+
+    // Update lives with warning state
+    qsLives.textContent = '❤️'.repeat(Math.max(0, quickPlayState.lives));
+
+    // Add visual warning when lives are low
+    const livesStatEl = qsLives.closest('.quickplay-stat');
+    if (livesStatEl) {
+      livesStatEl.classList.remove('lives-warning', 'lives-critical');
+      if (quickPlayState.lives === 1) {
+        livesStatEl.classList.add('lives-critical');
+      } else if (quickPlayState.lives === 2) {
+        livesStatEl.classList.add('lives-warning');
+      }
+    }
+
+    qsCombo.textContent = quickPlayState.combo + 'x';
+    qsWave.textContent = quickPlayState.correctCount;
+
+    // Update combo multiplier display
+    const multiplier = 1 + (quickPlayState.combo * 0.1);
+    const multiplierEl = document.getElementById('qsMultiplier');
+    if (multiplierEl) {
+      multiplierEl.textContent = 'x' + multiplier.toFixed(1);
+      if (quickPlayState.combo > 0 && quickPlayState.combo % 3 === 0) {
+        multiplierEl.classList.remove('boost');
+        void multiplierEl.offsetWidth; // Trigger reflow for animation restart
+        multiplierEl.classList.add('boost');
+      }
+    }
+  }
+
+  function endQuickPlay() {
+    quickPlayState.running = false;
+
+    // Clear timer
+    if (quickPlayState.timerInterval) {
+      clearInterval(quickPlayState.timerInterval);
+    }
+
+    const user = window.UNLOCK && window.UNLOCK.loadUser ? window.UNLOCK.loadUser() : null;
+    if (user) {
+      window.UNLOCK.completeQuest(user);
+      window.UNLOCK.saveUser(user);
+      window.UNLOCK.hydrateUI(user);
+    }
+
+    // If playing an aula, return to aulas grid; otherwise return to menu
+    const destination = quickPlayState.currentAula ? "menuScreen" : "menuScreen";
+
+    setTimeout(() => {
+      alert(`GAME OVER!\n\nScore: ${quickPlayState.score}\nCorrect: ${quickPlayState.correctCount}\nMax Combo: ${quickPlayState.combo}x`);
+      showScreen(destination);
+    }, 500);
+  }
+
+  // Quick Play button handlers
+  const qsStartBtn = document.getElementById('qsStartBtn');
+  if (qsStartBtn) {
+    qsStartBtn.addEventListener('click', startQuickPlay);
+  }
+
+  const quickplayBackBtn = document.getElementById('quickplayBackBtn');
+  if (quickplayBackBtn) {
+    quickplayBackBtn.addEventListener('click', () => {
+      audioManager.playSelect();
+      if (quickPlayState.running) {
+        quickPlayState.running = false;
+        if (quickPlayState.timerInterval) {
+          clearInterval(quickPlayState.timerInterval);
+        }
+      }
+      showScreen('menuScreen');
+    });
+  }
+
+  qsUndoBtn.addEventListener('click', undoQuickPlayWord);
+  qsSubmitBtn.addEventListener('click', submitQuickPlayStack);
+
+  // Keyboard controls for Quick Play
+  document.addEventListener('keydown', (e) => {
+    if (!quickPlayState.running) return;
+
+    if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      navigateVertical('up');
+    } else if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      navigateVertical('down');
+    } else if (e.key === 'ArrowLeft') {
+      e.preventDefault();
+      navigateHorizontal('left');
+    } else if (e.key === 'ArrowRight') {
+      e.preventDefault();
+      navigateHorizontal('right');
+    } else if (e.key === ' ' || e.key === 'Enter') {
+      e.preventDefault();
+      activateFocused();
+    }
+  });
+
+  // === INIT ===
+  renderMenu();
+  // Atualizar contador de badges na inicialização
+  updateBadgeCounter();
+})();
+</script>
+  <script src="../assets/unlock-core.js"></script>
+  <script src="../assets/audio-manager.js"></script>
+  <script>
+    // Initialize audio UI after audioManager is loaded
+    if (typeof updateMuteButton === 'function') {
+      updateMuteButton();
+    }
+    if (typeof audioManager !== 'undefined') {
+      audioManager.resumeContext();
+      audioManager.playBackgroundMusic();
+    }
+  </script>
+</body>
+</html>

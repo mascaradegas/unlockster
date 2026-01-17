@@ -1,0 +1,2750 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>WORD MATCH</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0a1628;
+  --gold:#FFD700;
+  --green:#00FF88;
+  --red:#FF4444;
+  --cyan:#00BFFF;
+  --purple:#9B6DFF;
+  --white:#E8E8E8;
+  --gray:#6a7a8a;
+}
+html,body{
+  min-height:100vh;
+  font-family:'Inter',sans-serif;
+  background:var(--bg);
+  color:var(--white);
+  overflow-x:hidden;
+}
+
+/* Background */
+.bg-grid{
+  position:fixed;
+  inset:0;
+  z-index:0;
+  background:linear-gradient(135deg,#0a1628 0%,#1a2a4a 50%,#0a1628 100%);
+  pointer-events:none;
+}
+.bg-grid::before{
+  content:'';
+  position:absolute;
+  top:0;left:0;
+  width:200%;height:200%;
+  background-image:
+    linear-gradient(rgba(0,191,255,0.07) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(0,191,255,0.07) 1px,transparent 1px);
+  background-size:50px 50px;
+  animation:gridMove 20s linear infinite;
+}
+@keyframes gridMove{
+  0%{transform:translate(0,0)}
+  100%{transform:translate(-50px,-50px)}
+}
+
+/* Screens */
+.screen{
+  display:none;
+  position:relative;
+  z-index:2;
+  min-height:100vh;
+  padding:20px;
+}
+.screen.active{display:flex;flex-direction:column;align-items:center;animation:fadeIn 0.5s ease-out}
+@keyframes fadeIn{0%{opacity:0}100%{opacity:1}}
+
+/* Menu */
+.menu-title{
+  font-family:'Orbitron',sans-serif;
+  font-size:3rem;
+  font-weight:900;
+  color:var(--gold);
+  text-shadow:3px 3px 0 #8B0000, 0 0 30px rgba(255,215,0,0.5);
+  margin-bottom:10px;
+  text-align:center;
+}
+.menu-sub{
+  color:var(--cyan);
+  font-size:14px;
+  margin-bottom:30px;
+  text-align:center;
+}
+.aulas{
+  display:grid;
+  grid-template-columns:repeat(auto-fit, minmax(150px, 1fr));
+  gap:15px;
+  max-width:900px;
+  width:100%;
+}
+.aula{
+  background:linear-gradient(180deg,rgba(20,40,80,0.95),rgba(10,22,40,0.98));
+  border:3px solid var(--purple);
+  border-radius:12px;
+  padding:25px 15px;
+  text-align:center;
+  cursor:pointer;
+  transition:all 0.2s;
+}
+.aula:hover{
+  border-color:var(--gold);
+  transform:translateY(-4px);
+  box-shadow:0 0 25px rgba(255,215,0,0.4);
+}
+.aula-emoji{font-size:2.5rem;margin-bottom:10px}
+.aula-name{
+  font-family:'Orbitron',sans-serif;
+  font-size:12px;
+  color:var(--gold);
+  font-weight:700;
+}
+
+/* Mode */
+.mode-title{
+  font-family:'Orbitron',sans-serif;
+  font-size:1.5rem;
+  font-weight:900;
+  color:var(--gold);
+  margin-bottom:30px;
+  text-align:center;
+}
+.mode-buttons{
+  display:flex;
+  flex-direction:column;
+  gap:12px;
+  max-width:320px;
+  width:100%;
+  margin-bottom:30px;
+}
+.mode-btn{
+  padding:18px 20px;
+  border:3px solid var(--purple);
+  border-radius:12px;
+  background:linear-gradient(180deg,rgba(155,109,255,0.15),rgba(10,22,40,0.9));
+  color:var(--white);
+  font-family:'Orbitron',sans-serif;
+  font-size:14px;
+  font-weight:700;
+  cursor:pointer;
+  transition:all 0.2s;
+}
+.mode-btn:hover{
+  border-color:var(--cyan);
+  background:linear-gradient(180deg,rgba(0,191,255,0.15),rgba(10,22,40,0.9));
+}
+.mode-btn.selected{
+  border-color:var(--gold);
+  background:linear-gradient(180deg,rgba(255,215,0,0.2),rgba(10,22,40,0.9));
+  color:var(--gold);
+  box-shadow:0 0 25px rgba(255,215,0,0.4);
+}
+.start-btn{
+  width:220px;
+  padding:18px;
+  border:none;
+  border-radius:12px;
+  background:linear-gradient(180deg,#FFE566,#FFD700);
+  color:var(--bg);
+  font-family:'Orbitron',sans-serif;
+  font-size:18px;
+  font-weight:900;
+  cursor:pointer;
+  box-shadow:0 0 30px rgba(255,215,0,0.4);
+  transition:all 0.2s;
+}
+.start-btn:hover{box-shadow:0 0 45px rgba(255,215,0,0.6)}
+.start-btn:disabled{opacity:0.4;cursor:not-allowed}
+.back-link{
+  margin-top:20px;
+  color:var(--gray);
+  cursor:pointer;
+}
+.back-link:hover{color:var(--cyan)}
+
+/* Game */
+.game-container{
+  max-width:550px;
+  width:100%;
+}
+.game-header{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  margin-bottom:15px;
+}
+.game-header-row{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  width:100%;
+  margin-bottom:10px;
+}
+.game-back{
+  background:none;
+  border:none;
+  color:var(--cyan);
+  font-size:28px;
+  cursor:pointer;
+}
+.game-title{
+  font-family:'Orbitron',sans-serif;
+  font-size:18px;
+  font-weight:900;
+  color:var(--purple);
+  text-align:center;
+}
+.game-hud{
+  display:flex;
+  gap:15px;
+  font-family:'Orbitron',sans-serif;
+  font-size:14px;
+  font-weight:700;
+}
+.hud-value{color:var(--gold)}
+.timer-value{color:var(--cyan)}
+.timer-value.danger{color:var(--red);animation:pulse 0.5s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.5}}
+
+.progress-bar{
+  height:8px;
+  background:rgba(0,0,0,0.4);
+  border:2px solid var(--purple);
+  border-radius:10px;
+  overflow:hidden;
+  margin-bottom:15px;
+}
+.progress-fill{
+  height:100%;
+  background:linear-gradient(90deg,var(--purple),var(--cyan),var(--green));
+  transition:width 0.4s;
+}
+.round-text{
+  text-align:center;
+  font-family:'Orbitron',sans-serif;
+  font-size:13px;
+  color:var(--gray);
+  margin-bottom:15px;
+}
+.round-text span{color:var(--gold)}
+
+/* Match Area */
+.match-area{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:15px;
+}
+.column-title{
+  text-align:center;
+  font-family:'Orbitron',sans-serif;
+  font-size:12px;
+  font-weight:700;
+  padding:10px;
+  border-radius:8px;
+  margin-bottom:10px;
+}
+.column-title.pt{
+  color:var(--green);
+  background:rgba(0,255,136,0.1);
+  border:2px solid rgba(0,255,136,0.3);
+}
+.column-title.en{
+  color:var(--cyan);
+  background:rgba(0,191,255,0.1);
+  border:2px solid rgba(0,191,255,0.3);
+}
+.cards{
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+}
+
+/* Cards */
+.card{
+  padding:18px 12px;
+  border:3px solid rgba(255,255,255,0.15);
+  border-radius:12px;
+  background:linear-gradient(180deg,rgba(20,40,80,0.9),rgba(10,22,40,0.95));
+  text-align:center;
+  font-size:14px;
+  font-weight:700;
+  text-transform:uppercase;
+  cursor:pointer;
+  transition:all 0.15s;
+  min-height:60px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+.card:hover{
+  border-color:var(--purple);
+  transform:translateY(-2px);
+}
+.card.focused{
+  border-color:var(--cyan);
+  box-shadow:0 0 20px rgba(0,191,255,0.6);
+  outline:2px solid var(--cyan);
+  outline-offset:2px;
+}
+.card.selected{
+  border-color:var(--gold);
+  background:linear-gradient(180deg,rgba(255,215,0,0.25),rgba(10,22,40,0.95));
+  color:var(--gold);
+  box-shadow:0 0 25px rgba(255,215,0,0.5);
+}
+.card.correct{
+  border-color:var(--green);
+  background:linear-gradient(180deg,rgba(0,255,136,0.3),rgba(10,22,40,0.95));
+  color:var(--green);
+  box-shadow:0 0 30px rgba(0,255,136,0.6);
+  animation:pop 0.4s;
+}
+@keyframes pop{
+  0%{transform:scale(1)}
+  50%{transform:scale(1.05)}
+  100%{transform:scale(1)}
+}
+.card.wrong{
+  border-color:var(--red);
+  background:linear-gradient(180deg,rgba(255,68,68,0.3),rgba(10,22,40,0.95));
+  color:var(--red);
+  animation:shake 0.4s;
+}
+@keyframes shake{
+  0%,100%{transform:translateX(0)}
+  20%{transform:translateX(-6px)}
+  40%{transform:translateX(6px)}
+  60%{transform:translateX(-4px)}
+  80%{transform:translateX(4px)}
+}
+.card.hidden{
+  opacity:0;
+  transform:scale(0.8);
+  pointer-events:none;
+}
+
+/* Effects */
+.combo-aura{
+  position:fixed;
+  top:50%;left:50%;
+  transform:translate(-50%,-50%);
+  border-radius:50%;
+  pointer-events:none;
+  z-index:50;
+  opacity:0;
+}
+@keyframes auraPulse{
+  0%{width:80px;height:80px;opacity:0;box-shadow:0 0 40px var(--gold)}
+  50%{opacity:1}
+  100%{width:350px;height:350px;opacity:0;box-shadow:0 0 120px var(--gold)}
+}
+.combo-aura.active{animation:auraPulse 0.7s ease-out forwards}
+
+.particle{
+  position:fixed;
+  pointer-events:none;
+  z-index:60;
+  border-radius:50%;
+}
+@keyframes particleFly{
+  to{opacity:0;transform:translate(var(--tx),var(--ty)) scale(0)}
+}
+.particle.fly{animation:particleFly 0.7s ease-out forwards}
+
+.time-bonus{
+  position:fixed;
+  top:50%;left:50%;
+  transform:translate(-50%,-50%);
+  padding:20px 35px;
+  border-radius:15px;
+  background:linear-gradient(180deg,rgba(0,255,136,0.25),rgba(10,22,40,0.95));
+  border:3px solid var(--green);
+  color:var(--green);
+  font-family:'Orbitron',sans-serif;
+  font-size:22px;
+  font-weight:900;
+  z-index:100;
+  animation:bonusPop 1s ease-out forwards;
+}
+@keyframes bonusPop{
+  0%{transform:translate(-50%,-50%) scale(0.5);opacity:0}
+  20%{transform:translate(-50%,-50%) scale(1.1);opacity:1}
+  80%{transform:translate(-50%,-50%) scale(1);opacity:1}
+  100%{transform:translate(-50%,-50%) scale(0.8);opacity:0}
+}
+
+/* Modal */
+.modal{
+  display:none;
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,0.9);
+  z-index:200;
+  align-items:center;
+  justify-content:center;
+  padding:20px;
+}
+.modal.show{display:flex}
+.modal-box{
+  background:linear-gradient(180deg,rgba(20,40,80,0.98),rgba(10,22,40,0.99));
+  border:4px solid var(--gold);
+  border-radius:20px;
+  padding:35px;
+  text-align:center;
+  max-width:350px;
+  width:100%;
+}
+.modal-icon{font-size:60px;margin-bottom:15px}
+.modal-title{
+  font-family:'Orbitron',sans-serif;
+  font-size:24px;
+  font-weight:900;
+  color:var(--gold);
+  margin-bottom:10px;
+}
+.modal-score{
+  font-size:18px;
+  margin-bottom:25px;
+}
+.modal-btn{
+  display:block;
+  width:100%;
+  padding:16px;
+  margin-top:12px;
+  border:none;
+  border-radius:10px;
+  font-family:'Orbitron',sans-serif;
+  font-weight:700;
+  font-size:14px;
+  cursor:pointer;
+}
+.modal-btn.primary{
+  background:linear-gradient(180deg,#FFE566,#FFD700);
+  color:var(--bg);
+}
+.modal-btn.secondary{
+  background:transparent;
+  border:3px solid var(--purple);
+  color:var(--purple);
+}
+
+/* Responsive */
+@media (min-width:600px){
+  .menu-title{font-size:2.8rem}
+  .card{padding:22px 15px;font-size:15px;min-height:70px}
+}
+
+
+/* === UNLOCK 2026 Shared App Bar === */
+:root{--unlock-bar-h:64px;}
+body{padding-top:var(--unlock-bar-h);}
+
+@keyframes glow-pulse {
+  0%, 100% { text-shadow: 0 0 10px rgba(255,215,0,0.3); }
+  50% { text-shadow: 0 0 20px rgba(255,215,0,0.6); }
+}
+@keyframes badge-bounce {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+}
+@keyframes slide-in {
+  0% { transform: translateX(100%); opacity: 0; }
+  100% { transform: translateX(0); opacity: 1; }
+}
+@keyframes slideUp {
+  0% { transform: translateY(20px); opacity: 0; }
+  100% { transform: translateY(0); opacity: 1; }
+}
+@keyframes shimmer {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+@keyframes badgeBounce {
+  0%, 100% { transform: scale(1) translateY(0); }
+  50% { transform: scale(1.08) translateY(-3px); }
+}
+
+.unlock-appbar{
+  position:fixed; top:0; left:0; right:0; height:var(--unlock-bar-h);
+  display:flex; align-items:center; justify-content:space-between;
+  padding:0 16px;
+  background: linear-gradient(180deg, rgba(10,22,40,0.98) 0%, rgba(10,22,40,0.85) 100%);
+  backdrop-filter: blur(15px);
+  -webkit-backdrop-filter: blur(15px);
+  border-bottom: 2px solid rgba(155,109,255,0.15);
+  box-shadow: 0 4px 20px rgba(0,0,0,0.4), inset 0 1px 0 rgba(155,109,255,0.1);
+  z-index:99999;
+}
+
+.unlock-appbar .left a{
+  display:inline-flex; align-items:center; gap:8px;
+  text-decoration:none; font-weight:800;
+  color: var(--green, #00FF88);
+  letter-spacing: .2px;
+  transition: all 0.3s ease;
+  padding: 8px 12px;
+  border-radius: 6px;
+}
+.unlock-appbar .left a:hover {
+  color: var(--gold);
+  background: rgba(0,255,136,0.1);
+  transform: translateX(-2px);
+}
+
+.unlock-appbar .center{
+  font-family:'Orbitron', system-ui, sans-serif;
+  font-weight:900;
+  letter-spacing:2px;
+  color: var(--gold, #FFD700);
+  font-size:14px;
+  animation: glow-pulse 3s ease-in-out infinite;
+}
+
+.unlock-appbar .right{
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.unlock-appbar-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--gold);
+  font-size: 20px;
+  padding: 8px 12px;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.unlock-appbar-btn:hover {
+  background: rgba(255,215,0,0.1);
+  transform: scale(1.1);
+  animation: badge-bounce 0.6s ease;
+}
+
+.unlock-appbar-btn::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle, rgba(255,215,0,0.2) 0%, transparent 70%);
+  border-radius: 8px;
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.unlock-appbar-btn:hover::before {
+  opacity: 1;
+}
+
+.unlock-appbar .pill{
+  display:inline-flex; align-items:center; gap:10px;
+  padding:8px 14px;
+  border: 2px solid rgba(155,109,255,0.3);
+  border-radius:12px;
+  background: linear-gradient(135deg, rgba(17,31,61,0.8) 0%, rgba(20,40,80,0.6) 100%);
+  transition: all 0.3s ease;
+  animation: slide-in 0.5s ease;
+}
+
+.unlock-appbar .pill:hover {
+  background: linear-gradient(135deg, rgba(17,31,61,1) 0%, rgba(20,40,80,0.8) 100%);
+  border-color: rgba(155,109,255,0.6);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 16px rgba(155,109,255,0.2);
+}
+
+.unlock-appbar .pill span[data-unlock-streak] {
+  font-weight: bold;
+  color: var(--gold);
+  animation: glow-pulse 2s ease-in-out infinite;
+}
+
+@media (max-width:420px){
+  .unlock-appbar{padding:0 12px;}
+  .unlock-appbar .center{display:none; letter-spacing: 1px;}
+  :root{--unlock-bar-h:56px;}
+}
+
+
+/* QUICK PLAY MODE STYLES */
+#screen-quickplay {
+  padding: 20px;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.quick-play-hud {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.quick-play-stat {
+  background: linear-gradient(135deg, rgba(20,40,80,0.8), rgba(10,22,40,0.9));
+  border: 2px solid var(--purple);
+  border-radius: 12px;
+  padding: 12px;
+  text-align: center;
+}
+
+.quick-play-stat-label {
+  font-size: 0.7rem;
+  color: var(--gray);
+  text-transform: uppercase;
+  margin-bottom: 5px;
+}
+
+.quick-play-stat-value {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 1.5rem;
+  font-weight: 900;
+  color: var(--gold);
+}
+
+.quick-play-timer {
+  background: linear-gradient(135deg, rgba(255,68,68,0.1), rgba(255,68,68,0.05));
+  border: 2px solid rgba(255,68,68,0.3);
+  border-radius: 12px;
+  padding: 15px;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.quick-play-timer.danger {
+  border-color: var(--red);
+  background: linear-gradient(135deg, rgba(255,68,68,0.2), rgba(255,68,68,0.1));
+  animation: pulseRed 0.6s ease-in-out infinite;
+}
+
+.quick-play-timer.critical {
+  border-color: var(--red);
+  background: linear-gradient(135deg, rgba(255,68,68,0.3), rgba(255,68,68,0.2));
+  animation: pulseRed 0.3s ease-in-out infinite;
+}
+
+@keyframes timerPulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+}
+
+.timer-label {
+  font-size: 0.7rem;
+  color: var(--gray);
+  margin-bottom: 5px;
+}
+
+.timer-value {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 2rem;
+  font-weight: 900;
+  color: var(--red);
+  margin-bottom: 10px;
+}
+
+.timer-bar {
+  width: 100%;
+  height: 6px;
+  background: rgba(255,68,68,0.2);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.timer-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--red), #ff8888);
+  transition: width 0.1s linear;
+}
+
+.quick-play-match-area {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  margin-bottom: 20px;
+}
+
+.qp-cards {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 15px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, rgba(155,109,255,0.08), rgba(155,109,255,0.03));
+  border: 2px solid rgba(155,109,255,0.2);
+  transition: all 0.3s;
+}
+
+.qp-cards.focused {
+  background: linear-gradient(135deg, rgba(155,109,255,0.15), rgba(155,109,255,0.08));
+  border: 2px solid rgba(155,109,255,0.4);
+  box-shadow: inset 0 0 20px rgba(155,109,255,0.1);
+}
+
+.column-title {
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+  opacity: 0.7;
+  letter-spacing: 1px;
+}
+
+.column-title.pt {
+  color: #00FF88;
+}
+
+.column-title.en {
+  color: #00BFFF;
+}
+
+.selection-progress {
+  font-size: 0.75rem;
+  color: var(--gray);
+  margin-bottom: 8px;
+  text-align: center;
+  font-weight: 600;
+  height: 18px;
+}
+
+.qp-card {
+  background: linear-gradient(135deg, rgba(20,40,80,0.9), rgba(10,22,40,0.95));
+  border: 2px solid var(--purple);
+  border-radius: 10px;
+  padding: 15px;
+  font-size: 1rem;
+  color: var(--white);
+  cursor: pointer;
+  transition: all 0.2s;
+  text-align: center;
+  font-weight: 600;
+  position: relative;
+}
+
+.qp-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  border-radius: 8px;
+  background: transparent;
+  transition: all 0.2s;
+}
+
+.qp-card:hover {
+  border-color: var(--cyan);
+  transform: translateY(-2px);
+}
+
+.qp-card.selected {
+  border: 3px solid var(--gold);
+  background: linear-gradient(135deg, rgba(255,215,0,0.25), rgba(255,215,0,0.15));
+  box-shadow: 0 0 25px rgba(255,215,0,0.6), inset 0 0 15px rgba(255,215,0,0.2);
+  transform: translateY(-3px);
+  font-weight: 700;
+}
+
+.qp-card.selected::after {
+  content: '✓';
+  position: absolute;
+  top: 5px;
+  right: 8px;
+  color: var(--gold);
+  font-weight: 900;
+  font-size: 0.9rem;
+}
+
+.qp-card.keyboard-focused {
+  border: 3px solid var(--cyan);
+  box-shadow: 0 0 20px rgba(0,191,255,0.7), inset 0 0 10px rgba(0,191,255,0.15);
+  background: linear-gradient(135deg, rgba(0,191,255,0.2), rgba(0,191,255,0.1));
+}
+
+.qp-card.keyboard-focused.selected {
+  border: 3px solid var(--gold);
+  box-shadow: 0 0 25px rgba(255,215,0,0.7), inset 0 0 15px rgba(255,215,0,0.2);
+}
+
+.qp-card.checking {
+  border-color: var(--cyan);
+  animation: cardPulse 0.5s ease-in-out;
+}
+
+.qp-card.correct {
+  border: 3px solid var(--green);
+  background: linear-gradient(135deg, rgba(0,255,136,0.3), rgba(0,255,136,0.15));
+  box-shadow: 0 0 30px rgba(0,255,136,0.8);
+  animation: cardPop 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  transform: scale(1.05);
+}
+
+.qp-card.correct::after {
+  content: '✓';
+  position: absolute;
+  top: 5px;
+  right: 8px;
+  color: var(--green);
+  font-weight: 900;
+  font-size: 1.2rem;
+  animation: checkMark 0.4s ease-out;
+}
+
+.qp-card.wrong {
+  border: 3px solid var(--red);
+  background: linear-gradient(135deg, rgba(255,68,68,0.3), rgba(255,68,68,0.15));
+  box-shadow: 0 0 25px rgba(255,68,68,0.8);
+  animation: shake 0.4s ease-out;
+}
+
+.qp-card.wrong::after {
+  content: '✗';
+  position: absolute;
+  top: 5px;
+  right: 8px;
+  color: var(--red);
+  font-weight: 900;
+  font-size: 1.2rem;
+  animation: xMark 0.4s ease-out;
+}
+
+.qp-card.hidden {
+  opacity: 0;
+  pointer-events: none;
+  transform: scale(0.8);
+}
+
+@keyframes cardPop {
+  0% { transform: scale(1); opacity: 1; }
+  100% { transform: scale(1.1); opacity: 1; }
+}
+
+@keyframes cardPulse {
+  0%, 100% { box-shadow: 0 0 20px rgba(0,191,255,0.5); }
+  50% { box-shadow: 0 0 30px rgba(0,191,255,0.8); }
+}
+
+@keyframes checkMark {
+  0% {
+    transform: scale(0) rotate(-180deg);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(1) rotate(0deg);
+    opacity: 1;
+  }
+}
+
+@keyframes xMark {
+  0% {
+    transform: scale(0);
+    opacity: 0;
+  }
+  50% {
+    transform: scale(1.2);
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-5px); }
+  75% { transform: translateX(5px); }
+}
+
+@keyframes waveEntrance {
+  0% {
+    opacity: 0;
+    transform: scale(0.8) translateY(20px);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+@keyframes screenShake {
+  0%, 100% { transform: translateX(0) translateY(0); }
+  10% { transform: translateX(-8px) translateY(-8px); }
+  20% { transform: translateX(8px) translateY(8px); }
+  30% { transform: translateX(-8px) translateY(8px); }
+  40% { transform: translateX(8px) translateY(-8px); }
+  50% { transform: translateX(-4px) translateY(-4px); }
+  60% { transform: translateX(4px) translateY(4px); }
+  70% { transform: translateX(-4px) translateY(4px); }
+  80% { transform: translateX(4px) translateY(-4px); }
+}
+
+@keyframes pulseRed {
+  0%, 100% { box-shadow: 0 0 0 rgba(255, 68, 68, 0.4); }
+  50% { box-shadow: 0 0 30px rgba(255, 68, 68, 0.8); }
+}
+
+@keyframes pulseGreen {
+  0%, 100% { box-shadow: 0 0 0 rgba(0, 255, 136, 0.4); }
+  50% { box-shadow: 0 0 30px rgba(0, 255, 136, 0.8); }
+}
+
+.powerups-container {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  width: 100%;
+  max-width: 500px;
+  margin: 25px auto 0;
+  padding-bottom: 30px;
+}
+
+.powerup-btn {
+  padding: 15px 12px;
+  background: linear-gradient(135deg, rgba(255,215,0,0.2), rgba(255,165,0,0.1));
+  border: 2px solid var(--gold);
+  border-radius: 10px;
+  color: var(--gold);
+  font-family: 'Orbitron', sans-serif;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  position: relative;
+  overflow: hidden;
+}
+
+.powerup-btn::before {
+  content: attr(data-key);
+  position: absolute;
+  top: 3px;
+  right: 6px;
+  font-size: 0.7rem;
+  opacity: 0.6;
+  background: rgba(255,215,0,0.15);
+  padding: 2px 5px;
+  border-radius: 4px;
+  border: 1px solid rgba(255,215,0,0.3);
+}
+
+.powerup-btn::after {
+  content: 'Press ' attr(data-key);
+  position: absolute;
+  bottom: -20px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 0.65rem;
+  color: var(--cyan);
+  opacity: 0.8;
+  white-space: nowrap;
+  letter-spacing: 0.3px;
+}
+
+.powerup-btn:not(:disabled):hover {
+  background: linear-gradient(135deg, rgba(255,215,0,0.4), rgba(255,165,0,0.2));
+  box-shadow: 0 0 25px rgba(255,215,0,0.7);
+  transform: translateY(-3px) scale(1.05);
+  border-color: var(--cyan);
+}
+
+.powerup-btn:not(:disabled):focus {
+  outline: 2px solid var(--cyan);
+  outline-offset: 2px;
+}
+
+.powerup-btn:disabled {
+  opacity: 0.25;
+  cursor: not-allowed;
+  border-color: rgba(255,215,0,0.2);
+}
+
+.powerup-btn-icon {
+  font-size: 1.8rem;
+}
+
+.powerup-btn-name {
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+}
+
+.powerup-btn-count {
+  font-size: 0.75rem;
+  opacity: 0.9;
+  font-weight: 600;
+  color: var(--cyan);
+}
+</style>
+</head>
+<body>
+
+  <!-- UNLOCK 2026 shared top bar -->
+  <div class="unlock-appbar">
+    <div class="left">
+      <a href="../index.html" aria-label="Back to menu">⬅ <span>Menu</span></a>
+    </div>
+    <div class="center">UNLOCK 2026</div>
+    <div class="right">
+      <button class="unlock-appbar-btn" id="muteBtn" title="Toggle mute" aria-label="Toggle mute">🔊</button>
+      <button class="unlock-appbar-btn" id="statsBtn" title="Ver seus badges" aria-label="Ver seus badges" style="position: relative; display: inline-flex; align-items: center; gap: 4px; padding: 6px 10px; font-size: 12px;">
+        <span id="badgeCounter" style="background: var(--purple); color: var(--bg); padding: 2px 8px; border-radius: 12px; font-weight: bold; font-size: 11px;">🏆 0</span>
+      </button>
+      <span class="pill"><span data-unlock-streak>🔥 0</span><span style="opacity:.6">•</span> 🔵 Word Match</span>
+    </div>
+  </div>
+
+<div class="bg-grid"></div>
+<div class="combo-aura" id="combo-aura"></div>
+
+<!-- Menu -->
+<div class="screen active" id="screen-menu">
+  <h1 class="menu-title">🔗 WORD MATCH</h1>
+  <p class="menu-sub">Conecte português ↔ inglês</p>
+  <div class="aulas" id="aulas-list"></div>
+</div>
+
+<!-- Mode Select -->
+<div class="screen" id="screen-mode">
+  <h2 class="mode-title" id="mode-aula-name">IS / ARE</h2>
+  <div class="mode-buttons" id="mode-buttons">
+    <button class="mode-btn" data-mode="relaxed">😌 RELAXADO (SEM TIMER)</button>
+    <button class="mode-btn" data-mode="60">⚡ SPEED — 60 SEGUNDOS</button>
+    <button class="mode-btn" data-mode="90">⏱️ NORMAL — 90 SEGUNDOS</button>
+    <button class="mode-btn" data-mode="120">🧘 TRANQUILO — 120 SEGUNDOS</button>
+  </div>
+  <button class="start-btn" id="start-btn" disabled>COMEÇAR</button>
+  <div class="back-link" id="back-to-menu">← VOLTAR</div>
+</div>
+
+<!-- Game -->
+<div class="screen" id="screen-game">
+  <div class="game-container">
+    <header class="game-header">
+      <div class="game-header-row">
+        <button class="game-back" id="game-back">←</button>
+        <div class="game-hud">
+          <span id="timer-wrap" style="display:none">
+            <span class="timer-value" id="game-timer">60</span>s
+          </span>
+          <span class="hud-value" id="game-score">0</span>
+        </div>
+      </div>
+      <div class="game-title" id="game-title">WORD MATCH</div>
+    </header>
+    
+    <div class="progress-bar">
+      <div class="progress-fill" id="progress-fill" style="width:0%"></div>
+    </div>
+    
+    <div class="round-text">ROUND <span id="game-round">1</span> / 3</div>
+    
+    <div class="match-area">
+      <div>
+        <div class="column-title pt">🇧🇷 PORTUGUÊS</div>
+        <div class="cards" id="col-pt"></div>
+      </div>
+      <div>
+        <div class="column-title en">🇺🇸 ENGLISH</div>
+        <div class="cards" id="col-en"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- QUICK PLAY SCREEN -->
+<div class="screen" id="screen-quickplay">
+  <button class="game-back" id="quickplay-back">←</button>
+
+  <div class="quick-play-hud">
+    <div class="quick-play-stat">
+      <div class="quick-play-stat-label">Score</div>
+      <div class="quick-play-stat-value" id="qpScore">0</div>
+    </div>
+    <div class="quick-play-stat">
+      <div class="quick-play-stat-label">Lives</div>
+      <div class="quick-play-stat-value" id="qpLives">❤️❤️❤️</div>
+    </div>
+    <div class="quick-play-stat">
+      <div class="quick-play-stat-label">Combo</div>
+      <div class="quick-play-stat-value" id="qpCombo">0x</div>
+    </div>
+    <div class="quick-play-stat">
+      <div class="quick-play-stat-label">Wave</div>
+      <div class="quick-play-stat-value" id="qpWave">1</div>
+    </div>
+  </div>
+
+  <div class="quick-play-timer">
+    <div class="timer-label">TIME</div>
+    <div class="timer-value" id="qpTimer">10</div>
+    <div class="timer-bar">
+      <div class="timer-fill" id="qpTimerFill"></div>
+    </div>
+  </div>
+
+  <div class="quick-play-match-area">
+    <div>
+      <div class="column-title pt">🇧🇷 PT</div>
+      <div class="qp-cards" id="qp-col-pt"></div>
+    </div>
+    <div>
+      <div class="column-title en">🇺🇸 EN</div>
+      <div class="qp-cards" id="qp-col-en"></div>
+    </div>
+  </div>
+
+  <div class="powerups-container" id="qpPowerups"></div>
+</div>
+<!-- Win Modal -->
+<div class="modal" id="modal-win">
+  <div class="modal-box">
+    <div class="modal-icon">🏆</div>
+    <div class="modal-title">PARABÉNS!</div>
+    <div class="modal-score">Score: <span id="win-score">0</span></div>
+    <button class="modal-btn primary" id="win-retry">JOGAR DE NOVO</button>
+    <button class="modal-btn secondary" id="win-menu">MENU</button>
+  </div>
+</div>
+
+<!-- Lose Modal -->
+<div class="modal" id="modal-lose">
+  <div class="modal-box">
+    <div class="modal-icon">⏰</div>
+    <div class="modal-title">TEMPO ESGOTADO!</div>
+    <div class="modal-score">Score: <span id="lose-score">0</span></div>
+    <button class="modal-btn primary" id="lose-retry">TENTAR DE NOVO</button>
+    <button class="modal-btn secondary" id="lose-menu">MENU</button>
+  </div>
+</div>
+
+<!-- STATS MODAL -->
+<div class="modal" id="statsModal">
+  <div class="modal-box" style="max-width: 600px; max-height: 80vh; overflow-y: auto;">
+    <div class="modal-icon">🏆</div>
+    <div class="modal-title">SEUS BADGES</div>
+    <div id="badgesContainer" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 15px; margin: 20px 0; text-align: center;">
+      <!-- Badges will be populated here by JavaScript -->
+    </div>
+    <div id="noBadgesMsg" style="text-align: center; padding: 40px 20px; color: var(--gray);">
+      <p style="font-size: 3rem;">😴</p>
+      <p>Nenhum badge desbloqueado ainda!</p>
+      <p style="font-size: 0.9rem; margin-top: 10px;">Termine as aulas sem erros para desbloquear badges</p>
+    </div>
+    <button class="modal-btn primary" id="statsCloseBtn">FECHAR</button>
+  </div>
+</div>
+
+<script>
+const AULAS = [
+  {id:1,title:"IS / ARE",emoji:"🔵🟢",pairs:[{pt:"ele está feliz",en:"he is happy"},{pt:"ela está triste",en:"she is sad"},{pt:"eu estou cansado",en:"i am tired"},{pt:"você está atrasado",en:"you are late"},{pt:"nós estamos prontos",en:"we are ready"},{pt:"eles estão aqui",en:"they are here"},{pt:"a loja está aberta",en:"the store is open"},{pt:"a loja está fechada",en:"the store is closed"},{pt:"o dia está bom",en:"the day is good"},{pt:"está frio hoje",en:"it is cold today"},{pt:"está quente hoje",en:"it is hot today"},{pt:"eu estou com fome",en:"i am hungry"},{pt:"eu estou com sede",en:"i am thirsty"},{pt:"você está bem",en:"you are okay"},{pt:"ela está ocupada",en:"she is busy"},{pt:"ele está livre",en:"he is free"},{pt:"nós estamos perdidos",en:"we are lost"},{pt:"eles estão cansados",en:"they are tired"},{pt:"o carro está aqui",en:"the car is here"},{pt:"o banheiro está ali",en:"the bathroom is there"},{pt:"eu estou confuso",en:"i am confused"},{pt:"você está certo",en:"you are right"},{pt:"você está errado",en:"you are wrong"},{pt:"a comida está boa",en:"the food is good"},{pt:"o lugar está cheio",en:"the place is full"},{pt:"o lugar está vazio",en:"the place is empty"},{pt:"eu estou com sono",en:"i am sleepy"},{pt:"ela está feliz agora",en:"she is happy now"},{pt:"eles estão prontos agora",en:"they are ready now"},{pt:"nós estamos bem",en:"we are fine"}]},
+  {id:2,title:"NUMBERS",emoji:"🔢",pairs:[{pt:"um",en:"one"},{pt:"dois",en:"two"},{pt:"três",en:"three"},{pt:"quatro",en:"four"},{pt:"cinco",en:"five"},{pt:"seis",en:"six"},{pt:"sete",en:"seven"},{pt:"oito",en:"eight"},{pt:"nove",en:"nine"},{pt:"dez",en:"ten"},{pt:"onze",en:"eleven"},{pt:"doze",en:"twelve"},{pt:"quinze",en:"fifteen"},{pt:"vinte",en:"twenty"},{pt:"trinta",en:"thirty"},{pt:"quarenta",en:"forty"},{pt:"cinquenta",en:"fifty"},{pt:"sessenta",en:"sixty"},{pt:"setenta",en:"seventy"},{pt:"oitenta",en:"eighty"},{pt:"noventa",en:"ninety"},{pt:"cem",en:"hundred"},{pt:"mil",en:"thousand"},{pt:"vinte e um",en:"twenty one"},{pt:"trinta e cinco",en:"thirty five"},{pt:"quarenta e sete",en:"forty seven"},{pt:"noventa e nove",en:"ninety nine"},{pt:"cem reais",en:"one hundred reais"},{pt:"dois dólares",en:"two dollars"},{pt:"um milhão",en:"one million"}]},
+  {id:3,title:"DO YOU HAVE",emoji:"🤲❓",pairs:[{pt:"você tem água",en:"do you have water"},{pt:"você tem café",en:"do you have coffee"},{pt:"você tem banheiro",en:"do you have a bathroom"},{pt:"você tem wi fi",en:"do you have wifi"},{pt:"você tem cartão",en:"do you have a card"},{pt:"você tem dinheiro",en:"do you have cash"},{pt:"você tem recibo",en:"do you have a receipt"},{pt:"você tem vaga",en:"do you have space"},{pt:"você tem tempo",en:"do you have time"},{pt:"você tem carro",en:"do you have a car"},{pt:"você tem documento",en:"do you have an id"},{pt:"você tem remédio",en:"do you have medicine"},{pt:"você tem comida",en:"do you have food"},{pt:"você tem gelo",en:"do you have ice"},{pt:"você tem sal",en:"do you have salt"},{pt:"você tem açúcar",en:"do you have sugar"},{pt:"você tem entrega",en:"do you have delivery"},{pt:"você tem horário",en:"do you have an appointment"},{pt:"você tem experiência",en:"do you have experience"},{pt:"você tem vaga hoje",en:"do you have availability today"},{pt:"você tem mesa",en:"do you have a table"},{pt:"você tem quarto",en:"do you have a room"},{pt:"você tem troco",en:"do you have change"},{pt:"você tem número",en:"do you have a number"},{pt:"você tem endereço",en:"do you have an address"},{pt:"você tem caneta",en:"do you have a pen"},{pt:"você tem papel",en:"do you have paper"},{pt:"você tem cadeira",en:"do you have a chair"},{pt:"você tem ajuda",en:"do you have help"},{pt:"você tem desconto",en:"do you have a discount"}]},
+  {id:4,title:"GET",emoji:"🤲✨",pairs:[{pt:"pegar o carro",en:"get the car"},{pt:"pegar o ônibus",en:"get the bus"},{pt:"pegar comida",en:"get food"},{pt:"pegar café",en:"get coffee"},{pt:"pegar o telefone",en:"get the phone"},{pt:"pegar o pacote",en:"get the package"},{pt:"conseguir um emprego",en:"get a job"},{pt:"conseguir dinheiro",en:"get money"},{pt:"conseguir ajuda",en:"get help"},{pt:"chegar em casa",en:"get home"},{pt:"chegar cedo",en:"get early"},{pt:"chegar tarde",en:"get late"},{pt:"ficar bravo",en:"get angry"},{pt:"ficar cansado",en:"get tired"},{pt:"ficar doente",en:"get sick"},{pt:"entender isso",en:"get it"},{pt:"pegar a ideia",en:"get the idea"},{pt:"receber mensagem",en:"get a message"},{pt:"receber pagamento",en:"get paid"},{pt:"receber resposta",en:"get an answer"},{pt:"pegar um táxi",en:"get a taxi"},{pt:"pegar ingresso",en:"get a ticket"},{pt:"pegar um presente",en:"get a gift"},{pt:"pegar gelo",en:"get ice"},{pt:"pegar água",en:"get water"},{pt:"pegar lugar",en:"get a seat"},{pt:"pegar fila",en:"get in line"},{pt:"pegar estrada",en:"get on the road"},{pt:"pegar acesso",en:"get access"},{pt:"pegar problema",en:"get in trouble"}]},
+  {id:5,title:"GO / COME",emoji:"🚶➡️⬅️",pairs:[{pt:"ir pra casa",en:"go home"},{pt:"vir pra casa",en:"come home"},{pt:"ir ao trabalho",en:"go to work"},{pt:"vir trabalhar",en:"come to work"},{pt:"ir ao mercado",en:"go to the store"},{pt:"vir aqui",en:"come here"},{pt:"ir embora",en:"go away"},{pt:"vir comigo",en:"come with me"},{pt:"ir sozinho",en:"go alone"},{pt:"vir agora",en:"come now"},{pt:"ir amanhã",en:"go tomorrow"},{pt:"vir hoje",en:"come today"},{pt:"ir de carro",en:"go by car"},{pt:"vir a pé",en:"come on foot"},{pt:"ir rápido",en:"go fast"},{pt:"vir rápido",en:"come fast"},{pt:"ir buscar",en:"go get"},{pt:"vir buscar",en:"come get"},{pt:"ir ao hospital",en:"go to the hospital"},{pt:"vir ao hospital",en:"come to the hospital"},{pt:"ir trabalhar cedo",en:"go to work early"},{pt:"vir falar comigo",en:"come talk to me"},{pt:"ir dormir",en:"go sleep"},{pt:"vir comer",en:"come eat"},{pt:"ir estudar",en:"go study"},{pt:"vir estudar",en:"come study"},{pt:"ir pra fora",en:"go outside"},{pt:"vir pra dentro",en:"come inside"},{pt:"ir agora",en:"go now"},{pt:"vir depois",en:"come later"}]},
+  {id:6,title:"GOING TO",emoji:"🎯➡️",pairs:[{pt:"eu vou trabalhar",en:"i am going to work"},{pt:"eu vou estudar",en:"i am going to study"},{pt:"eu vou comer",en:"i am going to eat"},{pt:"eu vou dormir",en:"i am going to sleep"},{pt:"eu vou sair",en:"i am going to go out"},{pt:"eu vou viajar",en:"i am going to travel"},{pt:"eu vou ligar",en:"i am going to call"},{pt:"eu vou comprar",en:"i am going to buy"},{pt:"eu vou pagar",en:"i am going to pay"},{pt:"eu vou tentar",en:"i am going to try"},{pt:"eu vou decidir",en:"i am going to decide"},{pt:"eu vou dirigir",en:"i am going to drive"},{pt:"eu vou correr",en:"i am going to run"},{pt:"eu vou treinar",en:"i am going to train"},{pt:"eu vou limpar",en:"i am going to clean"},{pt:"eu vou responder",en:"i am going to reply"},{pt:"eu vou ficar aqui",en:"i am going to stay here"},{pt:"eu vou sair cedo",en:"i am going to leave early"},{pt:"eu vou chegar tarde",en:"i am going to arrive late"},{pt:"eu vou economizar",en:"i am going to save money"},{pt:"eu vou resolver isso",en:"i am going to solve this"},{pt:"eu vou chamar ele",en:"i am going to call him"},{pt:"eu vou esperar",en:"i am going to wait"},{pt:"eu vou ajudar",en:"i am going to help"},{pt:"eu vou começar",en:"i am going to start"},{pt:"eu vou terminar",en:"i am going to finish"},{pt:"eu vou tentar de novo",en:"i am going to try again"},{pt:"eu vou parar",en:"i am going to stop"},{pt:"eu vou continuar",en:"i am going to continue"},{pt:"eu vou voltar",en:"i am going to come back"}]},
+  {id:7,title:"HAVE / HAS",emoji:"✋📦",pairs:[{pt:"eu tenho tempo",en:"i have time"},{pt:"eu tenho dinheiro",en:"i have money"},{pt:"eu tenho fome",en:"i am hungry"},{pt:"eu tenho sede",en:"i am thirsty"},{pt:"eu tenho uma ideia",en:"i have an idea"},{pt:"eu tenho carro",en:"i have a car"},{pt:"eu tenho trabalho",en:"i have a job"},{pt:"eu tenho dúvida",en:"i have a question"},{pt:"ele tem carro",en:"he has a car"},{pt:"ele tem dinheiro",en:"he has money"},{pt:"ele tem tempo",en:"he has time"},{pt:"ele tem dor",en:"he has pain"},{pt:"ela tem casa",en:"she has a house"},{pt:"ela tem trabalho",en:"she has a job"},{pt:"ela tem compromisso",en:"she has an appointment"},{pt:"nós temos tempo",en:"we have time"},{pt:"nós temos dinheiro",en:"we have money"},{pt:"eles têm filhos",en:"they have kids"},{pt:"eles têm casa",en:"they have a house"},{pt:"eles têm problema",en:"they have a problem"},{pt:"eu tenho conta",en:"i have a bill"},{pt:"eu tenho celular",en:"i have a phone"},{pt:"ele tem documento",en:"he has an id"},{pt:"ela tem cartão",en:"she has a card"},{pt:"nós temos entrega",en:"we have delivery"},{pt:"eles têm experiência",en:"they have experience"},{pt:"eu tenho medo",en:"i am scared"},{pt:"ele tem sono",en:"he is sleepy"},{pt:"ela tem razão",en:"she is right"},{pt:"nós temos escolha",en:"we have a choice"}]},
+  {id:8,title:"HAVE TO / NEED TO",emoji:"⚠️✅",pairs:[{pt:"eu tenho que trabalhar",en:"i have to work"},{pt:"eu tenho que pagar",en:"i have to pay"},{pt:"eu tenho que sair",en:"i have to leave"},{pt:"eu tenho que esperar",en:"i have to wait"},{pt:"eu tenho que ligar",en:"i have to call"},{pt:"eu tenho que estudar",en:"i have to study"},{pt:"eu preciso dormir",en:"i need to sleep"},{pt:"eu preciso comer",en:"i need to eat"},{pt:"eu preciso estudar",en:"i need to study"},{pt:"eu preciso descansar",en:"i need to rest"},{pt:"eu preciso ajuda",en:"i need help"},{pt:"eu tenho que dirigir",en:"i have to drive"},{pt:"eu tenho que decidir",en:"i have to decide"},{pt:"eu tenho que resolver isso",en:"i have to deal with this"},{pt:"eu preciso tentar",en:"i need to try"},{pt:"eu preciso sair cedo",en:"i need to leave early"},{pt:"eu tenho que chegar cedo",en:"i have to arrive early"},{pt:"eu preciso ligar pra ele",en:"i need to call him"},{pt:"eu tenho que trabalhar hoje",en:"i have to work today"},{pt:"eu preciso marcar horário",en:"i need to make an appointment"},{pt:"eu tenho que pagar a conta",en:"i have to pay the bill"},{pt:"eu preciso limpar",en:"i need to clean"},{pt:"eu tenho que lembrar",en:"i have to remember"},{pt:"eu preciso resolver",en:"i need to solve it"},{pt:"eu tenho que esperar aqui",en:"i have to wait here"},{pt:"eu preciso continuar",en:"i need to continue"},{pt:"eu tenho que parar",en:"i have to stop"},{pt:"eu preciso sair agora",en:"i need to leave now"},{pt:"eu tenho que tentar de novo",en:"i have to try again"},{pt:"eu preciso ajuda agora",en:"i need help now"}]},
+  {id:9,title:"HERE / THERE",emoji:"📍🗺️",pairs:[{pt:"é aqui",en:"it is here"},{pt:"é ali",en:"it is there"},{pt:"fica aqui",en:"stay here"},{pt:"fica ali",en:"stay there"},{pt:"vem aqui",en:"come here"},{pt:"vai ali",en:"go there"},{pt:"estou aqui",en:"i am here"},{pt:"estou ali",en:"i am there"},{pt:"minha casa é aqui",en:"my house is here"},{pt:"o carro está ali",en:"the car is there"},{pt:"senta aqui",en:"sit here"},{pt:"espera aqui",en:"wait here"},{pt:"deixa aqui",en:"leave it here"},{pt:"pega ali",en:"get it there"},{pt:"fica aqui comigo",en:"stay here with me"},{pt:"fica ali fora",en:"stay there outside"},{pt:"é perto daqui",en:"it is near here"},{pt:"é longe daqui",en:"it is far from here"},{pt:"entra aqui",en:"come in here"},{pt:"sai ali",en:"go out there"},{pt:"é logo aqui",en:"it is right here"},{pt:"é logo ali",en:"it is right there"},{pt:"o banheiro é aqui",en:"the bathroom is here"},{pt:"a saída é ali",en:"the exit is there"},{pt:"fica aqui dentro",en:"stay here inside"},{pt:"fica ali atrás",en:"stay there behind"},{pt:"olha aqui",en:"look here"},{pt:"olha ali",en:"look there"},{pt:"volta aqui",en:"come back here"},{pt:"vai ali rápido",en:"go there fast"}]},
+  {id:10,title:"HOW MUCH / HOW MANY",emoji:"💰🔢",pairs:[{pt:"quanto custa",en:"how much is it"},{pt:"quanto é isso",en:"how much is this"},{pt:"quanto deu a conta",en:"how much is the bill"},{pt:"quanto é o aluguel",en:"how much is the rent"},{pt:"quanto você paga",en:"how much do you pay"},{pt:"quanto você ganha",en:"how much do you make"},{pt:"quanta água",en:"how much water"},{pt:"quanto tempo",en:"how much time"},{pt:"quanta experiência",en:"how much experience"},{pt:"quanto pesa",en:"how much does it weigh"},{pt:"quantas pessoas",en:"how many people"},{pt:"quantos dias",en:"how many days"},{pt:"quantos carros",en:"how many cars"},{pt:"quantos quartos",en:"how many rooms"},{pt:"quantas cadeiras",en:"how many chairs"},{pt:"quantas horas",en:"how many hours"},{pt:"quantos alunos",en:"how many students"},{pt:"quantas caixas",en:"how many boxes"},{pt:"quantos recibos",en:"how many receipts"},{pt:"quantas chamadas",en:"how many calls"},{pt:"quanto custa isso aqui",en:"how much is this here"},{pt:"quantos clientes",en:"how many customers"},{pt:"quanto ficou",en:"how much did it come to"},{pt:"quantas camas",en:"how many beds"},{pt:"quanto pão",en:"how much bread"},{pt:"quanto arroz",en:"how much rice"},{pt:"quantas garrafas",en:"how many bottles"},{pt:"quanto dinheiro",en:"how much money"},{pt:"quantos documentos",en:"how many documents"},{pt:"quanto você precisa",en:"how much do you need"}]},
+  {id:11,title:"HOW",emoji:"🤷❓",pairs:[{pt:"como",en:"how"},{pt:"como funciona",en:"how does it work"},{pt:"como faço isso",en:"how do i do this"},{pt:"como chego lá",en:"how do i get there"},{pt:"como chego em casa",en:"how do i get home"},{pt:"como pago isso",en:"how do i pay this"},{pt:"como ligo",en:"how do i call"},{pt:"como uso isso",en:"how do i use this"},{pt:"como resolvo isso",en:"how do i solve this"},{pt:"como começo",en:"how do i start"},{pt:"como termino",en:"how do i finish"},{pt:"como continuo",en:"how do i continue"},{pt:"como marco horário",en:"how do i make an appointment"},{pt:"como falo com ele",en:"how do i talk to him"},{pt:"como explico isso",en:"how do i explain this"},{pt:"como faço rápido",en:"how do i do it fast"},{pt:"como entro",en:"how do i get in"},{pt:"como saio",en:"how do i get out"},{pt:"como trabalho aqui",en:"how do i work here"},{pt:"como faço pagamento",en:"how do i pay"},{pt:"como uso o app",en:"how do i use the app"},{pt:"como chego aqui",en:"how do i get here"},{pt:"como falo com médico",en:"how do i talk to a doctor"},{pt:"como retorno ligação",en:"how do i call back"},{pt:"como faço isso agora",en:"how do i do this now"},{pt:"como resolvo hoje",en:"how do i fix this today"},{pt:"como faço sozinho",en:"how do i do it alone"},{pt:"como faço online",en:"how do i do it online"},{pt:"como faço de novo",en:"how do i do it again"},{pt:"como funciona isso",en:"how does this work"}]},
+  {id:12,title:"IS / ARE QUESTIONS",emoji:"🔵🟢❓",pairs:[{pt:"é perto",en:"is it close"},{pt:"é longe",en:"is it far"},{pt:"é caro",en:"is it expensive"},{pt:"é barato",en:"is it cheap"},{pt:"está aberto",en:"is it open"},{pt:"está fechado",en:"is it closed"},{pt:"você está bem",en:"are you okay"},{pt:"eles estão aqui",en:"are they here"},{pt:"isso é seu",en:"is this yours"},{pt:"é tarde",en:"is it late"},{pt:"é cedo",en:"is it early"},{pt:"estamos prontos",en:"are we ready"},{pt:"eles estão esperando",en:"are they waiting"},{pt:"o médico está aqui",en:"is the doctor here"},{pt:"o hospital é longe",en:"is the hospital far"},{pt:"isso é permitido",en:"is it allowed"},{pt:"isso é obrigatório",en:"is it mandatory"},{pt:"isso é importante",en:"is it important"},{pt:"isso está pronto",en:"is it ready"},{pt:"a conta está certa",en:"is the bill correct"},{pt:"a porta está aberta",en:"is the door open"},{pt:"o quarto é grande",en:"is the room big"},{pt:"o horário está certo",en:"is the time correct"},{pt:"isso é online",en:"is it online"},{pt:"eles estão fechados",en:"are they closed"},{pt:"ele está atrasado",en:"is he late"},{pt:"ela está ocupada",en:"is she busy"},{pt:"os carros são novos",en:"are the cars new"},{pt:"as casas são grandes",en:"are the houses big"},{pt:"isso está claro",en:"is that clear"}]},
+  {id:13,title:"CAN",emoji:"💪🔓",pairs:[{pt:"eu sei dirigir",en:"i can drive"},{pt:"eu sei cozinhar",en:"i can cook"},{pt:"eu sei falar inglês",en:"i can speak english"},{pt:"posso entrar",en:"can i come in"},{pt:"posso sentar aqui",en:"can i sit here"},{pt:"posso usar o banheiro",en:"can i use the bathroom"},{pt:"posso pagar com cartão",en:"can i pay with card"},{pt:"posso ligar depois",en:"can i call later"},{pt:"você pode me ajudar",en:"can you help me"},{pt:"você pode esperar",en:"can you wait"},{pt:"você pode vir",en:"can you come"},{pt:"ele pode ajudar",en:"he can help"},{pt:"ela sabe dirigir",en:"she can drive"},{pt:"eu posso esperar",en:"i can wait"},{pt:"eu não posso agora",en:"i cannot now"},{pt:"eu não posso fazer isso",en:"i cannot do this"},{pt:"não pode estacionar aqui",en:"you cannot park here"},{pt:"não pode fumar aqui",en:"you cannot smoke here"},{pt:"pode chover",en:"it can rain"},{pt:"isso pode quebrar",en:"this can break"},{pt:"posso ficar aqui",en:"can i stay here"},{pt:"posso sair cedo",en:"can i leave early"},{pt:"você consegue vir",en:"can you come"},{pt:"posso ajudar",en:"can i help"},{pt:"eu consigo entender",en:"i can understand"},{pt:"eu consigo correr",en:"i can run"},{pt:"posso tentar",en:"can i try"},{pt:"posso falar agora",en:"can i talk now"},{pt:"posso voltar depois",en:"can i come back later"},{pt:"eu posso continuar",en:"i can continue"}]},
+  {id:14,title:"DAYS OF THE WEEK",emoji:"📅",pairs:[{pt:"domingo",en:"sunday"},{pt:"segunda",en:"monday"},{pt:"terça",en:"tuesday"},{pt:"quarta",en:"wednesday"},{pt:"quinta",en:"thursday"},{pt:"sexta",en:"friday"},{pt:"sábado",en:"saturday"},{pt:"hoje é segunda",en:"today is monday"},{pt:"amanhã é sexta",en:"tomorrow is friday"},{pt:"ontem foi terça",en:"yesterday was tuesday"},{pt:"eu trabalho na segunda",en:"i work on monday"},{pt:"eu estudo na terça",en:"i study on tuesday"},{pt:"eu treino na quarta",en:"i train on wednesday"},{pt:"eu ligo na quinta",en:"i call on thursday"},{pt:"eu saio na sexta",en:"i go out on friday"},{pt:"eu descanso no sábado",en:"i rest on saturday"},{pt:"eu fico em casa no domingo",en:"i stay home on sunday"},{pt:"toda semana",en:"every week"},{pt:"todo dia",en:"every day"},{pt:"no fim de semana",en:"on the weekend"},{pt:"essa semana",en:"this week"},{pt:"semana que vem",en:"next week"},{pt:"segunda de manhã",en:"monday morning"},{pt:"sexta à noite",en:"friday night"},{pt:"sábado de manhã",en:"saturday morning"},{pt:"domingo à noite",en:"sunday night"},{pt:"qual dia é hoje",en:"what day is today"},{pt:"que dia é hoje",en:"what day is it"},{pt:"hoje é sexta",en:"today is friday"},{pt:"amanhã é sábado",en:"tomorrow is saturday"}]},
+  {id:15,title:"DIRECTIONS",emoji:"🧭➡️",pairs:[{pt:"vire à esquerda",en:"turn left"},{pt:"vire à direita",en:"turn right"},{pt:"siga reto",en:"go straight"},{pt:"é aqui",en:"it is here"},{pt:"é ali",en:"it is there"},{pt:"é na esquina",en:"it is on the corner"},{pt:"é perto",en:"it is close"},{pt:"é longe",en:"it is far"},{pt:"fica à esquerda",en:"it is on the left"},{pt:"fica à direita",en:"it is on the right"},{pt:"fica em frente",en:"it is in front"},{pt:"fica atrás",en:"it is behind"},{pt:"perto daqui",en:"near here"},{pt:"longe daqui",en:"far from here"},{pt:"no sinal",en:"at the traffic light"},{pt:"na rua principal",en:"on the main street"},{pt:"um quarteirão",en:"one block"},{pt:"dois quarteirões",en:"two blocks"},{pt:"onde fica",en:"where is it"},{pt:"mostra no mapa",en:"show me on the map"},{pt:"continue andando",en:"keep walking"},{pt:"volte",en:"go back"},{pt:"chegou",en:"you are there"},{pt:"é ali dentro",en:"it is inside"},{pt:"é ali fora",en:"it is outside"},{pt:"logo ali",en:"right there"},{pt:"perto do banco",en:"near the bank"},{pt:"perto do mercado",en:"near the store"},{pt:"fica ali do lado",en:"it is right next to it"},{pt:"fica ali na frente",en:"it is right in front"}]},
+  {id:16,title:"DO DOES DID",emoji:"🔵🔴🟡",pairs:[{pt:"você trabalha aqui",en:"do you work here"},{pt:"você gosta disso",en:"do you like this"},{pt:"eles moram aqui",en:"do they live here"},{pt:"ela trabalha aqui",en:"does she work here"},{pt:"ele gosta disso",en:"does he like this"},{pt:"isso funciona",en:"does it work"},{pt:"você precisa disso",en:"do you need this"},{pt:"ela mora longe",en:"does she live far"},{pt:"ele dirige",en:"does he drive"},{pt:"isso ajuda",en:"does this help"},{pt:"você foi ontem",en:"did you go yesterday"},{pt:"ele ligou",en:"did he call"},{pt:"ela pagou",en:"did she pay"},{pt:"vocês entenderam",en:"did you understand"},{pt:"isso funcionou",en:"did it work"},{pt:"sim eu trabalho",en:"yes i do"},{pt:"não eu não gosto",en:"no i do not"},{pt:"sim ela mora",en:"yes she does"},{pt:"não ele não dirige",en:"no he does not"},{pt:"sim eu fui",en:"yes i did"},{pt:"não eu não fui",en:"no i did not"},{pt:"você entende",en:"do you understand"},{pt:"ela entende",en:"does she understand"},{pt:"você entendeu",en:"did you understand"},{pt:"ele ligou ontem",en:"did he call yesterday"},{pt:"você compra aqui",en:"do you shop here"},{pt:"ela compra aqui",en:"does she shop here"},{pt:"vocês compraram",en:"did you buy"},{pt:"você tem tempo",en:"do you have time"},{pt:"eles moraram aqui",en:"did they live here"}]},
+  {id:17,title:"LET ME CAN I",emoji:"🙋✋",pairs:[{pt:"deixa eu entrar",en:"let me in"},{pt:"deixa eu ligar",en:"let me call"},{pt:"deixa eu sentar",en:"let me sit"},{pt:"deixa eu explicar",en:"let me explain"},{pt:"deixa eu tentar",en:"let me try"},{pt:"deixa eu ver",en:"let me see"},{pt:"deixa eu ajudar",en:"let me help"},{pt:"deixa eu pagar",en:"let me pay"},{pt:"posso entrar",en:"can i come in"},{pt:"posso sentar aqui",en:"can i sit here"},{pt:"posso ligar depois",en:"can i call later"},{pt:"posso usar o banheiro",en:"can i use the bathroom"},{pt:"posso ficar aqui",en:"can i stay here"},{pt:"posso esperar",en:"can i wait"},{pt:"posso tentar",en:"can i try"},{pt:"posso ajudar",en:"can i help"},{pt:"posso falar agora",en:"can i talk now"},{pt:"posso sair cedo",en:"can i leave early"},{pt:"posso voltar depois",en:"can i come back later"},{pt:"posso pagar agora",en:"can i pay now"},{pt:"deixa eu resolver isso",en:"let me handle this"},{pt:"deixa eu pensar",en:"let me think"},{pt:"deixa eu verificar",en:"let me check"},{pt:"deixa eu confirmar",en:"let me confirm"},{pt:"posso começar",en:"can i start"},{pt:"posso terminar",en:"can i finish"},{pt:"deixa eu continuar",en:"let me continue"},{pt:"posso tentar de novo",en:"can i try again"},{pt:"deixa eu explicar melhor",en:"let me explain better"},{pt:"posso falar com você",en:"can i talk to you"}]},
+  {id:18,title:"LIKE / LOVE / HATE",emoji:"👍❤️👎",pairs:[{pt:"eu gosto disso",en:"i like this"},{pt:"eu gosto de café",en:"i like coffee"},{pt:"eu gosto de música",en:"i like music"},{pt:"eu gosto daqui",en:"i like it here"},{pt:"eu gosto do trabalho",en:"i like the job"},{pt:"eu gosto de estudar",en:"i like studying"},{pt:"eu amo isso",en:"i love this"},{pt:"eu amo café",en:"i love coffee"},{pt:"eu amo música",en:"i love music"},{pt:"eu amo essa cidade",en:"i love this city"},{pt:"eu amo meu trabalho",en:"i love my job"},{pt:"eu amo aprender inglês",en:"i love learning english"},{pt:"eu odeio isso",en:"i hate this"},{pt:"eu odeio trânsito",en:"i hate traffic"},{pt:"eu odeio acordar cedo",en:"i hate waking up early"},{pt:"eu odeio esperar",en:"i hate waiting"},{pt:"você gosta disso",en:"do you like this"},{pt:"você gosta daqui",en:"do you like it here"},{pt:"você ama isso",en:"do you love this"},{pt:"você odeia isso",en:"do you hate this"},{pt:"eu gosto mais disso",en:"i like this more"},{pt:"eu gosto menos disso",en:"i like this less"},{pt:"eu não gosto disso",en:"i do not like this"},{pt:"eu não amo isso",en:"i do not love this"},{pt:"eu não odeio isso",en:"i do not hate this"},{pt:"ele gosta disso",en:"he likes this"},{pt:"ela ama isso",en:"she loves this"},{pt:"eles odeiam isso",en:"they hate this"},{pt:"eu gosto muito disso",en:"i really like this"},{pt:"eu amo muito isso",en:"i really love this"}]},
+  {id:19,title:"IM LOOKING FOR",emoji:"🔎🗺️",pairs:[{pt:"estou procurando isso",en:"i am looking for this"},{pt:"estou procurando ajuda",en:"i am looking for help"},{pt:"estou procurando trabalho",en:"i am looking for a job"},{pt:"estou procurando banheiro",en:"i am looking for a bathroom"},{pt:"estou procurando um lugar",en:"i am looking for a place"},{pt:"estou procurando comida",en:"i am looking for food"},{pt:"estou procurando café",en:"i am looking for coffee"},{pt:"estou procurando mercado",en:"i am looking for a store"},{pt:"estou procurando endereço",en:"i am looking for an address"},{pt:"estou procurando hotel",en:"i am looking for a hotel"},{pt:"estou procurando médico",en:"i am looking for a doctor"},{pt:"estou procurando farmácia",en:"i am looking for a pharmacy"},{pt:"estou procurando ônibus",en:"i am looking for the bus"},{pt:"estou procurando uber",en:"i am looking for an uber"},{pt:"estou procurando caixa eletrônico",en:"i am looking for an atm"},{pt:"estou procurando vaga",en:"i am looking for parking"},{pt:"estou procurando emprego melhor",en:"i am looking for a better job"},{pt:"estou procurando apartamento",en:"i am looking for an apartment"},{pt:"estou procurando casa",en:"i am looking for a house"},{pt:"estou procurando quarto",en:"i am looking for a room"},{pt:"estou procurando preço",en:"i am looking for the price"},{pt:"estou procurando tamanho",en:"i am looking for a size"},{pt:"estou procurando promoção",en:"i am looking for a deal"},{pt:"estou procurando isso aqui",en:"i am looking for this here"},{pt:"estou procurando ali",en:"i am looking for that there"},{pt:"você está procurando isso",en:"are you looking for this"},{pt:"ele está procurando trabalho",en:"he is looking for a job"},{pt:"ela está procurando ajuda",en:"she is looking for help"},{pt:"estamos procurando lugar",en:"we are looking for a place"},{pt:"eles estão procurando casa",en:"they are looking for a house"}]},
+  {id:20,title:"MONTHS AND SEASONS",emoji:"🗓️🍂",pairs:[{pt:"janeiro",en:"january"},{pt:"fevereiro",en:"february"},{pt:"março",en:"march"},{pt:"abril",en:"april"},{pt:"maio",en:"may"},{pt:"junho",en:"june"},{pt:"julho",en:"july"},{pt:"agosto",en:"august"},{pt:"setembro",en:"september"},{pt:"outubro",en:"october"},{pt:"novembro",en:"november"},{pt:"dezembro",en:"december"},{pt:"verão",en:"summer"},{pt:"outono",en:"fall"},{pt:"inverno",en:"winter"},{pt:"primavera",en:"spring"},{pt:"em janeiro",en:"in january"},{pt:"em dezembro",en:"in december"},{pt:"no verão",en:"in the summer"},{pt:"no inverno",en:"in the winter"},{pt:"no outono",en:"in the fall"},{pt:"na primavera",en:"in the spring"},{pt:"este mês",en:"this month"},{pt:"mês que vem",en:"next month"},{pt:"mês passado",en:"last month"},{pt:"este ano",en:"this year"},{pt:"ano que vem",en:"next year"},{pt:"ano passado",en:"last year"},{pt:"está frio no inverno",en:"it is cold in the winter"},{pt:"está quente no verão",en:"it is hot in the summer"}]},
+  {id:21,title:"MOODS AND FEELINGS",emoji:"🙂😡😴",pairs:[{pt:"estou feliz",en:"i am happy"},{pt:"estou triste",en:"i am sad"},{pt:"estou bravo",en:"i am angry"},{pt:"estou cansado",en:"i am tired"},{pt:"estou com sono",en:"i am sleepy"},{pt:"estou animado",en:"i am excited"},{pt:"estou nervoso",en:"i am nervous"},{pt:"estou calmo",en:"i am calm"},{pt:"estou estressado",en:"i am stressed"},{pt:"estou bem",en:"i am fine"},{pt:"estou mal",en:"i am not well"},{pt:"estou confuso",en:"i am confused"},{pt:"estou focado",en:"i am focused"},{pt:"estou ocupado",en:"i am busy"},{pt:"estou livre",en:"i am free"},{pt:"estou com medo",en:"i am scared"},{pt:"estou relaxado",en:"i am relaxed"},{pt:"estou com fome",en:"i am hungry"},{pt:"estou com sede",en:"i am thirsty"},{pt:"estou doente",en:"i am sick"},{pt:"estou melhor",en:"i am better"},{pt:"estou pior",en:"i am worse"},{pt:"estou pronto",en:"i am ready"},{pt:"estou atrasado",en:"i am late"},{pt:"estou cedo",en:"i am early"},{pt:"ele está feliz",en:"he is happy"},{pt:"ela está cansada",en:"she is tired"},{pt:"eles estão animados",en:"they are excited"},{pt:"estamos bem",en:"we are fine"},{pt:"estou ok agora",en:"i am okay now"}]},
+  {id:22,title:"NUMBERS REAL LIFE",emoji:"🔢💯",pairs:[{pt:"um dólar",en:"one dollar"},{pt:"dois dólares",en:"two dollars"},{pt:"dez dólares",en:"ten dollars"},{pt:"vinte dólares",en:"twenty dollars"},{pt:"cinquenta dólares",en:"fifty dollars"},{pt:"cem dólares",en:"one hundred dollars"},{pt:"mil dólares",en:"one thousand dollars"},{pt:"dois reais",en:"two reais"},{pt:"dez reais",en:"ten reais"},{pt:"vinte reais",en:"twenty reais"},{pt:"quanto custa",en:"how much is it"},{pt:"custa dez",en:"it costs ten"},{pt:"custa vinte",en:"it costs twenty"},{pt:"são cinco pessoas",en:"there are five people"},{pt:"são dez minutos",en:"it is ten minutes"},{pt:"tenho dois irmãos",en:"i have two siblings"},{pt:"tenho três filhos",en:"i have three kids"},{pt:"moro aqui há dois anos",en:"i live here for two years"},{pt:"trabalho cinco dias",en:"i work five days"},{pt:"são oito horas",en:"it is eight hours"},{pt:"chego em dez minutos",en:"i arrive in ten minutes"},{pt:"faltam cinco minutos",en:"five minutes left"},{pt:"são cem metros",en:"it is one hundred meters"},{pt:"são dois quarteirões",en:"it is two blocks"},{pt:"tenho vinte anos",en:"i am twenty years old"},{pt:"ele tem trinta anos",en:"he is thirty years old"},{pt:"ela tem quarenta anos",en:"she is forty years old"},{pt:"custa cem reais",en:"it costs one hundred reais"},{pt:"paguei cinquenta",en:"i paid fifty"},{pt:"ganhei cem",en:"i made one hundred"}]},
+  {id:23,title:"THIS THAT",emoji:"👉👈",pairs:[{pt:"isso aqui",en:"this"},{pt:"isso ali",en:"that"},{pt:"isso aqui é bom",en:"this is good"},{pt:"isso ali é ruim",en:"that is bad"},{pt:"eu quero isso",en:"i want this"},{pt:"eu quero aquilo",en:"i want that"},{pt:"isso aqui é meu",en:"this is mine"},{pt:"isso ali é seu",en:"that is yours"},{pt:"isso aqui funciona",en:"this works"},{pt:"isso ali não funciona",en:"that does not work"},{pt:"isso aqui é caro",en:"this is expensive"},{pt:"isso ali é barato",en:"that is cheap"},{pt:"eu gosto disso aqui",en:"i like this"},{pt:"eu gosto disso ali",en:"i like that"},{pt:"isso aqui está certo",en:"this is right"},{pt:"isso ali está errado",en:"that is wrong"},{pt:"pega isso aqui",en:"get this"},{pt:"pega isso ali",en:"get that"},{pt:"olha isso aqui",en:"look at this"},{pt:"olha isso ali",en:"look at that"},{pt:"isso aqui agora",en:"this now"},{pt:"isso ali depois",en:"that later"},{pt:"isso aqui é melhor",en:"this is better"},{pt:"isso ali é pior",en:"that is worse"},{pt:"eu escolho isso",en:"i choose this"},{pt:"eu escolho aquilo",en:"i choose that"},{pt:"isso aqui é fácil",en:"this is easy"},{pt:"isso ali é difícil",en:"that is hard"},{pt:"isso aqui funciona bem",en:"this works well"},{pt:"isso ali não funciona",en:"that does not work"}]},
+  {id:24,title:"WANT NEED",emoji:"✅🔥",pairs:[{pt:"eu quero isso",en:"i want this"},{pt:"eu quero aquilo",en:"i want that"},{pt:"eu quero café",en:"i want coffee"},{pt:"eu quero comida",en:"i want food"},{pt:"eu quero ajuda",en:"i want help"},{pt:"eu quero trabalhar",en:"i want to work"},{pt:"eu quero estudar",en:"i want to study"},{pt:"eu quero sair",en:"i want to go out"},{pt:"eu quero voltar",en:"i want to come back"},{pt:"eu quero pagar",en:"i want to pay"},{pt:"eu preciso disso",en:"i need this"},{pt:"eu preciso daquilo",en:"i need that"},{pt:"eu preciso ajuda",en:"i need help"},{pt:"eu preciso trabalhar",en:"i need to work"},{pt:"eu preciso estudar",en:"i need to study"},{pt:"eu preciso dormir",en:"i need to sleep"},{pt:"eu preciso comer",en:"i need to eat"},{pt:"eu preciso sair",en:"i need to leave"},{pt:"eu preciso voltar",en:"i need to come back"},{pt:"eu preciso pagar",en:"i need to pay"},{pt:"eu quero agora",en:"i want it now"},{pt:"eu preciso agora",en:"i need it now"},{pt:"eu quero depois",en:"i want it later"},{pt:"eu preciso hoje",en:"i need it today"},{pt:"você quer isso",en:"do you want this"},{pt:"você precisa disso",en:"do you need this"},{pt:"ele quer ajuda",en:"he wants help"},{pt:"ela precisa ajuda",en:"she needs help"},{pt:"nós queremos isso",en:"we want this"},{pt:"eles precisam disso",en:"they need this"}]},
+  {id:25,title:"AT THE DOCTOR",emoji:"🏥",slideFile:"../aula-doctor-reel.html",pairs:[{pt:"Tá doendo",en:"it hurts"},{pt:"Aponta o local da dor",en:"it hurts here"},{pt:"Minha cabeça tá doendo",en:"my head hurts"},{pt:"Meu estômago tá doendo",en:"my stomach hurts"},{pt:"Eu tô com febre",en:"i have a fever"},{pt:"Eu tô com tosse",en:"i have a cough"},{pt:"Desde quando?",en:"since when?"},{pt:"Há quanto tempo?",en:"how long?"},{pt:"Desde ontem",en:"since yesterday"},{pt:"Há 3 dias",en:"for 3 days"},{pt:"Desde semana passada",en:"since last week"},{pt:"Alguma alergia?",en:"any allergies?"},{pt:"Nenhuma alergia",en:"no allergies"},{pt:"Sou alérgico a penicilina",en:"i'm allergic to penicillin"},{pt:"Você tá tomando algum remédio?",en:"are you taking any medication?"},{pt:"Não",en:"no"},{pt:"Sim, pra pressão",en:"yes, for blood pressure"},{pt:"Hospital",en:"hospital"},{pt:"Médico",en:"doctor"},{pt:"Remédio",en:"medicine"},{pt:"Estetoscópio",en:"stethoscope"}]},
+  {id:26,title:"HARDWARE STORE",emoji:"🔧",slideFile:"../aula-hardware-store-reel.html",pairs:[{pt:"Preciso de algo pra...",en:"i need something to"},{pt:"Preciso de algo pra abrir isso",en:"i need something to open this"},{pt:"Preciso de algo pra pendurar um quadro",en:"i need something to hang a picture"},{pt:"Vocês têm...?",en:"do you have...?"},{pt:"Martelo",en:"hammer"},{pt:"Chave de fenda",en:"screwdriver"},{pt:"Furadeira",en:"drill"},{pt:"Alicate",en:"pliers"},{pt:"Parafusos",en:"screws"},{pt:"Pregos",en:"nails"},{pt:"Fita",en:"tape"},{pt:"Cola",en:"glue"},{pt:"Chave inglesa",en:"wrench"},{pt:"Nível",en:"level"},{pt:"Serra",en:"saw"},{pt:"Trena",en:"tape measure"},{pt:"Onde eu acho...?",en:"where can i find...?"},{pt:"Onde eu acho a tinta?",en:"where can i find the paint?"},{pt:"Loja de ferragens",en:"hardware store"},{pt:"Quanto custa?",en:"how much?"}]},
+  {id:27,title:"MATERIALS & SUPPLIES",emoji:"📦",slideFile:"../aula-materials-supplies-reel.html",pairs:[{pt:"Eu preciso de...",en:"i need"},{pt:"Preciso de tinta pro quarto",en:"i need paint for the bedroom"},{pt:"Preciso de madeira pra uma prateleira",en:"i need wood for a shelf"},{pt:"Quanto eu preciso?",en:"how much do i need?"},{pt:"Quanta tinta eu preciso?",en:"how much paint do i need?"},{pt:"Qual tamanho?",en:"what size?"},{pt:"Qual tamanho vocês têm?",en:"what size do you have?"},{pt:"Você pode cortar pra mim?",en:"can you cut it for me?"},{pt:"Madeira",en:"wood"},{pt:"Tinta",en:"paint"},{pt:"Cimento",en:"cement"},{pt:"Areia",en:"sand"},{pt:"Azulejo/Piso",en:"tile"},{pt:"Gesso/Drywall",en:"drywall"},{pt:"Cano",en:"pipe"},{pt:"Fio elétrico",en:"wire"},{pt:"Pincel",en:"brush"},{pt:"Rolo",en:"roller"},{pt:"Primer/Selador",en:"primer"},{pt:"Fita crepe",en:"tape"}]},
+  {id:28,title:"PRICES & MONEY",emoji:"💰",slideFile:"../aula-prices-money-reel.html",pairs:[{pt:"Quanto custa?",en:"how much?"},{pt:"Quanto custa isso?",en:"how much is this?"},{pt:"São 25 dólares",en:"it's $25"},{pt:"São 10,99",en:"that's $10.99"},{pt:"Isso é caro demais",en:"that's too expensive"},{pt:"Tem desconto?",en:"any discount?"},{pt:"Consegue um preço melhor?",en:"can you do better?"},{pt:"Dinheiro ou cartão?",en:"cash or card?"},{pt:"Cartão",en:"card"},{pt:"Dinheiro",en:"cash"},{pt:"Seu total é 47,50",en:"your total is $47.50"},{pt:"Débito ou crédito?",en:"debit or credit?"},{pt:"Aqui está seu troco",en:"here's your change"},{pt:"Fica com o troco",en:"keep the change"},{pt:"Troco",en:"change"},{pt:"Compra",en:"purchase"},{pt:"Recibo",en:"receipt"},{pt:"Forma de pagamento",en:"payment method"},{pt:"Loja",en:"store"},{pt:"Cartão de crédito",en:"credit card"}]},
+  {id:29,title:"RETURNING ITEMS",emoji:"🔄",slideFile:"../aula-returning-items-reel.html",pairs:[{pt:"Quero devolver isso",en:"i want to return this"},{pt:"Quero devolver isso (mostra o produto)",en:"i want to return this"},{pt:"Não serve",en:"it doesn't fit"},{pt:"Não funciona",en:"it doesn't work"},{pt:"Tá danificado",en:"it's damaged"},{pt:"É o tamanho errado",en:"it's the wrong size"},{pt:"Você tem o recibo?",en:"do you have the receipt?"},{pt:"Sim, aqui está",en:"yes, here it is"},{pt:"Não, não tenho",en:"no, i don't have it"},{pt:"Devolução do dinheiro ou troca?",en:"refund or exchange?"},{pt:"Devolução, por favor",en:"refund, please"},{pt:"Quero trocar",en:"i'd like to exchange it"},{pt:"Só crédito na loja",en:"store credit only"},{pt:"Tá na garantia",en:"it's under warranty"},{pt:"Devolver",en:"return"},{pt:"Dinheiro de volta",en:"refund"},{pt:"Trocar",en:"exchange"},{pt:"Recibo",en:"receipt"},{pt:"Caixa",en:"box"},{pt:"Prazo de devolução",en:"return period"}]},
+  {id:30,title:"TRAFFIC STOP",emoji:"🚦",slideFile:"../aula-traffic-stop-reel.html",pairs:[{pt:"Mãos no volante. Não mexe em nada",en:"keep hands on steering wheel"},{pt:"Carteira e documento do carro",en:"license and registration"},{pt:"Aqui está, oficial",en:"here you go, officer"},{pt:"Seguro do carro",en:"insurance"},{pt:"Você sabe por que eu te parei?",en:"do you know why i pulled you over?"},{pt:"Não, oficial",en:"no, officer"},{pt:"Não tenho certeza",en:"i'm not sure"},{pt:"Desculpa, oficial",en:"i'm sorry, officer"},{pt:"Eu não sabia",en:"i didn't know"},{pt:"Saia do carro",en:"step out of the car"},{pt:"Sempre obedeça. Movimentos lentos",en:"always obey slow movements"},{pt:"Só aviso (sem multa)",en:"warning"},{pt:"Multa",en:"ticket"},{pt:"Assina aqui",en:"sign here"},{pt:"Carteira",en:"license"},{pt:"Documento",en:"registration"},{pt:"Seguro",en:"insurance"},{pt:"Carro de polícia",en:"police car"},{pt:"Policial",en:"officer"},{pt:"Carro",en:"car"}]}
+];
+
+// State
+let currentAula = null;
+let selectedMode = null;
+let score = 0;
+let round = 1;
+let timerSeconds = 0;
+let timerInterval = null;
+let matchedCount = 0;
+let roundErrors = 0;
+let selectedPt = null;
+let selectedEn = null;
+let currentPairs = [];
+let comboCount = 0;
+let focusedColumn = 'pt';
+let focusedIndex = 0;
+let gameStartTime = 0; // Track game start time for analytics
+
+// ===== QUICK PLAY STATE =====
+let quickPlayState = {
+  score: 0,
+  lives: 3,
+  combo: 0,
+  wave: 1,
+  running: false,
+  matchedCount: 0,
+  waveErrors: 0,
+  currentPairs: [],
+  selectedPt: null,
+  selectedEn: null,
+  timerSeconds: 10,
+  timerInterval: null,
+  timerStartTime: 0,
+  deck: [],
+  frozen: false,
+  animating: false
+};
+
+let quickPlayKeyboardState = {
+  selectedPtIndex: -1,
+  selectedEnIndex: -1,
+  focusedColumn: "pt"
+};
+
+const QUICK_PLAY_POWERUPS = {
+  freeze: {
+    name: '⏸️ FREEZE',
+    description: 'Pausa o timer por 5 segundos',
+    effect: 'freeze',
+    duration: 5
+  },
+  timeBoost: {
+    name: '⏱️ TIME BOOST',
+    description: '+5 segundos no próximo match',
+    effect: 'timeBoost',
+    duration: -1
+  },
+  extraLife: {
+    name: '🛡️ EXTRA LIFE',
+    description: 'Ganha 1 vida extra',
+    effect: 'extraLife',
+    duration: -1
+  }
+};
+
+const WAVE_POWERUP_GRANTS = {
+  1: 'timeBoost',
+  2: 'extraLife',
+  3: 'freeze',
+  4: 'timeBoost',
+  5: 'extraLife',
+  6: 'freeze',
+  7: 'timeBoost',
+  8: 'extraLife'
+};
+
+let quickPlayPowerups = {
+  freeze: 0,
+  timeBoost: 0,
+  extraLife: 0
+};
+
+let nextMatchTimeBonus = 0;
+
+// Utils
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function playSound(type) {
+  try {
+    const isMuted = localStorage.getItem('unlock_audio_muted') === 'true';
+    if (isMuted) return;
+
+    const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+    const osc = audioContext.createOscillator();
+    const gain = audioContext.createGain();
+    osc.connect(gain);
+    gain.connect(audioContext.destination);
+
+    switch(type) {
+      case 'correct':
+        osc.frequency.setValueAtTime(523.25, audioContext.currentTime);
+        osc.frequency.setValueAtTime(659.25, audioContext.currentTime + 0.05);
+        osc.frequency.setValueAtTime(783.99, audioContext.currentTime + 0.1);
+        gain.gain.setValueAtTime(0.3, audioContext.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.15);
+        osc.type = 'sine';
+        osc.start(audioContext.currentTime);
+        osc.stop(audioContext.currentTime + 0.15);
+        break;
+
+      case 'wrong':
+        osc.frequency.setValueAtTime(392.00, audioContext.currentTime);
+        osc.frequency.setValueAtTime(349.23, audioContext.currentTime + 0.1);
+        gain.gain.setValueAtTime(0.25, audioContext.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.2);
+        osc.type = 'square';
+        osc.start(audioContext.currentTime);
+        osc.stop(audioContext.currentTime + 0.2);
+        break;
+
+      case 'combo':
+        const osc2 = audioContext.createOscillator();
+        const gain2 = audioContext.createGain();
+        osc2.connect(gain2);
+        gain2.connect(audioContext.destination);
+        osc2.type = 'sine';
+        osc2.frequency.setValueAtTime(700, audioContext.currentTime);
+        osc2.frequency.exponentialRampToValueAtTime(1400, audioContext.currentTime + 0.15);
+        gain2.gain.setValueAtTime(0.2, audioContext.currentTime);
+        gain2.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.15);
+        osc2.start(audioContext.currentTime);
+        osc2.stop(audioContext.currentTime + 0.15);
+        break;
+
+      case 'levelup':
+        for (let i = 0; i < 3; i++) {
+          const freqs = [523.25, 659.25, 783.99];
+          const o = audioContext.createOscillator();
+          const g = audioContext.createGain();
+          o.connect(g);
+          g.connect(audioContext.destination);
+          o.type = 'sine';
+          o.frequency.value = freqs[i];
+          g.gain.setValueAtTime(0.15, audioContext.currentTime);
+          g.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.4);
+          o.start(audioContext.currentTime);
+          o.stop(audioContext.currentTime + 0.4);
+        }
+        break;
+    }
+  } catch (e) {
+    // Audio context not available
+  }
+}
+
+function showScreen(id) {
+  if (id !== 'game') {
+    audioManager.playSelect();
+  }
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById('screen-' + id).classList.add('active');
+}
+
+// Effects
+function createParticles(el, count = 10) {
+  const rect = el.getBoundingClientRect();
+  const cx = rect.left + rect.width / 2;
+  const cy = rect.top + rect.height / 2;
+  const colors = ['#FFD700', '#00FF88', '#00BFFF', '#9B6DFF'];
+  
+  for (let i = 0; i < count; i++) {
+    const p = document.createElement('div');
+    p.className = 'particle fly';
+    const color = colors[Math.floor(Math.random() * colors.length)];
+    const size = 4 + Math.random() * 5;
+    p.style.cssText = `left:${cx}px;top:${cy}px;width:${size}px;height:${size}px;background:${color};box-shadow:0 0 ${size*2}px ${color}`;
+    const angle = (Math.PI * 2 * i) / count;
+    const dist = 50 + Math.random() * 40;
+    p.style.setProperty('--tx', Math.cos(angle) * dist + 'px');
+    p.style.setProperty('--ty', Math.sin(angle) * dist + 'px');
+    document.body.appendChild(p);
+    setTimeout(() => p.remove(), 700);
+  }
+}
+
+function triggerAura() {
+  const aura = document.getElementById('combo-aura');
+  aura.classList.remove('active');
+  void aura.offsetWidth;
+  aura.classList.add('active');
+}
+
+function triggerPerfectBadgeAnimation() {
+  const badgeEl = document.createElement('div');
+  badgeEl.style.cssText = `
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(0);
+    font-size: 4rem;
+    z-index: 9999;
+    pointer-events: none;
+    text-shadow: 0 0 20px rgba(255,215,0,0.8);
+    animation: badgePop 1s ease-out forwards;
+  `;
+  badgeEl.textContent = '🏆';
+  document.body.appendChild(badgeEl);
+
+  for (let i = 0; i < 12; i++) {
+    const particle = document.createElement('div');
+    particle.style.cssText = `
+      position: fixed;
+      width: 12px;
+      height: 12px;
+      background: #FFD700;
+      border-radius: 50%;
+      box-shadow: 0 0 10px #FFD700;
+      top: 50%;
+      left: 50%;
+      z-index: 9998;
+      pointer-events: none;
+    `;
+    document.body.appendChild(particle);
+
+    const angle = (Math.PI * 2 * i) / 12;
+    const distance = 150;
+    const tx = Math.cos(angle) * distance;
+    const ty = Math.sin(angle) * distance;
+
+    particle.animate([
+      { transform: 'translate(0, 0) scale(1)', opacity: 1 },
+      { transform: `translate(${tx}px, ${ty}px) scale(0)`, opacity: 0 }
+    ], {
+      duration: 1000,
+      easing: 'cubic-bezier(0.25, 0.46, 0.45, 0.94)'
+    });
+
+    setTimeout(() => particle.remove(), 1000);
+  }
+
+  if (!document.getElementById('badgePerfectStyle')) {
+    const style = document.createElement('style');
+    style.id = 'badgePerfectStyle';
+    style.textContent = `
+      @keyframes badgePop {
+        0% { transform: translate(-50%, -50%) scale(0) rotate(0deg); opacity: 0; }
+        50% { transform: translate(-50%, -50%) scale(1.2) rotate(10deg); opacity: 1; }
+        100% { transform: translate(-50%, -50%) scale(1) rotate(0deg); opacity: 1; }
+      }
+    `;
+    document.head.appendChild(style);
+  }
+
+  setTimeout(() => badgeEl.remove(), 1000);
+}
+
+function showTimeBonus(text, isPerfect) {
+  const toast = document.createElement('div');
+  toast.className = 'time-bonus';
+  toast.textContent = text;
+  if (isPerfect) {
+    toast.style.borderColor = 'var(--gold)';
+    toast.style.color = 'var(--gold)';
+    toast.style.background = 'linear-gradient(180deg,rgba(255,215,0,0.25),rgba(10,22,40,0.95))';
+  }
+  document.body.appendChild(toast);
+  setTimeout(() => toast.remove(), 1000);
+}
+
+// Class descriptions
+const AULA_DESCRIPTIONS = {
+  1: "Domine o verbo 'to be' no presente. Aprenda a descrever estados e condições de pessoas e objetos.",
+  2: "Aprenda a contar e reconhecer números em inglês. Essencial para comunicação diária e matemática básica.",
+  3: "Pratique fazer perguntas educadas sobre posse. Útil para interações cotidianas e pedidos.",
+  4: "Entenda o verbo 'get' e seus diversos significados. Um verbo fundamental com múltiplos contextos.",
+  5: "Aprenda verbos direcionais 'go' e 'come'. Essencial para descrever movimento e viagem.",
+  6: "Domine 'going to' para intenções futuras. Aprenda a expressar o que você planeja fazer.",
+  7: "Diferencie entre 'have' e 'has'. Essencial para posse e tempos perfeitos do presente.",
+  8: "Aprenda 'have to' e 'need to' para obrigações. Expresse o que você deve ou precisa fazer.",
+  9: "Domine 'here' e 'there' para localização. Aprenda relações espaciais e direções.",
+  10: "Faça perguntas com 'how much' e 'how many'. Perfeito para compras e quantidades.",
+  11: "Domine 'how' e seus muitos usos. Pergunte sobre modo, frequência e mais.",
+  12: "Pratique formação de perguntas com 'is' e 'are'. Essencial para habilidades de investigação.",
+  13: "Aprenda o verbo versátil 'can'. Expresse habilidade, possibilidade e permissão.",
+  14: "Domine os dias da semana. Essencial para agendamento e planejamento.",
+  15: "Aprenda vocabulário e frases direcionais. Navegue e dê direções com confiança.",
+  16: "Domine 'do', 'does' e 'did'. Fundamental para formar perguntas e negativas.",
+  17: "Pratique pedidos educados com 'let me' e 'can I'. Essencial para educação.",
+  18: "Expresse seus sentimentos e opiniões. Aprenda 'like', 'love' e 'hate' em diferentes intensidades.",
+  19: "Pratique expressões com 'looking for'. Essencial para compras e encontrar coisas.",
+  20: "Domine meses e estações. Aprenda vocabulário temporal para planejamento.",
+  21: "Expresse emoções e estados de espírito. Descreva como você e outros estão se sentindo.",
+  22: "Aplique números em contextos reais. Números usados em situações cotidianas.",
+  23: "Domine 'this' e 'that'. Demonstre e especifique objetos na conversa.",
+  24: "Expresse desejos e necessidades. Aprenda 'want' e 'need' em vários contextos.",
+  25: "Aprenda a descrever sintomas e falar sobre saúde. Essencial para consultas médicas.",
+  26: "Pratique vocabulário de ferramentas e hardware. Útil para construção e reparos.",
+  27: "Aprenda nomes de materiais de construção. Essencial para projetos e compras.",
+  28: "Domine expressões sobre preços e negociação. Essencial para compras e comércio.",
+  29: "Aprenda a devolver itens e falar sobre devoluções. Importante para reclamações e trocas.",
+  30: "Pratique conversar durante uma parada de trânsito. Importante para comunicação com autoridades."
+};
+
+// Menu
+function renderMenu() {
+  console.log('renderMenu called, AULAS length:', AULAS.length);
+  const container = document.getElementById('aulas-list');
+  if (!container) {
+    console.error('Container not found!');
+    return;
+  }
+  console.log('Container found, adding aulas...');
+  container.innerHTML = '';
+
+  // Add Quick Play button first
+  const qpBtn = document.createElement('div');
+  qpBtn.className = 'aula';
+  qpBtn.style.cssText = 'cursor: pointer; border: 3px solid var(--gold); background: linear-gradient(180deg, rgba(255,215,0,0.15), rgba(255,140,0,0.1)); grid-column: 1 / -1;';
+  qpBtn.innerHTML = `<div class="aula-emoji" style="font-size: 3rem;">⚡</div><div class="aula-name" style="color: var(--gold); font-weight: 900; font-size: 1.1rem;">QUICK PLAY</div><div style="font-size: 0.75rem; margin-top: 8px; color: var(--gold);">Match Fast • Survive Waves!</div>`;
+  qpBtn.addEventListener('click', startQuickPlay);
+  container.appendChild(qpBtn);
+  AULAS.forEach((aula) => {
+    const wrapper = document.createElement('div');
+    wrapper.style.position = 'relative';
+
+    const div = document.createElement('div');
+    div.className = 'aula';
+    div.innerHTML = `<div class="aula-emoji">${aula.emoji}</div><div class="aula-name">${aula.title}</div>`;
+    div.addEventListener('click', () => selectAula(aula));
+
+    // Add hidden study button that appears on hover
+    const studyBtn = document.createElement('button');
+    studyBtn.className = 'aula-study-btn';
+    studyBtn.textContent = '📚';
+    studyBtn.style.cssText = `
+      position: absolute;
+      top: 5px;
+      right: 5px;
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      background: var(--gold);
+      color: var(--bg);
+      border: none;
+      font-size: 24px;
+      cursor: pointer;
+      opacity: 0;
+      transform: scale(0);
+      transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+      z-index: 10;
+      box-shadow: 0 4px 15px rgba(255,215,0,0.3);
+    `;
+    studyBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      // For aulas 1-24, use the consolidated aulas.html with lesson mapping
+      // For aulas 25-30, use separate HTML files
+      if (aula.slideFile && aula.id >= 25) {
+        // Use the separate HTML file path from aula definition
+        // Convert relative path to absolute path by removing ../ and ensuring root
+        const slidePath = aula.slideFile.replace('../', '/');
+        window.location.href = slidePath;
+      } else {
+        // Use consolidated aulas.html with lesson mapping
+        const aulaMapping = {
+          1: 'isAre', 2: 'numbers', 3: 'doYouHave', 4: 'get', 5: 'goCome',
+          6: 'goingTo', 7: 'haveHas', 8: 'haveToNeedTo', 9: 'hereThere',
+          10: 'howMuchMany', 11: 'how', 12: 'isAreQuestions', 13: 'can',
+          14: 'days', 15: 'directions', 16: 'doDoesdid', 17: 'letMeCanI',
+          18: 'likeLoveHate', 19: 'lookingFor', 20: 'monthsSeasons',
+          21: 'moodsFeelings', 22: 'numbersRealLife', 23: 'thisThat', 24: 'wantNeed'
+        };
+        const aulaId = aulaMapping[aula.id] || 'isAre';
+        window.location.href = `../aulas.html?lesson=${aulaId}&returnTo=games/word-match.html`;
+      }
+    });
+
+    // Create tooltip
+    const tooltip = document.createElement('div');
+    tooltip.style.cssText = `
+      position: absolute;
+      top: 65px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(0, 0, 0, 0.95);
+      color: var(--gold);
+      padding: 10px 15px;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      white-space: normal;
+      width: 220px;
+      text-align: center;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s;
+      border: 1px solid var(--gold);
+      z-index: 20;
+      line-height: 1.4;
+    `;
+    tooltip.textContent = AULA_DESCRIPTIONS[aula.id] || '';
+    wrapper.appendChild(tooltip);
+
+    studyBtn.addEventListener('mouseenter', () => {
+      studyBtn.style.transform = 'scale(1.2)';
+      studyBtn.style.boxShadow = '0 8px 25px rgba(255,215,0,0.6)';
+      tooltip.style.opacity = '1';
+    });
+    studyBtn.addEventListener('mouseleave', () => {
+      studyBtn.style.transform = 'scale(1)';
+      studyBtn.style.boxShadow = '0 4px 15px rgba(255,215,0,0.3)';
+      tooltip.style.opacity = '0';
+    });
+
+    wrapper.addEventListener('mouseenter', () => {
+      studyBtn.style.opacity = '1';
+      studyBtn.style.transform = 'scale(1)';
+    });
+    wrapper.addEventListener('mouseleave', () => {
+      studyBtn.style.opacity = '0';
+      studyBtn.style.transform = 'scale(0)';
+    });
+
+    wrapper.appendChild(div);
+    wrapper.appendChild(studyBtn);
+    container.appendChild(wrapper);
+  });
+}
+
+function selectAula(aula) {
+  audioManager.playSelect();
+  currentAula = aula;
+  selectedMode = null;
+  document.getElementById('mode-aula-name').textContent = aula.emoji + ' ' + aula.title;
+  document.getElementById('start-btn').disabled = true;
+  document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('selected'));
+  showScreen('mode');
+}
+
+function goToMenu() {
+  audioManager.playSelect();
+  if (timerInterval) clearInterval(timerInterval);
+  document.getElementById('modal-win').classList.remove('show');
+  document.getElementById('modal-lose').classList.remove('show');
+  showScreen('menu');
+}
+
+// Mode buttons
+document.querySelectorAll('.mode-btn').forEach(btn => {
+  btn.addEventListener('click', function() {
+    audioManager.playSelect();
+    selectedMode = this.dataset.mode;
+    document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('selected'));
+    this.classList.add('selected');
+    document.getElementById('start-btn').disabled = false;
+  });
+});
+
+// Game
+function startGame() {
+  if (!selectedMode || !currentAula) return;
+
+  audioManager.playSelect();
+
+  if (timerInterval) clearInterval(timerInterval);
+
+  score = 0;
+  round = 1;
+  matchedCount = 0;
+  roundErrors = 0;
+  comboCount = 0;
+
+  document.getElementById('game-score').textContent = '0';
+  document.getElementById('game-round').textContent = '1';
+  document.getElementById('progress-fill').style.width = '0%';
+  document.getElementById('game-title').textContent = currentAula.title;
+
+  const timerWrap = document.getElementById('timer-wrap');
+  const timerEl = document.getElementById('game-timer');
+
+  if (selectedMode === 'relaxed') {
+    timerWrap.style.display = 'none';
+    timerSeconds = 0;
+  } else {
+    timerSeconds = parseInt(selectedMode);
+    timerWrap.style.display = 'inline';
+    timerEl.textContent = timerSeconds;
+    timerEl.classList.remove('danger');
+    startTimer();
+  }
+
+  showScreen('game');
+  loadRound();
+
+  // Track game start
+  if (window.analytics) {
+    analytics.trackGameStart(currentAula.title, selectedMode);
+  }
+  gameStartTime = Date.now();
+}
+
+function startTimer() {
+  if (timerInterval) clearInterval(timerInterval);
+  const timerEl = document.getElementById('game-timer');
+  
+  timerInterval = setInterval(() => {
+    timerSeconds--;
+    timerEl.textContent = timerSeconds;
+    
+    if (timerSeconds <= 10) timerEl.classList.add('danger');
+    else timerEl.classList.remove('danger');
+    
+    if (timerSeconds <= 0) {
+      clearInterval(timerInterval);
+      endGame(false);
+    }
+  }, 1000);
+}
+
+function loadRound() {
+  matchedCount = 0;
+  roundErrors = 0;
+  selectedPt = null;
+  selectedEn = null;
+  
+  currentPairs = shuffle(currentAula.pairs).slice(0, 8);
+  renderCards();
+  
+  focusedColumn = 'pt';
+  focusedIndex = 0;
+  setTimeout(updateFocus, 100);
+}
+
+function renderCards() {
+  const colPt = document.getElementById('col-pt');
+  const colEn = document.getElementById('col-en');
+  
+  colPt.innerHTML = '';
+  colEn.innerHTML = '';
+  
+  const shuffledPt = shuffle([...currentPairs]);
+  const shuffledEn = shuffle([...currentPairs]);
+  
+  shuffledPt.forEach(pair => {
+    const card = document.createElement('div');
+    card.className = 'card';
+    card.textContent = pair.pt.toUpperCase();
+    card.dataset.pairId = pair.en;
+    card.addEventListener('click', () => clickCard(card, 'pt'));
+    colPt.appendChild(card);
+  });
+
+  shuffledEn.forEach(pair => {
+    const card = document.createElement('div');
+    card.className = 'card';
+    card.textContent = pair.en.toUpperCase();
+    card.dataset.pairId = pair.en;
+    card.addEventListener('click', () => clickCard(card, 'en'));
+    colEn.appendChild(card);
+  });
+}
+
+function clickCard(card, type) {
+  if (card.classList.contains('hidden')) return;
+
+  audioManager.playSelect();
+
+  if (card.classList.contains('selected')) {
+    card.classList.remove('selected');
+    if (type === 'pt') selectedPt = null;
+    else selectedEn = null;
+    return;
+  }
+
+  if (type === 'pt') {
+    if (selectedPt) selectedPt.classList.remove('selected');
+    selectedPt = card;
+  } else {
+    if (selectedEn) selectedEn.classList.remove('selected');
+    selectedEn = card;
+  }
+  card.classList.add('selected');
+
+  if (selectedPt && selectedEn) {
+    checkMatch();
+  }
+}
+
+function checkMatch() {
+  const ptId = selectedPt.dataset.pairId;
+  const enId = selectedEn.dataset.pairId;
+  
+  if (ptId === enId) {
+    // Correct!
+    selectedPt.classList.remove('selected');
+    selectedEn.classList.remove('selected');
+    selectedPt.classList.add('correct');
+    selectedEn.classList.add('correct');
+    
+    createParticles(selectedPt);
+    createParticles(selectedEn);
+    
+    comboCount++;
+    if (comboCount % 3 === 0) {
+      triggerAura();
+      playSound('combo');
+    }
+
+    playSound('correct');
+
+    const baseScore = 100;
+    const streakMultiplier = window.UNLOCK ? window.UNLOCK.getStreakMultiplier(window.UNLOCK.loadUser()) : 1;
+    const scoreGain = Math.round(baseScore * streakMultiplier);
+    score += scoreGain;
+    matchedCount++;
+    document.getElementById('game-score').textContent = score;
+    updateProgress();
+    
+    setTimeout(() => {
+      selectedPt.classList.add('hidden');
+      selectedEn.classList.add('hidden');
+      selectedPt = null;
+      selectedEn = null;
+      
+      if (matchedCount >= 8) {
+        // Round complete
+        playSound('levelup');
+        if (selectedMode !== 'relaxed') {
+          let timeBonus = 15;
+          let isPerfect = roundErrors === 0;
+          if (isPerfect) timeBonus += 10;
+          timerSeconds += timeBonus;
+          document.getElementById('game-timer').textContent = timerSeconds;
+          document.getElementById('game-timer').classList.remove('danger');
+          showTimeBonus(isPerfect ? '+25s PERFEITO! 🔥' : '+15s', isPerfect);
+        }
+
+        round++;
+        if (round > 3) {
+          setTimeout(() => endGame(true), 800);
+        } else {
+          document.getElementById('game-round').textContent = round;
+          setTimeout(loadRound, 1000);
+        }
+      } else {
+        updateFocus();
+      }
+    }, 500);
+    
+  } else {
+    // Wrong
+    roundErrors++;
+    comboCount = 0;
+    playSound('wrong');
+    selectedPt.classList.add('wrong');
+    selectedEn.classList.add('wrong');
+    
+    setTimeout(() => {
+      selectedPt.classList.remove('selected', 'wrong');
+      selectedEn.classList.remove('selected', 'wrong');
+      selectedPt = null;
+      selectedEn = null;
+    }, 500);
+  }
+}
+
+function updateProgress() {
+  const total = (round - 1) * 8 + matchedCount;
+  document.getElementById('progress-fill').style.width = (total / 24 * 100) + '%';
+}
+
+function endGame(won) {
+  // Track game end
+  if (window.analytics) {
+    const timeSpent = Date.now() - gameStartTime;
+    analytics.trackGameEnd(currentAula.title, score, won ? 'win' : 'lose', timeSpent);
+  }
+
+  // Complete daily quest
+  let isPerfect = false;
+  if (window.UNLOCK) {
+    const user = window.UNLOCK.loadUser();
+
+    window.UNLOCK.completeQuest(user);
+
+    // Check for perfect run (no errors and won)
+    if (won && roundErrors === 0) {
+      isPerfect = true;
+      const aula = currentAula;
+      const aulaIndex = AULAS.findIndex(a => a.title === aula.title);
+      const badgeId = `wordMatch_aula${aulaIndex}_perfect`;
+      window.UNLOCK.unlockBadge(user, badgeId, {
+        icon: '🏆',
+        title: `${aula.emoji} Perfect Word Match`,
+        description: `Completou ${aula.title} sem errar nenhuma correspondência!`,
+        game: 'wordMatch',
+        aulaIndex
+      });
+    }
+
+    window.UNLOCK.saveUser(user);
+    window.UNLOCK.hydrateUI(user);
+  }
+
+  if (timerInterval) clearInterval(timerInterval);
+
+  // Show perfect badge animation if earned
+  if (isPerfect) {
+    triggerPerfectBadgeAnimation();
+  }
+
+  // Delay modal to show animation
+  setTimeout(() => {
+    if (won) {
+      document.getElementById('win-score').textContent = score;
+      document.getElementById('modal-win').classList.add('show');
+    } else {
+      document.getElementById('lose-score').textContent = score;
+      document.getElementById('modal-lose').classList.add('show');
+    }
+  }, isPerfect ? 500 : 0);
+}
+
+// Keyboard Controls
+function getVisibleCards(col) {
+  const container = document.getElementById('col-' + col);
+  if (!container) return [];
+  return [...container.querySelectorAll('.card:not(.hidden)')];
+}
+
+function updateFocus() {
+  document.querySelectorAll('.card').forEach(c => c.classList.remove('focused'));
+  
+  let cards = getVisibleCards(focusedColumn);
+  if (cards.length === 0) {
+    focusedColumn = focusedColumn === 'pt' ? 'en' : 'pt';
+    cards = getVisibleCards(focusedColumn);
+  }
+  if (cards.length === 0) return;
+  
+  if (focusedIndex >= cards.length) focusedIndex = cards.length - 1;
+  if (focusedIndex < 0) focusedIndex = 0;
+  
+  cards[focusedIndex].classList.add('focused');
+}
+
+document.addEventListener('keydown', (e) => {
+  const gameScreen = document.getElementById('screen-game');
+  if (!gameScreen.classList.contains('active')) return;
+  if (document.getElementById('modal-win').classList.contains('show')) return;
+  if (document.getElementById('modal-lose').classList.contains('show')) return;
+  
+  const ptCards = getVisibleCards('pt');
+  const enCards = getVisibleCards('en');
+  if (ptCards.length === 0 && enCards.length === 0) return;
+  
+  switch(e.key) {
+    case 'ArrowUp':
+      e.preventDefault();
+      focusedIndex = Math.max(0, focusedIndex - 1);
+      updateFocus();
+      break;
+    case 'ArrowDown':
+      e.preventDefault();
+      const max = getVisibleCards(focusedColumn).length - 1;
+      focusedIndex = Math.min(max, focusedIndex + 1);
+      updateFocus();
+      break;
+    case 'ArrowLeft':
+      e.preventDefault();
+      if (focusedColumn === 'en' && ptCards.length > 0) {
+        focusedColumn = 'pt';
+        focusedIndex = Math.min(focusedIndex, ptCards.length - 1);
+        updateFocus();
+      }
+      break;
+    case 'ArrowRight':
+      e.preventDefault();
+      if (focusedColumn === 'pt' && enCards.length > 0) {
+        focusedColumn = 'en';
+        focusedIndex = Math.min(focusedIndex, enCards.length - 1);
+        updateFocus();
+      }
+      break;
+    case ' ':
+    case 'Enter':
+      e.preventDefault();
+      const cards = getVisibleCards(focusedColumn);
+      if (cards[focusedIndex]) {
+        clickCard(cards[focusedIndex], focusedColumn);
+        setTimeout(updateFocus, 100);
+      }
+      break;
+  }
+});
+
+// Event Listeners
+document.getElementById('start-btn').addEventListener('click', startGame);
+document.getElementById('back-to-menu').addEventListener('click', goToMenu);
+document.getElementById('game-back').addEventListener('click', goToMenu);
+document.getElementById('win-retry').addEventListener('click', () => {
+  document.getElementById('modal-win').classList.remove('show');
+  startGame();
+});
+document.getElementById('win-menu').addEventListener('click', goToMenu);
+document.getElementById('lose-retry').addEventListener('click', () => {
+  document.getElementById('modal-lose').classList.remove('show');
+  startGame();
+});
+document.getElementById('lose-menu').addEventListener('click', goToMenu);
+
+// === STATS MODAL HANDLERS ===
+function updateBadgeCounter() {
+  if (!window.UNLOCK) return;
+  const user = window.UNLOCK.loadUser();
+  const badges = window.UNLOCK.getBadges(user);
+  const badgeCount = Object.keys(badges).length;
+  const counterEl = document.getElementById('badgeCounter');
+  if (counterEl) {
+    counterEl.textContent = '🏆 ' + badgeCount;
+  }
+}
+
+function renderBadges() {
+  const badgesContainer = document.getElementById('badgesContainer');
+  const noBadgesMsg = document.getElementById('noBadgesMsg');
+
+  if (!window.UNLOCK) {
+    noBadgesMsg.style.display = 'block';
+    badgesContainer.innerHTML = '';
+    return;
+  }
+
+  const user = window.UNLOCK.loadUser();
+  const badges = window.UNLOCK.getBadges(user);
+  const badgesList = Object.entries(badges);
+
+  // Atualizar contador
+  updateBadgeCounter();
+
+  if (badgesList.length === 0) {
+    noBadgesMsg.style.display = 'block';
+    badgesContainer.innerHTML = '';
+  } else {
+    noBadgesMsg.style.display = 'none';
+    badgesContainer.innerHTML = badgesList.map(([badgeId, badgeData], idx) => {
+      const unlockedDate = badgeData.unlockedAt ? new Date(badgeData.unlockedAt).toLocaleDateString('pt-BR') : 'Desconhecido';
+      return `
+        <div style="
+          padding: 16px;
+          background: linear-gradient(135deg, rgba(155,109,255,0.05) 0%, rgba(155,109,255,0.02) 100%);
+          border: 2px solid var(--purple);
+          border-radius: 12px;
+          transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+          animation: slideUp 0.5s ease forwards;
+          animation-delay: ${idx * 0.1}s;
+          cursor: pointer;
+          position: relative;
+          overflow: hidden;
+        "
+        onmouseover="this.style.transform='translateY(-4px) scale(1.02)'; this.style.boxShadow='0 12px 24px rgba(155,109,255,0.3)'"
+        onmouseout="this.style.transform='translateY(0) scale(1)'; this.style.boxShadow='none'">
+          <div style="position: absolute; inset: 0; background: linear-gradient(45deg, transparent 30%, rgba(155,109,255,0.1) 50%, transparent 70%); animation: shimmer 3s infinite;"></div>
+          <div style="position: relative; z-index: 1;">
+            <div style="font-size: 3rem; margin-bottom: 10px; animation: badgeBounce 2s ease-in-out infinite;">${badgeData.icon || '🏆'}</div>
+            <div style="font-weight: bold; color: var(--purple); font-size: 0.95rem; margin-bottom: 6px;">${badgeData.title || 'Badge'}</div>
+            <div style="font-size: 0.8rem; color: var(--white); margin-top: 6px; line-height: 1.3; opacity: 0.9;">${badgeData.description || ''}</div>
+            <div style="font-size: 0.75rem; color: var(--gray); margin-top: 8px; opacity: 0.7;">📅 ${unlockedDate}</div>
+          </div>
+        </div>
+      `;
+    }).join('');
+  }
+}
+
+document.getElementById('statsBtn').addEventListener('click', () => {
+  audioManager.playSelect();
+  renderBadges();
+  document.getElementById('statsModal').classList.add('show');
+});
+
+document.getElementById('statsCloseBtn').addEventListener('click', () => {
+  audioManager.playSelect();
+  document.getElementById('statsModal').classList.remove('show');
+});
+
+// Audio controls
+function updateMuteButton() {
+  const muteBtn = document.getElementById('muteBtn');
+  if (audioManager.getMuted()) {
+    muteBtn.textContent = '🔇';
+    muteBtn.title = 'Unmute audio';
+  } else {
+    muteBtn.textContent = '🔊';
+    muteBtn.title = 'Mute audio';
+  }
+}
+
+document.getElementById('muteBtn').addEventListener('click', () => {
+  audioManager.playSelect();
+  audioManager.toggleMute();
+  updateMuteButton();
+});
+
+// ===== QUICK PLAY FUNCTIONS =====
+function startQuickPlay() {
+  audioManager.playSelect();
+  quickPlayState.deck = [];
+  AULAS.forEach(aula => {
+    quickPlayState.deck.push(...aula.pairs);
+  });
+  quickPlayState.deck = shuffle(quickPlayState.deck);
+
+  quickPlayState.score = 0;
+  quickPlayState.lives = 3;
+  quickPlayState.combo = 0;
+  quickPlayState.wave = 1;
+  quickPlayState.matchedCount = 0;
+  quickPlayState.waveErrors = 0;
+  quickPlayState.running = true;
+  quickPlayState.frozen = false;
+  quickPlayPowerups = { freeze: 0, timeBoost: 0, extraLife: 0 };
+  nextMatchTimeBonus = 0;
+
+  showScreen('quickplay');
+  attachQuickPlayListeners();
+  startQuickPlayWave();
+}
+
+function attachQuickPlayListeners() {
+  const backBtn = document.getElementById('quickplay-back');
+  if (backBtn) {
+    backBtn.addEventListener('click', endQuickPlay);
+  }
+  document.addEventListener('keydown', quickPlayKeydownHandler);
+}
+
+function detachQuickPlayListeners() {
+  document.removeEventListener('keydown', quickPlayKeydownHandler);
+}
+
+function quickPlayKeydownHandler(e) {
+  if (!quickPlayState.running) return;
+
+  const ptCards = Array.from(document.querySelectorAll('#qp-col-pt .qp-card:not(.hidden)'));
+  const enCards = Array.from(document.querySelectorAll('#qp-col-en .qp-card:not(.hidden)'));
+
+  if (ptCards.length === 0 || enCards.length === 0) return;
+
+  if (e.key === 'ArrowUp') {
+    e.preventDefault();
+    if (quickPlayKeyboardState.focusedColumn === 'pt') {
+      quickPlayKeyboardState.selectedPtIndex = Math.max(0, quickPlayKeyboardState.selectedPtIndex - 1);
+      selectQuickPlayCardByIndex('pt', quickPlayKeyboardState.selectedPtIndex);
+    } else {
+      quickPlayKeyboardState.selectedEnIndex = Math.max(0, quickPlayKeyboardState.selectedEnIndex - 1);
+      selectQuickPlayCardByIndex('en', quickPlayKeyboardState.selectedEnIndex);
+    }
+  } else if (e.key === 'ArrowDown') {
+    e.preventDefault();
+    if (quickPlayKeyboardState.focusedColumn === 'pt') {
+      quickPlayKeyboardState.selectedPtIndex = Math.min(ptCards.length - 1, quickPlayKeyboardState.selectedPtIndex + 1);
+      selectQuickPlayCardByIndex('pt', quickPlayKeyboardState.selectedPtIndex);
+    } else {
+      quickPlayKeyboardState.selectedEnIndex = Math.min(enCards.length - 1, quickPlayKeyboardState.selectedEnIndex + 1);
+      selectQuickPlayCardByIndex('en', quickPlayKeyboardState.selectedEnIndex);
+    }
+  } else if (e.key === 'ArrowLeft') {
+    e.preventDefault();
+    quickPlayKeyboardState.focusedColumn = 'pt';
+    if (quickPlayKeyboardState.selectedPtIndex < 0) quickPlayKeyboardState.selectedPtIndex = 0;
+    selectQuickPlayCardByIndex('pt', quickPlayKeyboardState.selectedPtIndex);
+  } else if (e.key === 'ArrowRight') {
+    e.preventDefault();
+    quickPlayKeyboardState.focusedColumn = 'en';
+    if (quickPlayKeyboardState.selectedEnIndex < 0) quickPlayKeyboardState.selectedEnIndex = 0;
+    selectQuickPlayCardByIndex('en', quickPlayKeyboardState.selectedEnIndex);
+  }
+
+  if (e.key === ' ' || e.key === 'Enter') {
+    e.preventDefault();
+    if (quickPlayKeyboardState.focusedColumn === 'pt') {
+      if (quickPlayKeyboardState.selectedPtIndex >= 0) {
+        const card = ptCards[quickPlayKeyboardState.selectedPtIndex];
+        clickQuickPlayCard(card, 'pt');
+      }
+    } else {
+      if (quickPlayKeyboardState.selectedEnIndex >= 0) {
+        const card = enCards[quickPlayKeyboardState.selectedEnIndex];
+        clickQuickPlayCard(card, 'en');
+      }
+    }
+  }
+
+  // Power-up shortcuts: 1, 2, 3
+  if (e.key === '1' || e.key === '2' || e.key === '3') {
+    e.preventDefault();
+    const powerupIndex = parseInt(e.key) - 1; // 0, 1, 2
+    const powerupTypes = ['freeze', 'timeBoost', 'extraLife'];
+    const powerupType = powerupTypes[powerupIndex];
+
+    // Only activate if button would be enabled
+    const count = quickPlayPowerups[powerupType];
+    if (count > 0 && quickPlayState.running) {
+      useQuickPlayPowerup(powerupType);
+    }
+  }
+}
+
+function selectQuickPlayCardByIndex(column, index) {
+  const cards = Array.from(document.querySelectorAll(`#qp-col-${column} .qp-card:not(.hidden)`));
+  cards.forEach(card => card.classList.remove('keyboard-focused'));
+  if (index >= 0 && index < cards.length) {
+    cards[index].classList.add('keyboard-focused');
+  }
+
+  // Update column focus indication
+  const ptContainer = document.getElementById('qp-col-pt').parentElement;
+  const enContainer = document.getElementById('qp-col-en').parentElement;
+
+  ptContainer.querySelector('.qp-cards').classList.toggle('focused', column === 'pt');
+  enContainer.querySelector('.qp-cards').classList.toggle('focused', column === 'en');
+}
+
+function startQuickPlayWave() {
+  quickPlayState.matchedCount = 0;
+  quickPlayState.waveErrors = 0;
+
+  quickPlayState.currentPairs = [];
+  for (let i = 0; i < 5; i++) {
+    if (quickPlayState.deck.length === 0) {
+      AULAS.forEach(aula => {
+        quickPlayState.deck.push(...aula.pairs);
+      });
+      quickPlayState.deck = shuffle(quickPlayState.deck);
+    }
+    quickPlayState.currentPairs.push(quickPlayState.deck.pop());
+  }
+
+  renderQuickPlayCards();
+  updateQuickPlayHUD();
+
+  // Animate cards entrance
+  setTimeout(() => {
+    const cards = document.querySelectorAll('.qp-card');
+    cards.forEach((card, idx) => {
+      card.style.animation = `waveEntrance 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) ${idx * 0.05}s`;
+    });
+  }, 50);
+
+  startQuickPlayMatchTimer();
+}
+
+function renderQuickPlayCards() {
+  const ptContainer = document.getElementById('qp-col-pt');
+  const enContainer = document.getElementById('qp-col-en');
+
+  ptContainer.innerHTML = '';
+  enContainer.innerHTML = '';
+
+  quickPlayKeyboardState.selectedPtIndex = -1;
+  quickPlayKeyboardState.selectedEnIndex = -1;
+  quickPlayKeyboardState.focusedColumn = 'pt';
+
+  const shuffledPt = shuffle([...quickPlayState.currentPairs]);
+  const shuffledEn = shuffle([...quickPlayState.currentPairs]);
+
+  shuffledPt.forEach(pair => {
+    const card = document.createElement('div');
+    card.className = 'qp-card';
+    card.textContent = pair.pt.toUpperCase();
+    card.dataset.pairId = pair.en;
+    card.addEventListener('click', () => clickQuickPlayCard(card, 'pt'));
+    ptContainer.appendChild(card);
+  });
+
+  shuffledEn.forEach(pair => {
+    const card = document.createElement('div');
+    card.className = 'qp-card';
+    card.textContent = pair.en.toUpperCase();
+    card.dataset.pairId = pair.en;
+    card.addEventListener('click', () => clickQuickPlayCard(card, 'en'));
+    enContainer.appendChild(card);
+  });
+
+  updateSelectionProgress();
+}
+
+function updateSelectionProgress() {
+  const ptParent = document.getElementById('qp-col-pt').parentElement;
+  const enParent = document.getElementById('qp-col-en').parentElement;
+
+  // Create progress indicators if they don't exist
+  let ptProgress = ptParent.querySelector('.selection-progress');
+  if (!ptProgress) {
+    ptProgress = document.createElement('div');
+    ptProgress.className = 'selection-progress';
+    ptParent.insertBefore(ptProgress, ptParent.querySelector('.qp-cards'));
+  }
+
+  let enProgress = enParent.querySelector('.selection-progress');
+  if (!enProgress) {
+    enProgress = document.createElement('div');
+    enProgress.className = 'selection-progress';
+    enParent.insertBefore(enProgress, enParent.querySelector('.qp-cards'));
+  }
+
+  // Update text based on selection state
+  const ptSelected = quickPlayState.selectedPt ? '✓ SELECTED' : 'WAITING';
+  const enSelected = quickPlayState.selectedEn ? '✓ SELECTED' : 'WAITING';
+
+  ptProgress.textContent = ptSelected;
+  enProgress.textContent = enSelected;
+
+  // Color code the progress
+  if (quickPlayState.selectedPt && quickPlayState.selectedEn) {
+    ptProgress.style.color = 'var(--green)';
+    enProgress.style.color = 'var(--green)';
+  } else if (quickPlayState.selectedPt) {
+    ptProgress.style.color = 'var(--gold)';
+    enProgress.style.color = 'var(--gray)';
+  } else if (quickPlayState.selectedEn) {
+    ptProgress.style.color = 'var(--gray)';
+    enProgress.style.color = 'var(--gold)';
+  } else {
+    ptProgress.style.color = 'var(--gray)';
+    enProgress.style.color = 'var(--gray)';
+  }
+}
+
+function clickQuickPlayCard(card, type) {
+  if (!quickPlayState.running) return;
+  if (card.classList.contains('hidden')) return;
+  if (quickPlayState.frozen) return;
+  if (quickPlayState.animating) return;
+
+  if (card.classList.contains('selected')) {
+    card.classList.remove('selected');
+    if (type === 'pt') quickPlayState.selectedPt = null;
+    else quickPlayState.selectedEn = null;
+    updateSelectionProgress();
+    return;
+  }
+
+  if (type === 'pt') {
+    if (quickPlayState.selectedPt) {
+      quickPlayState.selectedPt.classList.remove('selected');
+    }
+    quickPlayState.selectedPt = card;
+  } else {
+    if (quickPlayState.selectedEn) {
+      quickPlayState.selectedEn.classList.remove('selected');
+    }
+    quickPlayState.selectedEn = card;
+  }
+  card.classList.add('selected');
+  updateSelectionProgress();
+
+  if (quickPlayState.selectedPt && quickPlayState.selectedEn) {
+    checkQuickPlayMatch();
+  }
+}
+
+function checkQuickPlayMatch() {
+  // Prevent double-processing if timeout is happening
+  if (!quickPlayState.running) {
+    return;
+  }
+
+  // Lock interactions during animation
+  quickPlayState.animating = true;
+
+  // CRITICAL: Clear the timer immediately to prevent timeout from interfering during animation
+  if (quickPlayState.timerInterval) {
+    clearInterval(quickPlayState.timerInterval);
+    quickPlayState.timerInterval = null;
+  }
+
+  // Show checking state briefly
+  quickPlayState.selectedPt.classList.add('checking');
+  quickPlayState.selectedEn.classList.add('checking');
+
+  const ptId = quickPlayState.selectedPt.dataset.pairId;
+  const enId = quickPlayState.selectedEn.dataset.pairId;
+
+  setTimeout(() => {
+    quickPlayState.selectedPt.classList.remove('checking');
+    quickPlayState.selectedEn.classList.remove('checking');
+
+    if (ptId === enId) {
+      // CORRECT!
+      quickPlayState.selectedPt.classList.add('correct');
+      quickPlayState.selectedEn.classList.add('correct');
+
+      quickPlayState.combo++;
+      const baseScore = 100;
+      const comboMultiplier = 1 + (quickPlayState.combo * 0.1);
+      const points = Math.round(baseScore * comboMultiplier);
+      quickPlayState.score += points;
+
+      createParticles(quickPlayState.selectedPt);
+      createParticles(quickPlayState.selectedEn);
+      if (quickPlayState.combo % 3 === 0) {
+        triggerAura();
+      }
+
+      setTimeout(() => {
+        quickPlayState.selectedPt.classList.add('hidden');
+        quickPlayState.selectedEn.classList.add('hidden');
+        quickPlayState.selectedPt = null;
+        quickPlayState.selectedEn = null;
+
+        quickPlayState.matchedCount++;
+
+        if (quickPlayState.matchedCount >= 5) {
+          completeQuickPlayWave();
+        } else {
+          startQuickPlayMatchTimer();
+        }
+
+        quickPlayState.animating = false;
+      }, 500);
+
+    } else {
+      // WRONG!
+      quickPlayState.waveErrors++;
+      quickPlayState.combo = 0;
+
+      quickPlayState.selectedPt.classList.add('wrong');
+      quickPlayState.selectedEn.classList.add('wrong');
+
+      setTimeout(() => {
+        quickPlayState.selectedPt.classList.remove('selected', 'wrong');
+        quickPlayState.selectedEn.classList.remove('selected', 'wrong');
+        quickPlayState.selectedPt = null;
+        quickPlayState.selectedEn = null;
+        quickPlayState.animating = false;
+      }, 500);
+    }
+
+    updateQuickPlayHUD();
+  }, 200);
+}
+
+function startQuickPlayMatchTimer() {
+  if (quickPlayState.timerInterval) {
+    clearInterval(quickPlayState.timerInterval);
+  }
+
+  let baseTime = 10;
+  let timeReduction = Math.min(5, (quickPlayState.wave - 1) * 0.5);
+  quickPlayState.timerSeconds = Math.max(5, baseTime - timeReduction + nextMatchTimeBonus);
+  nextMatchTimeBonus = 0;
+
+  quickPlayState.timerStartTime = quickPlayState.timerSeconds;
+
+  const timerEl = document.querySelector('.quick-play-timer');
+  const timerValue = document.getElementById('qpTimer');
+  const timerFill = document.getElementById('qpTimerFill');
+
+  timerValue.textContent = quickPlayState.timerSeconds;
+  timerFill.style.width = '100%';
+  timerEl.classList.remove('danger');
+
+  quickPlayState.timerInterval = setInterval(() => {
+    if (quickPlayState.frozen) return;
+
+    quickPlayState.timerSeconds--;
+    timerValue.textContent = quickPlayState.timerSeconds;
+
+    const percent = (quickPlayState.timerSeconds / quickPlayState.timerStartTime) * 100;
+    timerFill.style.width = percent + '%';
+
+    // Visual urgency scaling
+    timerEl.classList.remove('danger', 'critical');
+    if (quickPlayState.timerSeconds <= 1) {
+      timerEl.classList.add('critical');
+      timerValue.style.color = 'var(--red)';
+      timerValue.style.textShadow = '0 0 15px var(--red)';
+    } else if (quickPlayState.timerSeconds <= 3) {
+      timerEl.classList.add('danger');
+      timerValue.style.color = 'var(--red)';
+      timerValue.style.textShadow = '0 0 10px var(--red)';
+    } else {
+      timerValue.style.color = 'var(--red)';
+      timerValue.style.textShadow = 'none';
+    }
+
+    if (quickPlayState.timerSeconds <= 0) {
+      clearInterval(quickPlayState.timerInterval);
+      handleQuickPlayTimeout();
+    }
+  }, 1000);
+}
+
+function handleQuickPlayTimeout() {
+  // Prevent timeout if not running or already animating
+  if (!quickPlayState.running || quickPlayState.animating) {
+    return;
+  }
+
+  quickPlayState.lives--;
+  quickPlayState.combo = 0;
+  quickPlayState.waveErrors++;
+
+  // Reset animation flag to allow next interaction
+  quickPlayState.animating = false;
+
+  // Clear any existing timer to prevent double-firing
+  if (quickPlayState.timerInterval) {
+    clearInterval(quickPlayState.timerInterval);
+    quickPlayState.timerInterval = null;
+  }
+
+  if (quickPlayState.selectedPt) {
+    quickPlayState.selectedPt.classList.remove('selected', 'checking');
+    quickPlayState.selectedPt = null;
+  }
+  if (quickPlayState.selectedEn) {
+    quickPlayState.selectedEn.classList.remove('selected', 'checking');
+    quickPlayState.selectedEn = null;
+  }
+
+  if (quickPlayState.lives <= 0) {
+    endQuickPlay();
+  } else {
+    setTimeout(() => {
+      startQuickPlayMatchTimer();
+    }, 1000);
+  }
+
+  updateQuickPlayHUD();
+}
+
+function completeQuickPlayWave() {
+  clearInterval(quickPlayState.timerInterval);
+
+  if (quickPlayState.waveErrors === 0) {
+    grantQuickPlayPowerup();
+  } else {
+    showWaveImperfectNotification();
+  }
+
+  quickPlayState.wave++;
+
+  setTimeout(() => {
+    if (quickPlayState.running) {
+      startQuickPlayWave();
+    }
+  }, 2000);
+}
+
+function grantQuickPlayPowerup() {
+  const waveNumber = quickPlayState.wave;
+  let powerupType;
+
+  if (waveNumber <= 8) {
+    powerupType = WAVE_POWERUP_GRANTS[waveNumber];
+  } else {
+    const cycleIndex = ((waveNumber - 1) % 3);
+    const types = ['timeBoost', 'extraLife', 'freeze'];
+    powerupType = types[cycleIndex];
+  }
+
+  if (powerupType) {
+    quickPlayPowerups[powerupType]++;
+    showWavePerfectNotification(QUICK_PLAY_POWERUPS[powerupType]);
+    updatePowerupUI();
+  }
+}
+
+function useQuickPlayPowerup(type) {
+  if (quickPlayPowerups[type] <= 0 || !quickPlayState.running) return;
+
+  quickPlayPowerups[type]--;
+  const powerup = QUICK_PLAY_POWERUPS[type];
+
+  if (type === 'extraLife') {
+    quickPlayState.lives++;
+    showWavePerfectNotification(powerup, 'USADO!');
+  } else if (type === 'freeze') {
+    quickPlayState.frozen = true;
+    showWavePerfectNotification(powerup, 'USADO!');
+    setTimeout(() => {
+      quickPlayState.frozen = false;
+    }, 5000);
+  } else if (type === 'timeBoost') {
+    nextMatchTimeBonus = 5;
+    showWavePerfectNotification(powerup, 'USADO!');
+  }
+
+  updatePowerupUI();
+  updateQuickPlayHUD();
+}
+
+function updateQuickPlayHUD() {
+  document.getElementById('qpScore').textContent = quickPlayState.score;
+  document.getElementById('qpLives').textContent = '❤️'.repeat(Math.max(0, quickPlayState.lives));
+  document.getElementById('qpCombo').textContent = quickPlayState.combo + 'x';
+  document.getElementById('qpWave').textContent = quickPlayState.wave;
+}
+
+function updatePowerupUI() {
+  const container = document.getElementById('qpPowerups');
+  if (!container) return;
+  container.innerHTML = '';
+
+  const types = ['freeze', 'timeBoost', 'extraLife'];
+  types.forEach((type, index) => {
+    const count = quickPlayPowerups[type];
+    const powerup = QUICK_PLAY_POWERUPS[type];
+    const keyNum = index + 1; // 1, 2, 3
+
+    const btn = document.createElement('button');
+    btn.className = 'powerup-btn';
+    btn.dataset.key = keyNum;
+    btn.dataset.powerupType = type;
+    btn.disabled = count <= 0 || !quickPlayState.running;
+    btn.title = `Press ${keyNum} or click to use`;
+
+    // Extract emoji from powerup name (first character)
+    const emoji = powerup.name.match(/[\p{Emoji}]/u)?.[0] || '⚡';
+    const powerupText = powerup.name.replace(/[\p{Emoji}]/gu, '').trim();
+
+    btn.innerHTML = `
+      <div class="powerup-btn-icon">${emoji}</div>
+      <div class="powerup-btn-name">${powerupText}</div>
+      <div class="powerup-btn-count">x${count}</div>
+    `;
+    btn.addEventListener('click', () => useQuickPlayPowerup(type));
+    container.appendChild(btn);
+  });
+}
+
+function showWavePerfectNotification(powerup, label = '✨ PERFECT WAVE!') {
+  // Screen shake effect
+  const screen = document.querySelector('#screen-quickplay');
+  if (screen) {
+    screen.style.animation = 'screenShake 0.6s ease-out';
+    setTimeout(() => {
+      screen.style.animation = '';
+    }, 600);
+  }
+
+  const notification = document.createElement('div');
+  notification.style.cssText = `
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: linear-gradient(135deg, rgba(0,255,136,0.3), rgba(0,255,136,0.15));
+    border: 3px solid var(--green);
+    border-radius: 15px;
+    padding: 30px 40px;
+    text-align: center;
+    font-family: Orbitron, sans-serif;
+    color: var(--green);
+    font-size: 1.5rem;
+    font-weight: 900;
+    z-index: 10000;
+    pointer-events: none;
+    animation: waveEntrance 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+    box-shadow: 0 0 40px rgba(0,255,136,0.6);
+  `;
+  notification.innerHTML = `<div>${label}</div><div style="font-size: 2rem; margin-top: 10px;">${powerup.name}</div>`;
+  document.body.appendChild(notification);
+
+  setTimeout(() => {
+    notification.style.animation = 'fadeOut 0.5s ease-out forwards';
+    setTimeout(() => notification.remove(), 500);
+  }, 2500);
+}
+
+function showWaveImperfectNotification() {
+  // Light screen shake for imperfect
+  const screen = document.querySelector('#screen-quickplay');
+  if (screen) {
+    screen.style.animation = 'screenShake 0.4s ease-out';
+    setTimeout(() => {
+      screen.style.animation = '';
+    }, 400);
+  }
+
+  const notification = document.createElement('div');
+  notification.style.cssText = `
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: linear-gradient(135deg, rgba(255,68,68,0.3), rgba(255,68,68,0.15));
+    border: 3px solid var(--red);
+    border-radius: 15px;
+    padding: 30px 40px;
+    text-align: center;
+    font-family: Orbitron, sans-serif;
+    color: var(--red);
+    font-size: 1.3rem;
+    font-weight: 900;
+    z-index: 10000;
+    pointer-events: none;
+    animation: waveEntrance 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+    box-shadow: 0 0 40px rgba(255,68,68,0.6);
+  `;
+  notification.innerHTML = `<div>❌ IMPERFECT WAVE</div><div style="font-size: 0.9rem; margin-top: 8px;">Mistakes detected</div>`;
+  document.body.appendChild(notification);
+
+  setTimeout(() => {
+    notification.style.animation = 'fadeOut 0.5s ease-out forwards';
+    setTimeout(() => notification.remove(), 500);
+  }, 2000);
+}
+
+function endQuickPlay() {
+  quickPlayState.running = false;
+  clearInterval(quickPlayState.timerInterval);
+  detachQuickPlayListeners();
+
+  if (window.UNLOCK) {
+    const user = window.UNLOCK.loadUser();
+    window.UNLOCK.completeQuest(user);
+    window.UNLOCK.saveUser(user);
+    window.UNLOCK.hydrateUI(user);
+  }
+
+  const finalScore = quickPlayState.score;
+  const wavesReached = quickPlayState.wave - 1;
+
+  alert(`GAME OVER!\n\nScore: ${finalScore}\nWaves: ${wavesReached}`);
+
+  renderMenu();
+  showScreen('menu');
+}
+
+// Init
+try {
+  renderMenu();
+} catch(e) {
+  console.error('Error in renderMenu:', e);
+}
+// Atualizar contador de badges na inicialização
+updateBadgeCounter();
+updateMuteButton();
+
+// Initialize background music on page load (after external scripts load)
+document.addEventListener('DOMContentLoaded', () => {
+  try {
+    if (window.audioManager) {
+      audioManager.resumeContext();
+      audioManager.playBackgroundMusic();
+    }
+  } catch(e) {
+    console.error('Error initializing audio:', e);
+  }
+});
+</script>
+  <script src="../assets/unlock-core.js"></script>
+  <script src="../assets/audio-manager.js"></script>
+</body>
+</html>

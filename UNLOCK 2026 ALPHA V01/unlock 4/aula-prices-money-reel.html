@@ -1,0 +1,707 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PRICES & MONEY | UNLOCK 2026</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --blue-bg: #0a1628;
+            --gold: #FFD700;
+            --green: #00FF88;
+            --orange: #FF8C00;
+            --purple: #9B6DFF;
+            --red: #FF4444;
+            --cyan: #00BFFF;
+            --white: #E8E8E8;
+            --gray: #8899aa;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--blue-bg);
+            min-height: 100vh;
+            color: var(--white);
+            overflow: hidden;
+        }
+
+        .bg {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: linear-gradient(135deg, #0a1628 0%, #1a2a4a 50%, #0a1628 100%);
+            z-index: 0;
+        }
+
+        .bg::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0;
+            width: 200%; height: 200%;
+            background-image: 
+                linear-gradient(rgba(0, 191, 255, 0.05) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 191, 255, 0.05) 1px, transparent 1px);
+            background-size: 60px 60px;
+            animation: gridMove 30s linear infinite;
+        }
+
+        @keyframes gridMove {
+            0% { transform: translate(0, 0); }
+            100% { transform: translate(-60px, -60px); }
+        }
+
+        .progress-bar {
+            position: fixed;
+            top: 0; left: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--gold), var(--green));
+            z-index: 1000;
+            transition: width 0.3s;
+        }
+
+        .container {
+            position: relative;
+            z-index: 2;
+            width: 100%;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .slide {
+            display: none;
+            width: 100%;
+            max-width: 750px;
+        }
+
+        .slide.active { display: block; animation: fadeIn 0.3s ease; }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(15px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .card {
+            background: linear-gradient(180deg, rgba(20, 40, 80, 0.95) 0%, rgba(10, 22, 40, 0.98) 100%);
+            border: 3px solid var(--gold);
+            border-radius: 20px;
+            padding: 45px 40px;
+        }
+
+        .card.green { border-color: var(--green); }
+        .card.orange { border-color: var(--orange); }
+        .card.purple { border-color: var(--purple); }
+        .card.red { border-color: var(--red); }
+        .card.cyan { border-color: var(--cyan); }
+
+        .title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 2rem;
+            font-weight: 900;
+            color: var(--gold);
+            text-align: center;
+            margin-bottom: 15px;
+        }
+
+        .subtitle {
+            font-size: 1.1rem;
+            color: var(--gray);
+            text-align: center;
+        }
+
+        .text {
+            font-size: 1.35rem;
+            line-height: 1.9;
+        }
+
+        .text.center { text-align: center; }
+        .text strong { color: var(--gold); }
+
+        .Se { color: var(--cyan); font-weight: 700; }
+        .Se2 { color: var(--green); font-weight: 700; }
+        .Se3 { color: var(--orange); font-weight: 700; }
+        .Se4 { color: var(--purple); font-weight: 700; }
+
+        .keyword {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.8rem;
+            font-weight: 900;
+            text-align: center;
+            margin: 15px 0;
+            text-shadow: 0 0 40px currentColor;
+            color: var(--cyan);
+        }
+
+        .emoji-big {
+            font-size: 4rem;
+            text-align: center;
+            margin-bottom: 15px;
+        }
+
+        .example-big {
+            font-size: 1.4rem;
+            text-align: center;
+            margin: 15px 0;
+            padding: 15px;
+            background: rgba(30, 50, 80, 0.5);
+            border-radius: 10px;
+        }
+
+        .response {
+            background: rgba(0, 255, 136, 0.1);
+            border: 1px solid var(--green);
+        }
+
+        .alert {
+            background: rgba(255, 140, 0, 0.1);
+            border: 1px solid var(--orange);
+        }
+
+        .section-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.2rem;
+            color: var(--gold);
+            text-align: center;
+            margin-bottom: 20px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .nav {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            z-index: 100;
+        }
+
+        .nav-btn {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(180deg, var(--gold), #B8960F);
+            border: none;
+            border-radius: 50%;
+            font-size: 1.5rem;
+            color: #000;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .nav-counter {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.9rem;
+            color: var(--gold);
+            background: rgba(0,0,0,0.5);
+            padding: 10px 20px;
+            border-radius: 25px;
+            border: 2px solid var(--gold);
+        }
+
+        /* APPBAR STYLES */
+        .unlock-appbar { position: fixed; top: 0; left: 0; right: 0; height: 60px; display: flex; align-items: center; justify-content: space-between; padding: 0 16px; background: linear-gradient(180deg, rgba(10,22,40,0.98) 0%, rgba(10,22,40,0.85) 100%); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px); border-bottom: 2px solid rgba(0,255,136,0.15); box-shadow: 0 4px 20px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,215,0,0.1); z-index: 99999; }
+        .unlock-appbar .left a { display: inline-flex; align-items: center; gap: 8px; text-decoration: none; font-weight: 800; color: var(--green); letter-spacing: 0.2px; transition: all 0.3s ease; padding: 8px 12px; border-radius: 6px; }
+        .unlock-appbar .left a:hover { color: var(--gold); background: rgba(0,255,136,0.1); transform: translateX(-2px); }
+        .unlock-appbar .center { font-family: 'Orbitron', system-ui, sans-serif; font-weight: 900; letter-spacing: 2px; color: var(--gold); font-size: 14px; animation: glow-pulse 3s ease-in-out infinite; }
+        .unlock-appbar .right { display: flex; align-items: center; gap: 12px; }
+        .unlock-appbar-btn { background: none; border: none; cursor: pointer; color: var(--gold); font-size: 20px; padding: 8px 12px; border-radius: 8px; transition: all 0.3s ease; display: flex; align-items: center; justify-content: center; position: relative; }
+        .unlock-appbar-btn:hover { background: rgba(255,215,0,0.1); transform: scale(1.1); animation: badge-bounce 0.6s ease; }
+        .unlock-appbar-btn::before { content: ''; position: absolute; inset: 0; background: radial-gradient(circle, rgba(255,215,0,0.2) 0%, transparent 70%); border-radius: 8px; opacity: 0; transition: opacity 0.3s; }
+        .unlock-appbar-btn:hover::before { opacity: 1; }
+        .unlock-appbar .pill { display: inline-flex; align-items: center; gap: 10px; padding: 8px 14px; border: 2px solid rgba(255,215,0,0.3); border-radius: 12px; background: linear-gradient(135deg, rgba(17,31,61,0.8) 0%, rgba(20,40,80,0.6) 100%); transition: all 0.3s ease; animation: slide-in 0.5s ease; }
+        .unlock-appbar .pill:hover { background: linear-gradient(135deg, rgba(17,31,61,1) 0%, rgba(20,40,80,0.8) 100%); border-color: rgba(255,215,0,0.6); transform: translateY(-2px); box-shadow: 0 8px 16px rgba(255,215,0,0.2); }
+        .unlock-appbar .pill span[data-unlock-streak] { font-weight: bold; color: var(--gold); animation: glow-pulse 2s ease-in-out infinite; }
+        @keyframes glow-pulse { 0%, 100% { opacity: 0.8; } 50% { opacity: 1; } }
+        @keyframes badge-bounce { 0%, 100% { transform: scale(1.1); } 50% { transform: scale(1.15); } }
+        @keyframes slide-in { 0% { opacity: 0; transform: translateX(20px); } 100% { opacity: 1; transform: translateX(0); } }
+        .container { padding-top: 80px; }
+        /* INTERACTIVE QUIZ STYLES */
+        .quiz-option { display: inline-block; margin: 10px; padding: 12px 20px; border: 2px solid var(--cyan); border-radius: 8px; cursor: pointer; background: rgba(0,191,255,0.1); color: var(--cyan); font-weight: 600; transition: all 0.3s; user-select: none; }
+        .quiz-option:hover { background: rgba(0,191,255,0.2); transform: scale(1.05); }
+        .quiz-option.correct { background: var(--green); border-color: var(--green); color: #000; animation: pulse-glow 1s ease-in-out infinite; }
+        .quiz-option.incorrect { background: var(--red); border-color: var(--red); color: #fff; }
+        .quiz-feedback { margin-top: 20px; padding: 15px; border-radius: 8px; font-size: 1.1rem; text-align: center; display: none; }
+        .quiz-feedback.show { display: block; animation: slideIn 0.3s ease; }
+        .quiz-feedback.correct { background: rgba(0,255,136,0.2); border: 2px solid var(--green); color: var(--green); }
+        .quiz-feedback.incorrect { background: rgba(255,68,68,0.2); border: 2px solid var(--red); color: var(--red); }
+        @keyframes slideIn { 0% { opacity: 0; transform: translateY(-10px); } 100% { opacity: 1; transform: translateY(0); } }
+        @keyframes pulse-glow { 0%, 100% { box-shadow: 0 0 10px var(--glow-color, var(--green)); } 50% { box-shadow: 0 0 30px var(--glow-color, var(--green)); } }
+
+        .nav-btn.completion-btn { background: linear-gradient(180deg, var(--green), #00CC66); font-size: 1.2rem; }
+        .nav-btn.completion-btn:hover { transform: scale(1.15); box-shadow: 0 0 25px rgba(0,255,136,0.6); }
+        .nav-btn.hidden { display: none; }
+
+        @media (max-width: 600px) {
+            .card { padding: 30px 25px; }
+            .title { font-size: 1.7rem; }
+            .text { font-size: 1.15rem; }
+            .keyword { font-size: 1.5rem; }
+            .emoji-big { font-size: 3rem; }
+            .example-big { font-size: 1.2rem; }
+            .unlock-appbar { height: 56px; padding: 0 12px; }
+            .unlock-appbar .center { display: none; }
+        }
+    </style>
+</head>
+<body>
+    <!-- UNLOCK 2026 shared top bar -->
+    <div class="unlock-appbar">
+        <div class="left">
+            <a href="./index.html" aria-label="Back to menu">⬅ <span>Menu</span></a>
+        </div>
+        <div class="center">UNLOCK 2026</div>
+        <div class="right">
+            <button class="unlock-appbar-btn" id="statsBtn" title="Ver seus badges" aria-label="Ver seus badges" style="position: relative; display: inline-flex; align-items: center; gap: 4px; padding: 6px 10px; font-size: 12px;">
+                <span id="badgeCounter" style="background: var(--gold); color: var(--blue-bg); padding: 2px 8px; border-radius: 12px; font-weight: bold; font-size: 11px;">🏆 0</span>
+            </button>
+            <span class="pill"><span data-unlock-streak>🔥 0</span><span style="opacity:.6">•</span> 📚 Aulas</span>
+        </div>
+    </div>
+
+    <div class="bg"></div>
+    <div class="progress-bar" id="progress"></div>
+
+    <div class="container">
+
+        <!-- 1: TÍTULO -->
+        <div class="slide active">
+            <div class="card">
+                <div style="text-align: center;">
+                    <div style="font-size: 3rem; margin-bottom: 15px;">💵💰</div>
+                    <h1 class="title">PRICES & MONEY</h1>
+                    <p class="subtitle">Perguntar preço e pagar</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- 2: CONTEXTO -->
+        <div class="slide">
+            <div class="card">
+                <p class="text center">
+                    Você tá na loja.<br>
+                    Quer saber o preço.<br><br>
+                    Mas como pergunta?
+                </p>
+            </div>
+        </div>
+
+        <!-- 3: HOW MUCH -->
+        <div class="slide">
+            <div class="card cyan">
+                <p class="text center" style="margin-bottom: 20px;">
+                    A pergunta mais útil:
+                </p>
+                <div class="keyword">"HOW MUCH?"</div>
+                <p class="text center" style="margin-top: 20px;">
+                    = Quanto custa?
+                </p>
+            </div>
+        </div>
+
+        <!-- 4: HOW MUCH IS THIS -->
+        <div class="slide">
+            <div class="card cyan">
+                <div class="emoji-big">🏷️</div>
+                <div class="example-big">
+                    <span class="Se">How much is this?</span>
+                </div>
+                <p class="text center" style="margin-top: 15px; color: var(--gray);">
+                    (Quanto custa isso?)
+                </p>
+            </div>
+        </div>
+
+        <!-- 5: RESPOSTA DO VENDEDOR -->
+        <div class="slide">
+            <div class="card green">
+                <p class="section-title">O vendedor responde:</p>
+                <div class="example-big response">
+                    "It's $25." <span style="color: var(--gray);">(São 25 dólares.)</span>
+                </div>
+                <div class="example-big response">
+                    "That's $10.99." <span style="color: var(--gray);">(São 10,99.)</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- 6: CARO DEMAIS -->
+        <div class="slide">
+            <div class="card orange">
+                <div class="emoji-big">😬</div>
+                <p class="text center" style="margin-bottom: 20px;">Se tá caro:</p>
+                <div class="example-big alert">
+                    <span class="Se3">That's too expensive.</span>
+                </div>
+                <p class="text center" style="margin-top: 15px; color: var(--gray);">
+                    (Isso é caro demais.)
+                </p>
+            </div>
+        </div>
+
+        <!-- 7: DESCONTO -->
+        <div class="slide">
+            <div class="card orange">
+                <div class="emoji-big">🤑</div>
+                <p class="text center" style="margin-bottom: 20px;">Pedir desconto:</p>
+                <div class="example-big">
+                    <span class="Se3">Any discount?</span> <span style="color: var(--gray);">(Tem desconto?)</span>
+                </div>
+                <div class="example-big">
+                    <span class="Se3">Can you do better?</span> <span style="color: var(--gray);">(Consegue um preço melhor?)</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- 8: NA HORA DE PAGAR -->
+        <div class="slide">
+            <div class="card purple">
+                <p class="section-title">Na hora de pagar:</p>
+                <div class="example-big" style="border: 1px solid var(--purple); background: rgba(155, 109, 255, 0.1);">
+                    "Cash or card?"
+                </div>
+                <p class="text center" style="margin-top: 15px;">
+                    = Dinheiro ou cartão?
+                </p>
+            </div>
+        </div>
+
+        <!-- 9: RESPOSTAS PAGAMENTO -->
+        <div class="slide">
+            <div class="card purple">
+                <p class="text center" style="margin-bottom: 20px;">Você responde:</p>
+                <div class="example-big">
+                    <span class="Se4">Card.</span> <span style="color: var(--gray);">(Cartão.)</span>
+                </div>
+                <div class="example-big">
+                    <span class="Se4">Cash.</span> <span style="color: var(--gray);">(Dinheiro.)</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- 10: TOTAL -->
+        <div class="slide">
+            <div class="card green">
+                <p class="section-title">Vendedor vai falar:</p>
+                <div class="example-big response">
+                    "Your total is $47.50."
+                </div>
+                <p class="text center" style="margin-top: 15px; color: var(--gray);">
+                    (Seu total é 47,50.)
+                </p>
+            </div>
+        </div>
+
+        <!-- 11: DEBIT OR CREDIT -->
+        <div class="slide">
+            <div class="card">
+                <p class="section-title">Se pagar com cartão:</p>
+                <div class="example-big alert">
+                    "Debit or credit?"
+                </div>
+                <p class="text center" style="margin-top: 15px;">
+                    = Débito ou crédito?
+                </p>
+            </div>
+        </div>
+
+        <!-- 12: TROCO -->
+        <div class="slide">
+            <div class="card cyan">
+                <div class="emoji-big">💵</div>
+                <p class="text center" style="margin-bottom: 20px;">Se pagar em dinheiro:</p>
+                <div class="example-big">
+                    "Here's your change."
+                </div>
+                <p class="text center" style="margin-top: 15px; color: var(--gray);">
+                    (Aqui está seu troco.)
+                </p>
+            </div>
+        </div>
+
+        <!-- 13: KEEP THE CHANGE -->
+        <div class="slide">
+            <div class="card green">
+                <div class="emoji-big">🙂</div>
+                <p class="text center" style="margin-bottom: 20px;">Se quiser deixar de gorjeta:</p>
+                <div class="example-big response">
+                    <span class="Se2">Keep the change.</span>
+                </div>
+                <p class="text center" style="margin-top: 15px; color: var(--gray);">
+                    (Fica com o troco.)
+                </p>
+            </div>
+        </div>
+
+        <!-- 14: DISCOUNTS -->
+        <div class="slide">
+            <div class="card orange">
+                <p class="section-title">Negociando:</p>
+                <div class="example-big alert">
+                    <span class="Se3">Any discount?</span>
+                </div>
+                <p class="text center" style="margin-top: 15px; color: var(--gray);">
+                    (Tem desconto?)
+                </p>
+            </div>
+        </div>
+
+        <!-- 15: CAN YOU DO BETTER -->
+        <div class="slide">
+            <div class="card green">
+                <div class="emoji-big">💰</div>
+                <div class="example-big response">
+                    <span class="Se2">Can you do better?</span>
+                </div>
+                <p class="text center" style="margin-top: 15px; color: var(--gray);">
+                    (Consegue um preço melhor?)
+                </p>
+            </div>
+        </div>
+
+        <!-- 16: PAYMENT METHODS -->
+        <div class="slide">
+            <div class="card purple">
+                <p class="section-title">Formas de pagamento:</p>
+                <div class="vocab-grid">
+                    <div class="vocab-item"><span class="Se4">Cash</span><br><span style="color: var(--gray); font-size: 0.9rem;">dinheiro</span></div>
+                    <div class="vocab-item"><span class="Se4">Card</span><br><span style="color: var(--gray); font-size: 0.9rem;">cartão</span></div>
+                    <div class="vocab-item"><span class="Se4">Credit card</span><br><span style="color: var(--gray); font-size: 0.9rem;">cartão de crédito</span></div>
+                    <div class="vocab-item"><span class="Se4">Debit card</span><br><span style="color: var(--gray); font-size: 0.9rem;">cartão de débito</span></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 17: RECEIPT -->
+        <div class="slide">
+            <div class="card cyan">
+                <div class="emoji-big">🧾</div>
+                <p class="text center" style="margin-bottom: 20px;">Depois de pagar:</p>
+                <div class="example-big">
+                    <span class="Se">Here's your receipt.</span>
+                </div>
+                <p class="text center" style="margin-top: 15px; color: var(--gray);">
+                    (Aqui está seu recibo.)
+                </p>
+            </div>
+        </div>
+
+        <!-- 18: QUIZ 1 -->
+        <div class="slide">
+            <div class="card purple">
+                <p class="section-title">🎯 QUIZ RÁPIDO</p>
+                <p class="text center" style="margin-bottom: 25px;">Qual frase pede desconto na loja?</p>
+                <div style="text-align: center;">
+                    <button class="quiz-option" onclick="checkQuizAnswer(this, 0)">A) Give me a discount.</button><br>
+                    <button class="quiz-option" onclick="checkQuizAnswer(this, 1)">B) Do you have discount?</button><br>
+                    <button class="quiz-option" onclick="checkQuizAnswer(this, 2)">C) Can you do better?</button>
+                </div>
+                <div class="quiz-feedback"></div>
+            </div>
+        </div>
+
+
+        <!-- 20: RESUMO -->
+        <div class="slide">
+            <div class="card">
+                <p class="text center">
+                    <span class="Se">How much?</span> = quanto custa?<br><br>
+                    <span class="Se3">Too expensive</span> = caro demais<br><br>
+                    <span class="Se4">Cash or card?</span> = dinheiro ou cartão?<br><br>
+                    <span class="Se2">Change</span> = troco
+                </p>
+            </div>
+        </div>
+
+        <!-- 16: FIM -->
+        <div class="slide">
+            <div class="card">
+                <div style="text-align: center;">
+                    <div style="font-size: 3.5rem; margin-bottom: 20px;">🗣️🔓</div>
+                    <h1 class="title">UNLOCK</h1>
+                    <p style="font-family: 'Orbitron'; font-size: 2.5rem; color: var(--gold); margin: 10px 0;">2026</p>
+                    <p class="subtitle" style="margin-top: 20px;">Destrave Seu Inglês</p>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Navigation -->
+    <div class="nav">
+        <div class="nav-btn" id="prev">←</div>
+        <div class="nav-counter"><span id="current">1</span> / <span id="total">19</span></div>
+        <div class="nav-btn" id="next">→</div>
+    </div>
+
+    <script>
+        const slides = document.querySelectorAll('.slide');
+        const total = slides.length;
+        let current = 0;
+        let aulaCompleted = false;
+
+        document.getElementById('total').textContent = total;
+
+        // Extract aula ID from filename and map to class ID
+        function getAulaClassId() {
+            const filename = window.location.pathname.split('/').pop();
+            const aulaMap = {
+                'aula-doctor-reel.html': 25,
+                'aula-hardware-store-reel.html': 26,
+                'aula-materials-supplies-reel.html': 27,
+                'aula-prices-money-reel.html': 28,
+                'aula-returning-items-reel.html': 29,
+                'aula-traffic-stop-reel.html': 30
+            };
+            return aulaMap[filename] || null;
+        }
+
+        function show(n) {
+            slides.forEach((s, i) => s.classList.toggle('active', i === n));
+            document.getElementById('current').textContent = n + 1;
+            document.getElementById('prev').style.opacity = n === 0 ? '0.3' : '1';
+
+            const nextBtn = document.getElementById('next');
+
+            if (n === total - 1) {
+                nextBtn.style.display = 'none';
+                // Dynamically inject completion button
+            } else {
+                nextBtn.style.display = 'flex';
+                // Remove button from DOM - don't just hide it
+            }
+            document.getElementById('progress').style.width = ((n + 1) / total * 100) + '%';
+        }
+
+        function next() {
+            if (current < total - 1) {
+                current++;
+                show(current);
+            }
+        }
+
+
+        function prev() { if (current > 0) { current--; show(current); } }
+
+        function checkQuizAnswer(button, selected) {
+            const correctAnswer = 2; // C is correct
+            const allOptions = button.parentElement.querySelectorAll('.quiz-option');
+            const feedback = button.parentElement.nextElementSibling;
+            allOptions.forEach(opt => opt.disabled = true);
+            if (selected === correctAnswer) {
+                button.classList.add('correct');
+                feedback.classList.add('show', 'correct');
+                feedback.innerHTML = '✅ Correto! Forma educada e natural!';
+            } else {
+                button.classList.add('incorrect');
+                allOptions[correctAnswer].classList.add('correct');
+                feedback.classList.add('show', 'incorrect');
+                feedback.innerHTML = '❌ Incorreto. A resposta correta é C) "Can you do better?"';
+            }
+        }
+
+        document.getElementById('next').addEventListener('touchstart', e => {
+            e.preventDefault();
+            if (current === total - 1) claimCompletion();
+            else next();
+        }, {passive: false});
+        document.getElementById('prev').addEventListener('touchstart', e => { e.preventDefault(); prev(); }, {passive: false});
+        document.getElementById('next').addEventListener('click', () => {
+            if (current === total - 1) claimCompletion();
+            else next();
+        });
+        document.getElementById('prev').addEventListener('click', prev);
+
+        document.addEventListener('keydown', e => {
+            if (e.key === 'ArrowRight' || e.key === ' ') {
+                if (current === total - 1) claimCompletion();
+                else next();
+            }
+            if (e.key === 'ArrowLeft') prev();
+        });
+
+        // SMART BACK BUTTON
+        function setupSmartBackButton() {
+            const params = new URLSearchParams(window.location.search);
+            const returnTo = params.get('returnTo');
+            const backLink = document.querySelector('.unlock-appbar .left a');
+
+            if (returnTo) {
+                const gameNames = {
+                    'games/word-drop.html': 'Word Drop',
+                    'games/word-match.html': 'Word Match',
+                    'games/word-stack.html': 'Word Stack'
+                };
+                const gameName = gameNames[returnTo] || 'Jogo';
+                backLink.href = './ ' + returnTo;
+                backLink.querySelector('span').textContent = gameName;
+            }
+        }
+
+        let startX = 0;
+        document.querySelector('.container').addEventListener('touchstart', e => startX = e.touches[0].clientX, {passive: true});
+        document.querySelector('.container').addEventListener('touchend', e => {
+            const diff = startX - e.changedTouches[0].clientX;
+            if (Math.abs(diff) > 50) diff > 0 ? next() : prev();
+        }, {passive: true});
+
+        show(0);
+
+        // UPDATE APPBAR WITH USER STATS
+        function updateAulaAppbar() {
+            if (typeof UNLOCK !== 'undefined' && UNLOCK.loadUser) {
+                const u = UNLOCK.loadUser();
+                if (u) {
+                    // Update streak display
+                    const streakEl = document.querySelector('[data-unlock-streak]');
+                    if (streakEl) {
+                        streakEl.textContent = '🔥 ' + (u.streak || 0);
+                    }
+                    // Update badge counter
+                    if (UNLOCK.getBadges) {
+                        const badges = UNLOCK.getBadges(u);
+                        const badgeCount = Object.keys(badges).length;
+                        const badgeEl = document.getElementById('badgeCounter');
+                        if (badgeEl) {
+                            badgeEl.textContent = '🏆 ' + badgeCount;
+                        }
+                    }
+                }
+            }
+        }
+
+        // Initialize appbar on page load
+        setupSmartBackButton();
+        document.addEventListener('DOMContentLoaded', function() {
+            updateAulaAppbar();
+        });
+
+        // SMART BACK BUTTON
+        function setupSmartBackButton() {
+            const params = new URLSearchParams(window.location.search);
+            const returnTo = params.get('returnTo');
+            const backLink = document.querySelector('.unlock-appbar .left a');
+
+            if (returnTo) {
+                const gameNames = {
+                    'games/word-drop.html': 'Word Drop',
+                    'games/word-match.html': 'Word Match',
+                    'games/word-stack.html': 'Word Stack'
+                };
+                const gameName = gameNames[returnTo] || 'Jogo';
+                backLink.href = './ ' + returnTo;
+                backLink.querySelector('span').textContent = gameName;
+            }
+        }
+    </script>
+    <script src="./assets/unlock-core.js"></script>
+</body>
+</html>

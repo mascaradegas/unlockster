@@ -1,0 +1,1450 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>UNLOCK 2026 - Aprenda Inglês Jogando</title>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --bg: #0a1628;
+      --gold: #FFD700;
+      --green: #00FF88;
+      --cyan: #00BFFF;
+      --red: #FF4444;
+      --purple: #9B6DFF;
+      --white: #E8E8E8;
+      --gray: #8899aa;
+    }
+
+    html, body {
+      font-family: 'Inter', sans-serif;
+      background: linear-gradient(135deg, #0a1628 0%, #1a2a4a 50%, #0a1628 100%);
+      color: var(--white);
+      overflow-x: hidden;
+      min-height: 100vh;
+    }
+
+    /* Background animated grid */
+    .bg-grid {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 0;
+      background: linear-gradient(135deg, #0a1628 0%, #1a2a4a 50%, #0a1628 100%);
+    }
+
+    .bg-grid::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 200%;
+      height: 200%;
+      background-image: linear-gradient(rgba(0,191,255,0.07) 1px, transparent 1px),
+                        linear-gradient(90deg, rgba(0,191,255,0.07) 1px, transparent 1px);
+      background-size: 50px 50px;
+      animation: gridMove 20s linear infinite;
+    }
+
+    @keyframes gridMove {
+      0% { transform: translate(0, 0); }
+      100% { transform: translate(50px, 50px); }
+    }
+
+    .container {
+      position: relative;
+      z-index: 1;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+
+    /* Header */
+    header {
+      padding: 30px 0;
+      text-align: center;
+      border-bottom: 1px solid rgba(0, 191, 255, 0.2);
+      margin-bottom: 60px;
+    }
+
+    .logo {
+      font-size: 28px;
+      font-weight: 900;
+      font-family: 'Orbitron', sans-serif;
+      color: var(--gold);
+      text-shadow: 0 0 20px rgba(255, 215, 0, 0.6);
+      margin-bottom: 10px;
+      letter-spacing: 2px;
+    }
+
+    .tagline {
+      color: var(--cyan);
+      font-size: 18px;
+      font-weight: 300;
+    }
+
+    /* Tour Spotlight Styles */
+    #tourSpotlightOverlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.85);
+      z-index: 9998;
+      display: none;
+      mix-blend-mode: multiply;
+    }
+
+    #tourHighlight {
+      position: fixed;
+      border: 3px solid var(--cyan);
+      box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.85), inset 0 0 20px rgba(0, 191, 255, 0.3);
+      z-index: 9999;
+      display: none;
+      border-radius: 8px;
+      animation: tourGlow 2s ease-in-out infinite;
+    }
+
+    @keyframes tourGlow {
+      0%, 100% { box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.85), inset 0 0 20px rgba(0, 191, 255, 0.3), 0 0 30px rgba(0, 191, 255, 0.5); }
+      50% { box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.85), inset 0 0 20px rgba(0, 191, 255, 0.5), 0 0 50px rgba(0, 191, 255, 0.8); }
+    }
+
+    #tourPointer {
+      position: fixed;
+      z-index: 10000;
+      display: none;
+      background: linear-gradient(135deg, #1a2a4a, #0a1628);
+      border: 2px solid var(--cyan);
+      border-radius: 15px;
+      padding: 30px;
+      max-width: 400px;
+      box-shadow: 0 0 50px rgba(0, 191, 255, 0.3);
+    }
+
+    #tourPointer h3 {
+      color: var(--gold);
+      font-family: 'Orbitron', sans-serif;
+      margin-bottom: 10px;
+      font-size: 18px;
+    }
+
+    #tourPointer p {
+      color: var(--white);
+      font-size: 14px;
+      line-height: 1.6;
+      margin-bottom: 15px;
+    }
+
+    #tourPointerButtons {
+      display: flex;
+      gap: 10px;
+      margin-top: 15px;
+    }
+
+    #tourPointerButtons button {
+      flex: 1;
+      padding: 8px;
+      background: rgba(0, 191, 255, 0.2);
+      border: 1px solid var(--cyan);
+      color: var(--cyan);
+      border-radius: 6px;
+      cursor: pointer;
+      font-family: 'Orbitron', sans-serif;
+      font-size: 12px;
+      transition: all 0.3s;
+    }
+
+    #tourPointerButtons button:hover {
+      background: rgba(0, 191, 255, 0.4);
+    }
+
+    /* Hero Section */
+    .hero {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 60px;
+      align-items: center;
+      margin-bottom: 80px;
+    }
+
+    .hero-content h1 {
+      font-size: 48px;
+      font-weight: 900;
+      font-family: 'Orbitron', sans-serif;
+      margin-bottom: 20px;
+      line-height: 1.2;
+      color: var(--white);
+      text-shadow: 0 0 30px rgba(0, 191, 255, 0.5);
+    }
+
+    .hero-content h1 .highlight {
+      color: var(--gold);
+      text-shadow: 0 0 30px rgba(255, 215, 0, 0.6);
+    }
+
+    .hero-content p {
+      font-size: 18px;
+      line-height: 1.8;
+      color: var(--gray);
+      margin-bottom: 30px;
+    }
+
+    .cta-section {
+      background: rgba(0, 191, 255, 0.05);
+      border: 1px solid rgba(0, 191, 255, 0.2);
+      border-radius: 12px;
+      padding: 40px;
+      backdrop-filter: blur(10px);
+    }
+
+    .cta-title {
+      font-size: 24px;
+      font-weight: 700;
+      margin-bottom: 20px;
+      color: var(--gold);
+    }
+
+    .email-form {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+
+    .email-input {
+      padding: 14px 16px;
+      border: 2px solid rgba(0, 191, 255, 0.3);
+      background: rgba(10, 22, 40, 0.8);
+      color: var(--white);
+      border-radius: 8px;
+      font-size: 16px;
+      font-family: 'Inter', sans-serif;
+      transition: all 0.3s ease;
+    }
+
+    .email-input::placeholder {
+      color: var(--gray);
+    }
+
+    .email-input:focus {
+      outline: none;
+      border-color: var(--cyan);
+      box-shadow: 0 0 15px rgba(0, 191, 255, 0.3);
+    }
+
+    .cta-button {
+      padding: 14px 28px;
+      background: linear-gradient(135deg, var(--gold), #FFB700);
+      color: var(--bg);
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: 700;
+      font-family: 'Orbitron', sans-serif;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      letter-spacing: 1px;
+      box-shadow: 0 0 20px rgba(255, 215, 0, 0.4);
+    }
+
+    .cta-button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 0 30px rgba(255, 215, 0, 0.6);
+    }
+
+    .cta-button:active {
+      transform: translateY(0);
+    }
+
+    .play-button {
+      padding: 14px 28px;
+      background: linear-gradient(135deg, var(--green), #00DD77);
+      color: var(--bg);
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: 700;
+      font-family: 'Orbitron', sans-serif;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      letter-spacing: 1px;
+      box-shadow: 0 0 20px rgba(0, 255, 136, 0.4);
+      margin-top: 10px;
+      width: 100%;
+    }
+
+    .play-button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 0 30px rgba(0, 255, 136, 0.6);
+    }
+
+    .form-message {
+      text-align: center;
+      font-size: 14px;
+      color: var(--gray);
+      margin-top: 10px;
+    }
+
+    /* Features Section */
+    .features {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 30px;
+      margin-bottom: 80px;
+    }
+
+    .feature-card {
+      background: rgba(0, 191, 255, 0.05);
+      border: 1px solid rgba(0, 191, 255, 0.2);
+      border-radius: 12px;
+      padding: 30px;
+      text-align: center;
+      transition: all 0.3s ease;
+    }
+
+    .feature-card:hover {
+      border-color: var(--gold);
+      box-shadow: 0 0 20px rgba(255, 215, 0, 0.2);
+      transform: translateY(-5px);
+    }
+
+    .feature-emoji {
+      font-size: 40px;
+      margin-bottom: 15px;
+      display: block;
+    }
+
+    .feature-title {
+      font-size: 18px;
+      font-weight: 700;
+      margin-bottom: 10px;
+      color: var(--gold);
+    }
+
+    .feature-desc {
+      font-size: 14px;
+      color: var(--gray);
+      line-height: 1.6;
+    }
+
+    /* Stats Section */
+    .stats {
+      background: rgba(155, 109, 255, 0.05);
+      border: 1px solid rgba(155, 109, 255, 0.2);
+      border-radius: 12px;
+      padding: 50px;
+      margin-bottom: 80px;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 40px;
+      text-align: center;
+    }
+
+    .stat-item h3 {
+      font-size: 36px;
+      color: var(--purple);
+      margin-bottom: 10px;
+      font-family: 'Orbitron', sans-serif;
+    }
+
+    .stat-item p {
+      color: var(--gray);
+      font-size: 14px;
+    }
+
+    /* Games Section */
+    .games-section {
+      margin-bottom: 80px;
+    }
+
+    .section-title {
+      font-size: 36px;
+      font-family: 'Orbitron', sans-serif;
+      margin-bottom: 40px;
+      text-align: center;
+      color: var(--white);
+    }
+
+    .games-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 30px;
+    }
+
+    .game-card {
+      background: rgba(0, 191, 255, 0.05);
+      border: 2px solid rgba(0, 191, 255, 0.2);
+      border-radius: 12px;
+      padding: 30px;
+      text-align: center;
+      transition: all 0.3s ease;
+      cursor: pointer;
+    }
+
+    .game-card:hover {
+      border-color: var(--gold);
+      box-shadow: 0 0 20px rgba(255, 215, 0, 0.3);
+      transform: translateY(-8px);
+    }
+
+    .game-emoji {
+      font-size: 48px;
+      margin-bottom: 15px;
+    }
+
+    .game-title {
+      font-size: 20px;
+      font-weight: 700;
+      margin-bottom: 10px;
+      color: var(--gold);
+    }
+
+    .game-desc {
+      font-size: 14px;
+      color: var(--gray);
+      line-height: 1.6;
+    }
+
+    /* Feedback Section */
+    .feedback-section {
+      margin-bottom: 80px;
+      margin-top: 100px;
+    }
+
+    .feedback-intro {
+      text-align: center;
+      font-size: 18px;
+      color: var(--white);
+      margin-bottom: 40px;
+      max-width: 900px;
+      margin-left: auto;
+      margin-right: auto;
+      line-height: 1.8;
+    }
+
+    .feedback-intro p {
+      margin-bottom: 12px;
+      color: var(--gray);
+    }
+
+    .feedback-intro p:first-child {
+      color: var(--white);
+      font-weight: 600;
+    }
+
+    .feedback-container {
+      background: rgba(0, 191, 255, 0.03);
+      border: 2px solid rgba(0, 191, 255, 0.2);
+      border-radius: 12px;
+      padding: 30px;
+      max-width: 900px;
+      margin: 0 auto;
+      overflow: hidden;
+    }
+
+    .feedback-container iframe {
+      display: block;
+      margin: 0 auto;
+      border-radius: 8px;
+    }
+
+    /* FAQ Section */
+
+
+
+
+    /* Classes Section Styles */
+    .classes-section {
+      margin-top: 100px;
+      margin-bottom: 100px;
+    }
+
+    .classes-intro {
+      text-align: center;
+      font-size: 18px;
+      color: var(--white);
+      margin-bottom: 60px;
+      max-width: 900px;
+      margin-left: auto;
+      margin-right: auto;
+      line-height: 1.8;
+      letter-spacing: 0.3px;
+    }
+
+    .topics-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 24px;
+      margin-bottom: 80px;
+    }
+
+    @media (max-width: 768px) {
+      .topics-grid {
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 18px;
+      }
+    }
+
+    .topic-card {
+      background: linear-gradient(135deg, rgba(26, 42, 74, 0.7), rgba(10, 22, 40, 0.9));
+      border: 2px solid var(--cyan);
+      border-radius: 10px;
+      padding: 22px 18px;
+      text-align: center;
+      transition: all 0.4s cubic-bezier(0.23, 1, 0.320, 1);
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 140px;
+      gap: 12px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .topic-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(0, 191, 255, 0.1), transparent);
+      transition: left 0.6s ease;
+    }
+
+    .topic-card:hover {
+      background: linear-gradient(135deg, rgba(0, 191, 255, 0.15), rgba(0, 88, 255, 0.1));
+      border-color: var(--gold);
+      transform: translateY(-8px);
+      box-shadow: 0 15px 40px rgba(0, 191, 255, 0.25), inset 0 0 20px rgba(0, 191, 255, 0.1);
+    }
+
+    .topic-card:hover::before {
+      left: 100%;
+    }
+
+    .topic-name {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--white);
+      font-family: 'Orbitron', sans-serif;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .topic-desc {
+      font-size: 13px;
+      color: var(--light-gray);
+      line-height: 1.5;
+      position: relative;
+      z-index: 1;
+      font-weight: 500;
+      letter-spacing: 0.2px;
+    }
+
+    .topic-card:hover .topic-desc {
+      color: var(--white);
+    }
+
+    .classes-benefits {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 30px;
+      margin-top: 80px;
+      padding-top: 60px;
+      border-top: 2px solid rgba(0, 191, 255, 0.3);
+    }
+
+    .benefit-item {
+      display: flex;
+      gap: 18px;
+      align-items: flex-start;
+      padding: 15px 0;
+    }
+
+    .benefit-icon {
+      font-size: 36px;
+      min-width: 45px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .benefit-text {
+      flex: 1;
+    }
+
+    .benefit-title {
+      font-size: 17px;
+      font-weight: 700;
+      color: var(--gold);
+      margin-bottom: 8px;
+      font-family: 'Orbitron', sans-serif;
+      letter-spacing: 0.3px;
+    }
+
+    .benefit-text p {
+      font-size: 14px;
+      color: var(--light-gray);
+      line-height: 1.6;
+      margin: 0;
+      letter-spacing: 0.2px;
+    }
+
+
+    .faq-section {
+      margin-bottom: 80px;
+    }
+
+    .faq-item {
+      background: rgba(0, 191, 255, 0.05);
+      border: 1px solid rgba(0, 191, 255, 0.2);
+      border-radius: 8px;
+      padding: 20px;
+      margin-bottom: 15px;
+    }
+
+    .faq-question {
+      font-weight: 700;
+      color: var(--gold);
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .faq-answer {
+      color: var(--gray);
+      margin-top: 15px;
+      display: none;
+      line-height: 1.6;
+    }
+
+    .faq-answer.show {
+      display: block;
+    }
+
+    /* Footer */
+    footer {
+      text-align: center;
+      padding: 30px 0;
+      border-top: 1px solid rgba(0, 191, 255, 0.2);
+      color: var(--gray);
+      font-size: 14px;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .hero {
+        grid-template-columns: 1fr;
+        gap: 40px;
+      }
+
+      .hero-content h1 {
+        font-size: 32px;
+      }
+
+      .features {
+        grid-template-columns: 1fr;
+      }
+
+      .games-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .stats {
+        grid-template-columns: 1fr;
+        gap: 20px;
+      }
+
+      .stat-item h3 {
+        font-size: 28px;
+      }
+
+      header {
+        margin-bottom: 40px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="bg-grid"></div>
+
+  <div class="container">
+    <!-- Header -->
+    <header>
+      <div style="display: flex; justify-content: space-between; align-items: center;">
+        <div>
+          <div class="logo">🔓 UNLOCK 2026</div>
+          <div class="tagline">Aprenda Inglês Jogando. Divirta-se Aprendendo.</div>
+        </div>
+        <div style="display: flex; gap: 10px;">
+          <button class="tour-button" onclick="startTour()" title="Tour apenas desta página" style="background: rgba(0,191,255,0.2); border: 2px solid var(--cyan); color: var(--cyan); padding: 10px 20px; border-radius: 8px; cursor: pointer; font-family: 'Orbitron', sans-serif; font-size: 14px; transition: all 0.3s;">
+            🎬 Tour
+          </button>
+          <button class="tour-button" onclick="startFullTour()" title="Tour completo (landing → menu → games)" style="background: rgba(0,191,255,0.3); border: 2px solid var(--gold); color: var(--gold); padding: 10px 20px; border-radius: 8px; cursor: pointer; font-family: 'Orbitron', sans-serif; font-size: 14px; transition: all 0.3s;">
+            🚀 Tour Completo
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero">
+      <div class="hero-content">
+        <h1>Gamifique seu <span class="highlight">Aprendizado</span> de Inglês</h1>
+        <p>
+          UNLOCK 2026 é um jogo educativo que torna aprender inglês tão viciante quanto jogar.
+          Com 3 modos diferentes, 24 classes estruturadas e um sistema de streak que te motiva a jogar todo dia.
+        </p>
+        <p>
+          <strong>Perfeito para:</strong> Estudantes, professores e qualquer pessoa que queira melhorar seu inglês de forma divertida.
+        </p>
+      </div>
+
+      <div class="cta-section">
+        <div class="cta-title">🚀 Comece AGORA (Grátis)</div>
+        <form class="email-form" id="emailForm">
+          <input
+            type="email"
+            class="email-input"
+            id="emailInput"
+            placeholder="Seu melhor email"
+            required
+          >
+          <button type="submit" class="cta-button">Receber Acesso Beta</button>
+          <button type="button" class="play-button" onclick="window.location.href='./index.html'">
+            ▶ Jogar Agora
+          </button>
+          <div class="form-message">
+            Sem cartão de crédito. Sem spam. Apenas emails importantes.
+          </div>
+        </form>
+      </div>
+    </section>
+
+    <!-- Features Section -->
+    <section>
+      <div class="section-title">Por que UNLOCK 2026?</div>
+      <div class="features">
+        <div class="feature-card">
+          <span class="feature-emoji">🎮</span>
+          <div class="feature-title">Gameplay Viciante</div>
+          <div class="feature-desc">3 modos diferentes: Word Drop, Word Match e Word Stack. Cada um com sua mecânica única.</div>
+        </div>
+        <div class="feature-card">
+          <span class="feature-emoji">🔥</span>
+          <div class="feature-title">Sistema de Streak</div>
+          <div class="feature-desc">Mantenha seu streak diário. Ganhe multiplicadores de pontos e desbloqueie badges.</div>
+        </div>
+        <div class="feature-card">
+          <span class="feature-emoji">📚</span>
+          <div class="feature-title">24 Classes Estruturadas</div>
+          <div class="feature-desc">Do básico ao avançado. Cada classe com 30+ palavras para aprender naturalmente.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Stats Section -->
+    <section class="stats">
+      <div class="stat-item">
+        <h3>24+</h3>
+        <p>Classes de Inglês</p>
+      </div>
+      <div class="stat-item">
+        <h3>3</h3>
+        <p>Modos de Jogo</p>
+      </div>
+      <div class="stat-item">
+        <h3>∞</h3>
+        <p>Horas de Diversão</p>
+      </div>
+    </section>
+
+    <!-- Games Section -->
+    <section class="games-section">
+      <div class="section-title">Os 3 Modos de Jogo</div>
+      <div class="games-grid">
+        <div class="game-card">
+          <div class="game-emoji">🟡</div>
+          <div class="game-title">Word Drop</div>
+          <div class="game-desc">
+            Palavras caem do céu. Escolha a tradução correta antes que batam no chão.
+            Rápido, dinâmico e viciante.
+          </div>
+        </div>
+        <div class="game-card">
+          <div class="game-emoji">🔵</div>
+          <div class="game-title">Word Match</div>
+          <div class="game-desc">
+            Combine pares de palavras. Português com Inglês.
+            Perfeito para consolidar vocabulário.
+          </div>
+        </div>
+        <div class="game-card">
+          <div class="game-emoji">🟣</div>
+          <div class="game-title">Word Stack</div>
+          <div class="game-desc">
+            Organize palavras na ordem correta para formar frases.
+            Trabalha sua compreensão profunda.
+          </div>
+        </div>
+      </div>
+    </section>
+
+
+
+    
+
+
+
+
+
+    <!-- Classes Section -->
+    <section class="classes-section">
+      <div class="section-title">30 Tópicos de Gramática & Vocabulário 📚</div>
+      <div class="classes-intro">
+        <p>Cobrimos os padrões gramaticais que você realmente precisa. Cada tópico foi desenhado para situações reais, com exemplos práticos que você vai usar no dia a dia.</p>
+      </div>
+      
+      <div class="topics-grid">
+        <div class="topic-card">
+          <div class="topic-name">IS / ARE</div>
+          <div class="topic-desc">Domine a estrutura essencial do verbo 'ser/estar'</div>
+        </div>
+        <div class="topic-card">
+          <div class="topic-name">NUMBERS</div>
+          <div class="topic-desc">Conte, compre e negocie em qualquer situação</div>
+        </div>
+        <div class="topic-card">
+          <div class="topic-name">DO YOU HAVE</div>
+          <div class="topic-desc">Faça perguntas naturais sobre posse e coisas</div>
+        </div>
+        <div class="topic-card">
+          <div class="topic-name">GET</div>
+          <div class="topic-desc">Expresse obtenção, compreensão e movimento</div>
+        </div>
+        <div class="topic-card">
+          <div class="topic-name">GO / COME</div>
+          <div class="topic-desc">Comunique-se fluidamente sobre deslocamento</div>
+        </div>
+        <div class="topic-card">
+          <div class="topic-name">GOING TO</div>
+          <div class="topic-desc">Fale sobre planos e intenções futuras</div>
+        </div>
+        <div class="topic-card">
+          <div class="topic-name">HAVE / HAS</div>
+          <div class="topic-desc">Articule posse e experiências com confiança</div>
+        </div>
+        <div class="topic-card">
+          <div class="topic-name">HAVE TO / NEED TO</div>
+          <div class="topic-desc">Expresse obrigação, necessidade e dever</div>
+        </div>
+        <div class="topic-card">
+          <div class="topic-name">HERE / THERE</div>
+          <div class="topic-desc">Localize e descreva posições no espaço</div>
+        </div>
+        <div class="topic-card">
+          <div class="topic-name">HOW MUCH / HOW MANY</div>
+          <div class="topic-desc">Pergunte sobre quantidades e valores</div>
+        </div>
+        <div class="topic-card">
+          <div class="topic-name">HOW</div>
+          <div class="topic-desc">Explore maneiras, métodos e processos</div>
+        </div>
+        <div class="topic-card">
+          <div class="topic-name">IS / ARE (QUESTIONS)</div>
+          <div class="topic-desc">Formule perguntas precisas e naturais</div>
+        </div>
+        <div class="topic-card">
+          <div class="topic-name">CAN</div>
+          <div class="topic-desc">Expressa capacidade, permissão e possibilidade</div>
+        </div>
+        <div class="topic-card">
+          <div class="topic-name">DAYS OF THE WEEK</div>
+          <div class="topic-desc">Organize seu tempo e faça agendamentos</div>
+        </div>
+        <div class="topic-card">
+          <div class="topic-name">DIRECTIONS</div>
+          <div class="topic-desc">Peça e dê indicações com clareza</div>
+        </div>
+        <div class="topic-card">
+          <div class="topic-name">DO / DOES / DID</div>
+          <div class="topic-desc">Construa frases e perguntas com perfeição</div>
+        </div>
+        <div class="topic-card">
+          <div class="topic-name">LET ME / CAN I</div>
+          <div class="topic-desc">Faça pedidos e peça permissão formalmente</div>
+        </div>
+        <div class="topic-card">
+          <div class="topic-name">LIKE / LOVE / HATE</div>
+          <div class="topic-desc">Expresse gostos, preferências e opiniões</div>
+        </div>
+        <div class="topic-card">
+          <div class="topic-name">I'M LOOKING FOR</div>
+          <div class="topic-desc">Procure algo específico com facilidade</div>
+        </div>
+        <div class="topic-card">
+          <div class="topic-name">MONTHS & SEASONS</div>
+          <div class="topic-desc">Converse sobre datas e períodos do ano</div>
+        </div>
+        <div class="topic-card">
+          <div class="topic-name">MOODS & FEELINGS</div>
+          <div class="topic-desc">Expresse emoções com autenticidade e nuance</div>
+        </div>
+        <div class="topic-card">
+          <div class="topic-name">ORDERING FOOD</div>
+          <div class="topic-desc">Peça comida e bebidas em qualquer lugar</div>
+        </div>
+        <div class="topic-card">
+          <div class="topic-name">THIS / THAT</div>
+          <div class="topic-desc">Aponte e refira-se a objetos com precisão</div>
+        </div>
+        <div class="topic-card">
+          <div class="topic-name">WANT / NEED</div>
+          <div class="topic-desc">Declare desejos e necessidades claramente</div>
+        </div>
+        <div class="topic-card">
+          <div class="topic-name">AT THE DOCTOR'S OFFICE</div>
+          <div class="topic-desc">Descreva sintomas com confiança e entenda seu seguro</div>
+        </div>
+        <div class="topic-card">
+          <div class="topic-name">DRIVING & TRAFFIC STOP</div>
+          <div class="topic-desc">Comunique-se com segurança em situações de trânsito</div>
+        </div>
+        <div class="topic-card">
+          <div class="topic-name">RETURNING ITEMS TO STORE</div>
+          <div class="topic-desc">Negocie devoluções e reembolsos com confiança</div>
+        </div>
+        <div class="topic-card">
+          <div class="topic-name">PRICES & NEGOTIATING</div>
+          <div class="topic-desc">Entenda custos e negocie melhores condições</div>
+        </div>
+        <div class="topic-card">
+          <div class="topic-name">TOOLS & HARDWARE</div>
+          <div class="topic-desc">Peça e identifique ferramentas no home depot</div>
+        </div>
+        <div class="topic-card">
+          <div class="topic-name">MATERIALS & SUPPLIES</div>
+          <div class="topic-desc">Descreva materiais e quantidades que você precisa</div>
+        </div>
+      </div>
+
+      <div class="classes-benefits">
+        <div class="benefit-item">
+          <div class="benefit-icon">📚</div>
+          <div class="benefit-text">
+            <div class="benefit-title">30 Tópicos Essenciais</div>
+            <p>Todos os padrões gramaticais que você precisa para conversas reais</p>
+          </div>
+        </div>
+        <div class="benefit-item">
+          <div class="benefit-icon">🎯</div>
+          <div class="benefit-text">
+            <div class="benefit-title">100% Prático</div>
+            <p>Sem teoria chata. Apenas situações que você vai encontrar na vida real</p>
+          </div>
+        </div>
+        <div class="benefit-item">
+          <div class="benefit-icon">🎮</div>
+          <div class="benefit-text">
+            <div class="benefit-title">Aprender Jogando</div>
+            <p>3 modos de jogo diferentes para cada tópico. Nunca fica entediante</p>
+          </div>
+        </div>
+        <div class="benefit-item">
+          <div class="benefit-icon">⚡</div>
+          <div class="benefit-text">
+            <div class="benefit-title">Seu Ritmo</div>
+            <p>Escolha entre Fácil, Normal e Hard. Progrida quando estiver pronto</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+
+    <!-- Feedback Section -->
+    <section class="feedback-section">
+      <div class="section-title">Sua Opinião Importa 💬</div>
+      <div class="feedback-intro">
+        <p>Estamos construindo UNLOCK 2026 para você. Ajude-nos a melhorar compartilhando seu feedback!</p>
+        <p>Leva menos de 2 minutos para responder algumas questões rápidas.</p>
+      </div>
+      <div class="feedback-container">
+        <iframe src="https://docs.google.com/forms/d/e/YOUR_FORM_ID_HERE/viewform?embedded=true" width="100%" height="800" frameborder="0" marginheight="0" marginwidth="0">Carregando…</iframe>
+      </div>
+    </section>
+
+    <!-- FAQ Section -->
+    <section class="faq-section">
+      <div class="section-title">Perguntas Frequentes</div>
+
+      <div class="faq-item">
+        <div class="faq-question" onclick="toggleFaq(this)">
+          <span>Como funciona o sistema de streak?</span>
+          <span style="font-size: 20px;">+</span>
+        </div>
+        <div class="faq-answer">
+          Toda vez que você joga pelo menos uma vez por dia, seu streak aumenta.
+          Se perder um dia, seu streak reinicia. O streak multiplica seus pontos (até 2x em streaks longos).
+          Você também ganha 1 "shield" por semana para não perder o streak caso falte um dia.
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <div class="faq-question" onclick="toggleFaq(this)">
+          <span>Preciso pagar para jogar?</span>
+          <span style="font-size: 20px;">+</span>
+        </div>
+        <div class="faq-answer">
+          Não! UNLOCK 2026 é completamente gratuito. Não há anúncios, não há compras dentro do jogo.
+          Apenas jogue e divirta-se aprendendo inglês.
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <div class="faq-question" onclick="toggleFaq(this)">
+          <span>Qual nível de inglês preciso ter?</span>
+          <span style="font-size: 20px;">+</span>
+        </div>
+        <div class="faq-answer">
+          UNLOCK funciona para todos os níveis. Começamos com o básico (verbo TO BE, números)
+          e evoluímos para estruturas mais complexas. Ideal para iniciantes até pré-intermediários.
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <div class="faq-question" onclick="toggleFaq(this)">
+          <span>Posso usar em celular?</span>
+          <span style="font-size: 20px;">+</span>
+        </div>
+        <div class="faq-answer">
+          Sim! UNLOCK 2026 funciona em desktop, tablet e celular.
+          Mas o celular é o ideal - você pode jogar em qualquer lugar, qualquer hora.
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <div class="faq-question" onclick="toggleFaq(this)">
+          <span>Vou receber spam no meu email?</span>
+          <span style="font-size: 20px;">+</span>
+        </div>
+        <div class="faq-answer">
+          Não. Nós respeitamos sua caixa de entrada.
+          Você receberá apenas atualizações importantes sobre o projeto e quando o jogo estiver pronto para o lançamento oficial.
+        </div>
+      </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+      <p>🔓 UNLOCK 2026 © 2026 | Feito com ❤️ para aprendizes de inglês</p>
+      <p style="margin-top: 10px; font-size: 12px;">
+        <a href="#" style="color: var(--cyan); text-decoration: none;">Privacidade</a> •
+        <a href="#" style="color: var(--cyan); text-decoration: none;">Termos</a> •
+        <a href="#" style="color: var(--cyan); text-decoration: none;">Contato</a>
+      </p>
+    </footer>
+  </div>
+
+  <!-- Tour Spotlight Elements -->
+  <div id="tourSpotlightOverlay"></div>
+  <div id="tourHighlight"></div>
+  <div id="tourPointer">
+    <h3 id="tourPointerTitle"></h3>
+    <p id="tourPointerContent"></p>
+    <div id="tourPointerButtons">
+      <button onclick="previousSpotlightStep()">← Anterior</button>
+      <button onclick="nextSpotlightStep()">Próximo →</button>
+      <button onclick="closeSpotlightTour()" style="background: transparent; border: 1px solid var(--gray); color: var(--gray);">Sair</button>
+    </div>
+    <div id="tourStepCounter" style="text-align: center; color: var(--cyan); font-size: 12px; margin-top: 10px; font-family: 'Orbitron', sans-serif;"></div>
+  </div>
+
+  <!-- Tour Modal (fallback) -->
+  <div id="tourOverlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 9999; backdrop-filter: blur(3px);"></div>
+  <div id="tourModal" style="display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: linear-gradient(135deg, #1a2a4a, #0a1628); border: 2px solid var(--cyan); border-radius: 15px; padding: 40px; max-width: 600px; width: 90%; z-index: 10000; box-shadow: 0 0 50px rgba(0,191,255,0.3);">
+    <button onclick="closeTour()" style="position: absolute; top: 15px; right: 15px; background: none; border: none; color: var(--cyan); font-size: 24px; cursor: pointer; opacity: 0.7; transition: opacity 0.3s;">✕</button>
+
+    <h2 id="tourTitle" style="color: var(--gold); font-family: 'Orbitron', sans-serif; margin-bottom: 15px; font-size: 24px;"></h2>
+    <p id="tourContent" style="color: var(--white); line-height: 1.6; margin-bottom: 20px; font-size: 16px;"></p>
+
+    <div id="tourImage" style="margin: 20px 0; text-align: center; font-size: 60px; height: 80px; display: flex; align-items: center; justify-content: center;"></div>
+
+    <div style="display: flex; gap: 10px; margin-top: 30px;">
+      <button id="prevBtn" onclick="previousStep()" style="flex: 1; padding: 12px; background: rgba(0,191,255,0.2); border: 1px solid var(--cyan); color: var(--cyan); border-radius: 8px; cursor: pointer; font-family: 'Orbitron', sans-serif; opacity: 0.5;">← Anterior</button>
+      <div id="stepIndicator" style="flex: 1; text-align: center; color: var(--cyan); font-family: 'Orbitron', sans-serif;"></div>
+      <button id="nextBtn" onclick="nextStep()" style="flex: 1; padding: 12px; background: rgba(0,191,255,0.2); border: 1px solid var(--cyan); color: var(--cyan); border-radius: 8px; cursor: pointer; font-family: 'Orbitron', sans-serif;">Próximo →</button>
+    </div>
+    <button id="skipBtn" onclick="closeTour()" style="width: 100%; margin-top: 10px; padding: 10px; background: transparent; border: 1px solid var(--gray); color: var(--gray); border-radius: 8px; cursor: pointer; font-family: 'Orbitron', sans-serif;">Pular Tour</button>
+  </div>
+
+  <!-- Google Analytics (substitua UA-XXXXX-X com seu ID real) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-XXXXXXXXXX', {
+      'anonymize_ip': true
+    });
+  </script>
+
+  <script>
+    // ===== SPOTLIGHT TOUR SYSTEM =====
+    let currentSpotlightStep = 0;
+
+    const spotlightTours = [
+      {
+        title: "🎬 Bem-vindo ao Tour!",
+        content: "Vamos explorar UNLOCK 2026 juntos. Clique em Próximo para começar!",
+        element: null,
+        position: 'center'
+      },
+      {
+        title: "🔓 Logo do Projeto",
+        content: "UNLOCK 2026 - um jogo educativo que torna aprender inglês viciante como jogar videogame!",
+        element: '.logo',
+        position: 'bottom'
+      },
+      {
+        title: "📝 Hero Section",
+        content: "Este é o pitch principal. Explica o valor do projeto em poucas palavras.",
+        element: '.hero',
+        position: 'bottom'
+      },
+      {
+        title: "📧 Email Signup",
+        content: "Inscreva seu email aqui para ficar atualizado quando lançarmos a versão oficial. Sem spam!",
+        element: '.email-form',
+        position: 'left'
+      },
+      {
+        title: "▶ Botão Jogar",
+        content: "Clique aqui para ir direto para os games e começar a jogar AGORA!",
+        element: '.play-button',
+        position: 'left'
+      },
+      {
+        title: "🎮 3 Modos de Jogo",
+        content: "Word Drop, Word Match e Word Stack - cada um com sua mecânica única e desafiadora!",
+        element: '.features',
+        position: 'top'
+      },
+      {
+        title: "📊 Stats do Projeto",
+        content: "24+ classes, 3 modos, infinito aprendizado. Todos os dados rastreados localmente!",
+        element: '[style*=\"Stats\"]',
+        position: 'top'
+      },
+      {
+        title: "❓ Dúvidas?",
+        content: "Temos uma seção FAQ completa respondendo as perguntas mais frequentes sobre o projeto.",
+        element: '.faq-item:first-of-type',
+        position: 'top'
+      },
+      {
+        title: "✨ Você está pronto!",
+        content: "Agora você entende como UNLOCK 2026 funciona. Quer jogar? Clique em 'Jogar Agora'!",
+        element: '.play-button',
+        position: 'left'
+      }
+    ];
+
+    // Tour module for landing page
+    window.landingTour = {
+      steps: [
+        {
+          title: "🎬 Bem-vindo ao Tour!",
+          content: "Vamos explorar UNLOCK 2026 juntos. Você verá como funciona e poderá jogar em seguida!",
+          element: null,
+          position: 'center'
+        },
+        {
+          title: "🔓 Logo do Projeto",
+          content: "UNLOCK 2026 - um jogo educativo que torna aprender inglês viciante como jogar videogame!",
+          element: '.logo',
+          position: 'bottom'
+        },
+        {
+          title: "📝 Hero Section",
+          content: "Este é o pitch principal. Explica o valor do projeto em poucas palavras.",
+          element: '.hero',
+          position: 'bottom'
+        },
+        {
+          title: "📧 Email Signup",
+          content: "Inscreva seu email aqui para ficar atualizado quando lançarmos a versão oficial. Sem spam!",
+          element: '.email-form',
+          position: 'left'
+        },
+        {
+          title: "📚 24 Tópicos de Gramática",
+          content: "Cobrimos todos os padrões gramaticais essenciais. IS/ARE, NUMBERS, CAN, GOING TO, LIKE/HATE... Cada tópico em 3 modos de jogo!",
+          element: '.classes-section',
+          position: 'top'
+        },
+        {
+          title: "▶ Vamos Jogar!",
+          content: "Clique aqui para ir ao menu de jogos. O tour continuará lá mostrando como jogar!",
+          element: '.play-button',
+          position: 'left',
+          action: () => {
+            tourManager.goToPage('index', 0);
+          }
+        }
+      ],
+
+      show: function(step) {
+        currentSpotlightStep = step;
+        if (step < this.steps.length) {
+          spotlightTours = this.steps;
+          showSpotlightStep();
+        }
+      }
+    };
+
+    function startTour() {
+      currentSpotlightStep = 0;
+      showSpotlightStep();
+      if (window.gtag) gtag('event', 'tour_started');
+    }
+
+    function startFullTour() {
+      // Start full tour: landing → index
+      localStorage.setItem('unlock_tour_active', 'true');
+      currentSpotlightStep = 0;
+      showSpotlightStep();
+      if (window.gtag) gtag('event', 'full_tour_started');
+    }
+
+    function closeSpotlightTour() {
+      document.getElementById('tourSpotlightOverlay').style.display = 'none';
+      document.getElementById('tourHighlight').style.display = 'none';
+      document.getElementById('tourPointer').style.display = 'none';
+      if (window.gtag) gtag('event', 'tour_closed', { step: currentSpotlightStep });
+    }
+
+    function nextSpotlightStep() {
+      const currentStepObj = spotlightTours[currentSpotlightStep];
+
+      if (currentSpotlightStep < spotlightTours.length - 1) {
+        currentSpotlightStep++;
+
+        // Se é o último passo (index 4 = step 5), navega para index
+        if (currentSpotlightStep === spotlightTours.length - 1) {
+          // Último passo - mostrar e depois navegar
+          showSpotlightStep();
+          setTimeout(() => {
+            localStorage.setItem('unlock_tour_active', 'true');
+            window.location.href = './index.html';
+          }, 300);
+        } else {
+          showSpotlightStep();
+        }
+      } else {
+        // Já está no último passo, próximo clique sai do tour
+        if (localStorage.getItem('unlock_tour_active') === 'true') {
+          // Era tour completo, vai pro index
+          localStorage.setItem('unlock_tour_active', 'true');
+          window.location.href = './index.html';
+        } else {
+          // Era tour simples, só fecha
+          closeSpotlightTour();
+        }
+      }
+    }
+
+    function previousSpotlightStep() {
+      if (currentSpotlightStep > 0) {
+        currentSpotlightStep--;
+        showSpotlightStep();
+      }
+    }
+
+    function showSpotlightStep() {
+      const step = spotlightTours[currentSpotlightStep];
+      const overlay = document.getElementById('tourSpotlightOverlay');
+      const highlight = document.getElementById('tourHighlight');
+      const pointer = document.getElementById('tourPointer');
+
+      // Update content
+      document.getElementById('tourPointerTitle').textContent = step.title;
+      document.getElementById('tourPointerContent').textContent = step.content;
+      document.getElementById('tourStepCounter').textContent = `${currentSpotlightStep + 1} / ${spotlightTours.length}`;
+
+      // Show overlay and pointer
+      overlay.style.display = 'block';
+      pointer.style.display = 'block';
+
+      if (step.element) {
+        const element = document.querySelector(step.element);
+        if (element) {
+          // Show highlight box around element
+          const rect = element.getBoundingClientRect();
+          highlight.style.display = 'block';
+          highlight.style.top = (rect.top - 5) + 'px';
+          highlight.style.left = (rect.left - 5) + 'px';
+          highlight.style.width = (rect.width + 10) + 'px';
+          highlight.style.height = (rect.height + 10) + 'px';
+
+          // Position pointer based on step.position
+          const pointerWidth = pointer.offsetWidth;
+          const pointerHeight = pointer.offsetHeight;
+          let pointerTop, pointerLeft;
+
+          switch (step.position) {
+            case 'bottom':
+              pointerTop = rect.bottom + 30;
+              pointerLeft = rect.left + rect.width / 2 - pointerWidth / 2;
+              break;
+            case 'top':
+              pointerTop = rect.top - pointerHeight - 20;
+              pointerLeft = rect.left + rect.width / 2 - pointerWidth / 2;
+              break;
+            case 'left':
+              pointerTop = rect.top + rect.height / 2 - pointerHeight / 2;
+              pointerLeft = rect.left - pointerWidth - 20;
+              break;
+            case 'right':
+              pointerTop = rect.top + rect.height / 2 - pointerHeight / 2;
+              pointerLeft = rect.right + 20;
+              break;
+            case 'center':
+              pointerTop = window.innerHeight / 2 - pointerHeight / 2;
+              pointerLeft = window.innerWidth / 2 - pointerWidth / 2;
+              highlight.style.display = 'none';
+              break;
+          }
+
+          // Keep pointer in viewport
+          pointerTop = Math.max(20, Math.min(pointerTop, window.innerHeight - pointerHeight - 20));
+          pointerLeft = Math.max(20, Math.min(pointerLeft, window.innerWidth - pointerWidth - 20));
+
+          pointer.style.top = pointerTop + 'px';
+          pointer.style.left = pointerLeft + 'px';
+        }
+      } else {
+        highlight.style.display = 'none';
+        const pointerWidth = pointer.offsetWidth;
+        const pointerHeight = pointer.offsetHeight;
+        pointer.style.top = (window.innerHeight / 2 - pointerHeight / 2) + 'px';
+        pointer.style.left = (window.innerWidth / 2 - pointerWidth / 2) + 'px';
+      }
+
+      // Scroll element into view
+      if (step.element) {
+        const element = document.querySelector(step.element);
+        if (element) {
+          element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+      }
+    }
+
+    // Toggle FAQ
+    function toggleFaq(element) {
+      const answer = element.nextElementSibling;
+      const isOpen = answer.classList.contains('show');
+
+      // Close all
+      document.querySelectorAll('.faq-answer').forEach(a => a.classList.remove('show'));
+      document.querySelectorAll('.faq-question span:last-child').forEach(s => s.textContent = '+');
+
+      // Open clicked
+      if (!isOpen) {
+        answer.classList.add('show');
+        element.querySelector('span:last-child').textContent = '−';
+      }
+    }
+
+    // Handle email form submission
+    document.getElementById('emailForm').addEventListener('submit', async function(e) {
+      e.preventDefault();
+
+      const email = document.getElementById('emailInput').value;
+      const submitBtn = this.querySelector('.cta-button');
+      const originalText = submitBtn.textContent;
+
+      // Show loading state
+      submitBtn.textContent = '⏳ Enviando...';
+      submitBtn.disabled = true;
+
+      try {
+        // Send to Brevo API via serverless function
+        const response = await fetch('/api/subscribe', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ email })
+        });
+
+        const result = await response.json();
+
+        if (response.ok) {
+          // Track event
+          if (window.gtag) {
+            gtag('event', 'email_signup', {
+              'email': email,
+              'success': true
+            });
+          }
+
+          // Show success message
+          const message = result.alreadySubscribed
+            ? 'Você já está inscrito! 😊'
+            : 'Obrigado! Você receberá um email quando ficarmos prontos para lançamento. 💌';
+          alert(message);
+          document.getElementById('emailForm').reset();
+        } else {
+          // Track failure
+          if (window.gtag) {
+            gtag('event', 'email_signup_failed', {
+              'email': email,
+              'error': result.error
+            });
+          }
+
+          alert('Oops! Houve um problema ao inscrever-se. Por favor, tente novamente mais tarde.');
+          console.error('Subscription error:', result.error);
+        }
+      } catch (error) {
+        // Network error
+        if (window.gtag) {
+          gtag('event', 'email_signup_error', {
+            'error': error.message
+          });
+        }
+
+        alert('Erro de conexão. Por favor, verifique sua internet e tente novamente.');
+        console.error('Network error:', error);
+      } finally {
+        // Restore button state
+        submitBtn.textContent = originalText;
+        submitBtn.disabled = false;
+      }
+    });
+
+    // Track page view
+    if (window.gtag) {
+      gtag('event', 'page_view', {
+        'page_title': 'UNLOCK 2026 Landing',
+        'page_location': window.location.href
+      });
+    }
+  </script>
+
+  <!-- Tour Manager (carregar DEPOIS dos módulos de tour) -->
+  <script src="./assets/tour-manager.js"></script>
+</body>
+</html>
